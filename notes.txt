@@ -1,1 +1,24 @@
 Are we allowed to use 'using'
+
+
+https://www3.ntu.edu.sg/home/ehchua/programming/webprogramming/http_basics.html
+Content-Length: number-of-bytes - Used by POST request, to inform the server the length of the request body.
+Content-Type: mime-type - Used by POST request, to inform the server the media type of the request body.
+
+/////////////// Subject - Set a default file to answer if the request is a directory
+Suppose that a directory called "testdir" is present in the document base directory "htdocs".
+If a client issues a GET request to "/testdir/" (i.e., at the directory).
+
+    The server will return "/testdir/index.html" if the directory contains a "index.html" file.
+    Otherwise, the server returns the directory listing, if directory listing is enabled in the server configuration.
+    Otherwise, the server returns "404 Page Not Found".
+///////////////
+
+
+////
+The server uses a MIME configuration file (called "conf\mime.types") to map the file extension to a media type,
+so that it can ascertain the media type of the file by looking at its file extension.
+For example, file extensions ".htm", ".html" are associated with MIME media type "text/html",
+file extension of ".jpg", ".jpeg" are associated with "image/jpeg". When a file is returned to the client,
+the server has to put up a Content-Type response header to inform the client the media type of the data.
+///
