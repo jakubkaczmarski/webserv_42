@@ -1,6 +1,6 @@
 #include "webserv.hpp"
 
-void	SuccessCheck(int check, std::string message)
+void	successCheck(int check, std::string message)
 {
 	if (check < 0)
 	{
@@ -31,7 +31,7 @@ int	main( void )
 
 	listenSocket = socket(PF_INET, SOCK_STREAM, 0);
 
-	SuccessCheck(listenSocket, "Creating listenSocket");
+	successCheck(listenSocket, "Creating listenSocket");
 
 	memset(&serverAddress, 0, sizeOfServerAddress);
 	serverAddress.sin_family		= PF_INET;
@@ -40,11 +40,11 @@ int	main( void )
 
 	returnChecks = bind(listenSocket, (SA *) &serverAddress, sizeOfServerAddress);
 
-	SuccessCheck(returnChecks, "Binding listenSocket");
+	successCheck(returnChecks, "Binding listenSocket");
 
 	returnChecks = listen(listenSocket, SOCKET_BACKLOG);
 
-	SuccessCheck(returnChecks, "Setting up listening for listenSocket");
+	successCheck(returnChecks, "Setting up listening for listenSocket");
 
 
 	while (1)
@@ -56,7 +56,7 @@ int	main( void )
 		memset(receivingBuffer, 0, MAX_LINE + 1);
 		while(((returnChecks = recv(connectionSocket, receivingBuffer, MAX_LINE, 0)) > 0))
 		{
-			SuccessCheck(returnChecks, "Reading into receivingBuffer out of connectionSocket");
+			successCheck(returnChecks, "Reading into receivingBuffer out of connectionSocket");
 			fullReceivedRequest.append(receivingBuffer);
 			if (receivingBuffer[returnChecks - 1] == '\n')
 				break;
@@ -66,14 +66,14 @@ int	main( void )
 		cout << "This is the full Request" << RESET_LINE;
 		cout << fullReceivedRequest << endl << endl;
 
-		SuccessCheck(connectionSocket, "Creating ConnectionSocket");
+		successCheck(connectionSocket, "Creating ConnectionSocket");
 
 		returnChecks = send(connectionSocket, sendingBuffer, strlen(sendingBuffer), 0);
 		
-		SuccessCheck(returnChecks, "Sending message into connectionSocket");
+		successCheck(returnChecks, "Sending message into connectionSocket");
 		
 		returnChecks = close(connectionSocket);
 
-		SuccessCheck(returnChecks, "Closing connectionSocket");
+		successCheck(returnChecks, "Closing connectionSocket");
 	}
 }
