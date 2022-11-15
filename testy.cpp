@@ -7,6 +7,8 @@ int main( void )
 	placeholder placey();
 
 	cout << "hiello" << endl;
-	// while 
-	// classs.request
+	while(true)
+	{
+		placey.request();
+	}
 }

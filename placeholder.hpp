@@ -49,6 +49,11 @@ class placeholder
 			failTest(listen(serverSocket, SOCKET_BACKLOG),						// SOMAXCONN???
 						"listen() of Server Socket");
 		}; // probably here address
+
+		void		request( void )
+		{
+			
+		}
 	public:
 		placeholder()
 		{
