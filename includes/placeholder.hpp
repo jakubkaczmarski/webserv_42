@@ -9,6 +9,7 @@ typedef struct t_request
 	std::string								URI;
 	std::string								httpVers;
 	std::map<std::string, std::string>		headers;
+	std::string								body; //for now string
 }	s_request;
 
 class placeholder
@@ -62,13 +63,24 @@ class placeholder
 
 		void	fillRequestStruct(std::string &fullRequest)
 		{
+			//get request line
 			std::string	requestLine = fullRequest.substr(0, fullRequest.find('\n'));
 			std::vector<string> requestLineV = split(requestLine, ' ');
 			currRequest.method		= requestLineV[0];
 			currRequest.URI			= requestLineV[1];
 			currRequest.httpVers	= requestLineV[2];
 
-			std::string			headers = fullRequest.substr(fullRequest.find('\n') + 1, fullRequest.find("\n\n"));
+			//print out request line
+			// cout << "method = " << currRequest.method << endl;
+			// cout << "URI = " << currRequest.URI << endl;
+			// cout << "httpVers = " << currRequest.httpVers << endl;
+
+			//get headers
+			int begin	= fullRequest.find('\n') + 1;
+			int size	= fullRequest.find("\r\n\r\n") - begin;
+			std::string	headers = fullRequest.substr(begin, size);
+			cout << YELLOW << headers << RESET_LINE;
+			cout << YELLOW << headers[127] << RESET_LINE;
 			std::vector<string> headersVector = split(headers, '\n');
 			std::vector<string> key_value;
 			size_t vectorSize = headersVector.size();
@@ -83,6 +95,21 @@ class placeholder
 			// {
 			// 	cout << RED << i.first << ": " << i.second << RESET_LINE;
 			// }
+
+			//get body
+			
+
+			if (currRequest.headers.end() != currRequest.headers.find("Content-Length")) // or 
+			{
+				begin		= fullRequest.find("\r\n\r\n") + 4;
+				size		= stoi(currRequest.headers.at("Content-Length"));
+				cout << begin << endl;
+				cout << size << endl;
+				std::string	body = fullRequest.substr(begin, size);
+				cout << RED << body << RESET_LINE;
+				// cout << RED << "BODY" << fullRequest[149] << RESET_LINE;
+			}
+			
 
 			
 
@@ -110,9 +137,7 @@ class placeholder
 			}
 
 
-			// cout << "method = " << currRequest.method << endl;
-			// cout << "URI = " << currRequest.URI << endl;
-			// cout << "httpVers = " << currRequest.httpVers << endl;
+
 
 		}
 
