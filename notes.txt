@@ -22,3 +22,7 @@ For example, file extensions ".htm", ".html" are associated with MIME media type
 file extension of ".jpg", ".jpeg" are associated with "image/jpeg". When a file is returned to the client,
 the server has to put up a Content-Type response header to inform the client the media type of the data.
 ///
+
+____NGINX_CONFIGURATION_FILE
+https://www.youtube.com/watch?v=NEf3CFjN0Dg
+https://www.youtube.com/watch?v=C5kMgshNc6g
