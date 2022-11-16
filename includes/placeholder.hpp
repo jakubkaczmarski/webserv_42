@@ -5,9 +5,10 @@
 
 typedef struct t_request
 {
-	std::string		method;
-	std::string		URI;
-	std::string		httpVers;
+	std::string								method;
+	std::string								URI;
+	std::string								httpVers;
+	std::map<std::string, std::string>		headers;
 }	s_request;
 
 class placeholder
@@ -59,24 +60,66 @@ class placeholder
 						"listen() of Server Socket");
 		}; // probably here address
 
-		s_request	&fillRequestStruct(std::string &fullRequest)
+		void	fillRequestStruct(std::string &fullRequest)
 		{
-			std::string		firstLine = fullRequest.substr(0, fullRequest.find('\n'));
+			// std::string		firstLine = fullRequest.substr(0, fullRequest.find('\n'));
 			currRequest.method = fullRequest.substr(0, fullRequest.find(' '));
 			std::string		tempstr = fullRequest.substr(fullRequest.find(' ') + 1, fullRequest.size());
 			currRequest.URI = tempstr.substr(0, tempstr.find(' '));
 			currRequest.httpVers = tempstr.substr(tempstr.find(' ') + 1, tempstr.size());
-			return (currRequest);
+
+			std::string		workstr = fullRequest.substr(fullRequest.find('\n') + 1, fullRequest.find("\n\n"));
+
+			// cout << workstr << endl;
+			std::vector<string> outputArray;
+			// while(1)
+			while (workstr.size() > 1)
+			{
+				std::string		tempy = workstr.substr(0, workstr.find('\n'));
+				outputArray = split(tempy, ':', 1);
+				currRequest.headers.insert(std::make_pair(outputArray[0], outputArray[1]));
+				workstr = workstr.substr(workstr.find('\n') + 1, workstr.size());
+			}
+			
+
+			// {
+			// 	std::pair<std::string, std::string> tmp_pair(workstr.substr(0, workstr.find(':')), workstr.substr(workstr.find(':') + 2, workstr.find('\n')));
+			// 	currRequest.headers.insert(tmp_pair);
+			// 	// currRequest.headers.insert(
+			// }
+
+			// typedef typename std::map<std::string, std::string>::iterator		map_it;
+			// map_it		it		= currRequest.headers.begin();
+			// map_it		it_e	= currRequest.headers.end();
+
+
+			// cout << "here we start the map pritn" << endl;
+			// for (; it != it_e; it++)
+			// {
+			// 	cout << it->first << ": ";
+			// 	cout << it->second << endl;
+			// }
+
+			// cout << RED << "trying to find stuff    " << currRequest.headers.at("DNT") << RESET_LINE;
+
+
+			// cout << "here we end the map pritn" << endl;
+			// for (auto i: currRequest.headers)
+			// {
+			// 	cout << i.first << " ";
+			// 	cout << i.second << endl;
+			// }
+
+			
 
 		}
 
 		void		handleRequest(std::string &fullRequest)
 		{
-			s_request		currRequest = fillRequestStruct(fullRequest);
-
-
+			fillRequestStruct(fullRequest);
 			if (currRequest.method.compare("GET") == 0)
 			{
+				// fillHeadersMap(fullRequest);
 				cout << "its a get request :)" << endl;
 			}
 			else if (currRequest.method.compare("POST") == 0)
@@ -93,9 +136,9 @@ class placeholder
 			}
 
 
-			cout << "method = " << currRequest.method << endl;
-			cout << "URI = " << currRequest.URI << endl;
-			cout << "httpVers = " << currRequest.httpVers << endl;
+			// cout << "method = " << currRequest.method << endl;
+			// cout << "URI = " << currRequest.URI << endl;
+			// cout << "httpVers = " << currRequest.httpVers << endl;
 
 		}
 
@@ -137,6 +180,7 @@ class placeholder
 			}
 
 			handleRequest(fullRequest);
+
 			// funciton to determine what kind of request
 
 			// here we call the corresponding request funciton
