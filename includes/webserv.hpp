@@ -17,6 +17,8 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::strerror;
+using std::string;
+using std::stringstream;
 
 #define PORT_NBR 60000 
 #define MAX_LINE 4096
