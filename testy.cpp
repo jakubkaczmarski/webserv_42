@@ -1,6 +1,6 @@
-#include "webserv.hpp"
+#include "./includes/webserv.hpp"
 
-#include "placeholder.hpp"
+#include "./includes/placeholder.hpp"
 
 int main( void )
 {
