@@ -6,6 +6,9 @@
 #include <iostream>
 #include <cerrno>
 #include <cstring>
+#include <sstream>
+#include <vector>
+#include <map>
 
 #include <unistd.h>
 
@@ -25,4 +28,6 @@ using std::stringstream;
 #define SA struct sockaddr
 #define SOCKET_BACKLOG 1024
 
+
+std::vector<std::string> split(std::string &str, const char sep, bool flag);
 #endif

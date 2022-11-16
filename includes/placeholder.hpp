@@ -68,47 +68,19 @@ class placeholder
 			currRequest.URI = tempstr.substr(0, tempstr.find(' '));
 			currRequest.httpVers = tempstr.substr(tempstr.find(' ') + 1, tempstr.size());
 
-			std::string		workstr = fullRequest.substr(fullRequest.find('\n') + 1, fullRequest.find("\n\n"));
-
+			std::string		headers = fullRequest.substr(fullRequest.find('\n') + 1, fullRequest.find("\n\n"));
+			std::vector<string> headers_vector = split(headers, '\n');
 			// cout << workstr << endl;
-			std::vector<string> outputArray;
+			// std::vector<string> outputArray;
 			// while(1)
-			while (workstr.size() > 1)
+			while (headers.size() > 1)
 			{
-				std::string		tempy = workstr.substr(0, workstr.find('\n'));
+				std::string		tempy = headers.substr(0, headers.find('\n'));
+				cout << YELLOW << tempy << RESET_LINE << endl;
 				outputArray = split(tempy, ':', 1);
-				currRequest.headers.insert(std::make_pair(outputArray[0], outputArray[1]));
-				workstr = workstr.substr(workstr.find('\n') + 1, workstr.size());
+			// 	currRequest.headers.insert(std::make_pair(outputArray[0], outputArray[1]));
+				headers = headers.substr(headers.find('\n') + 1, headers.size());
 			}
-			
-
-			// {
-			// 	std::pair<std::string, std::string> tmp_pair(workstr.substr(0, workstr.find(':')), workstr.substr(workstr.find(':') + 2, workstr.find('\n')));
-			// 	currRequest.headers.insert(tmp_pair);
-			// 	// currRequest.headers.insert(
-			// }
-
-			// typedef typename std::map<std::string, std::string>::iterator		map_it;
-			// map_it		it		= currRequest.headers.begin();
-			// map_it		it_e	= currRequest.headers.end();
-
-
-			// cout << "here we start the map pritn" << endl;
-			// for (; it != it_e; it++)
-			// {
-			// 	cout << it->first << ": ";
-			// 	cout << it->second << endl;
-			// }
-
-			// cout << RED << "trying to find stuff    " << currRequest.headers.at("DNT") << RESET_LINE;
-
-
-			// cout << "here we end the map pritn" << endl;
-			// for (auto i: currRequest.headers)
-			// {
-			// 	cout << i.first << " ";
-			// 	cout << i.second << endl;
-			// }
 
 			
 
