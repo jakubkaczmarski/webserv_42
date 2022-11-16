@@ -1,4 +1,4 @@
-SRC = testy.cpp
+SRC = testy.cpp split.cpp
 EXEC_NAME = exec
 
 PINK    := \033[0;35m
