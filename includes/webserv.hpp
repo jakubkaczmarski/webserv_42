@@ -29,5 +29,5 @@ using std::stringstream;
 #define SOCKET_BACKLOG 1024
 
 
-std::vector<std::string> split(std::string &str, const char sep, bool flag);
+std::vector<std::string> split(std::string &str, const char sep, const int &flag=0);
 #endif
