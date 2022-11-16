@@ -62,25 +62,27 @@ class placeholder
 
 		void	fillRequestStruct(std::string &fullRequest)
 		{
-			// std::string		firstLine = fullRequest.substr(0, fullRequest.find('\n'));
-			currRequest.method = fullRequest.substr(0, fullRequest.find(' '));
-			std::string		tempstr = fullRequest.substr(fullRequest.find(' ') + 1, fullRequest.size());
-			currRequest.URI = tempstr.substr(0, tempstr.find(' '));
-			currRequest.httpVers = tempstr.substr(tempstr.find(' ') + 1, tempstr.size());
+			std::string	requestLine = fullRequest.substr(0, fullRequest.find('\n'));
+			std::vector<string> requestLineV = split(requestLine, ' ');
+			currRequest.method		= requestLineV[0];
+			currRequest.URI			= requestLineV[1];
+			currRequest.httpVers	= requestLineV[2];
 
-			std::string		headers = fullRequest.substr(fullRequest.find('\n') + 1, fullRequest.find("\n\n"));
-			std::vector<string> headers_vector = split(headers, '\n');
-			// cout << workstr << endl;
-			// std::vector<string> outputArray;
-			// while(1)
-			while (headers.size() > 1)
+			std::string			headers = fullRequest.substr(fullRequest.find('\n') + 1, fullRequest.find("\n\n"));
+			std::vector<string> headersVector = split(headers, '\n');
+			std::vector<string> key_value;
+			size_t vectorSize = headersVector.size();
+			for (size_t i = 0; i < vectorSize - 1; i++)
 			{
-				std::string		tempy = headers.substr(0, headers.find('\n'));
-				cout << YELLOW << tempy << RESET_LINE << endl;
-				outputArray = split(tempy, ':', 1);
-			// 	currRequest.headers.insert(std::make_pair(outputArray[0], outputArray[1]));
-				headers = headers.substr(headers.find('\n') + 1, headers.size());
+				key_value = split(headersVector[i], ':', 1);
+				currRequest.headers.insert(std::make_pair(key_value[0], key_value[1]));
 			}
+			
+			//print headers to terminal
+			// for (auto i : currRequest.headers)
+			// {
+			// 	cout << RED << i.first << ": " << i.second << RESET_LINE;
+			// }
 
 			
 
