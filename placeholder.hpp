@@ -50,10 +50,7 @@ class placeholder
 						"listen() of Server Socket");
 		}; // probably here address
 
-		void		request( void )
-		{
-			
-		}
+
 	public:
 		placeholder()
 		{
@@ -65,11 +62,39 @@ class placeholder
 		{
 		};
 
+		void		request( void )
+		{
+			//Request-Line				= Method SP Request-URI SP HTTP-Version CRLF
+			//CR = Carriage return		= \r
+			//LF = Line Feed			= \n
+			int		requestSocket;
+			int		recvReturn;
+			char	receivingBuffer[MAX_LINE + 1];
+			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.0 200 OK\r\n\r\nThis is a welcoming message version 2!"; // example answer for request
 
+			requestSocket = accept(serverSocket, (SA *) NULL, NULL);
+			failTest(requestSocket, "accept() Socket");
+			memset(receivingBuffer, 0, MAX_LINE + 1);	
+			currRequest.clear();
+			while(((recvReturn = recv(requestSocket, receivingBuffer, MAX_LINE, 0)) > 0))
+			{
+				failTest(recvReturn, "Reading into receivingBuffer out of requestSocket");
+				currRequest.append(receivingBuffer);
+				if (receivingBuffer[recvReturn - 1] == '\n' && receivingBuffer[recvReturn - 2] == '\r')
+					break;
+				memset(receivingBuffer, 0, MAX_LINE);
+			}
 
+			// proccess the request here to get an answer
+
+			failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
+						"Sending answer to Request to requestSocket");
+
+			failTest(close(requestSocket),
+						"Sending answer to Request to requestSocket");
+			cout << "This is the full Request" << RESET_LINE;
+			cout << endl << currRequest << endl << endl;
+		}
 };
-
-
-
 
 #endif

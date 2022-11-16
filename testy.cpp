@@ -4,9 +4,8 @@
 
 int main( void )
 {
-	placeholder placey();
+	placeholder placey;
 
-	cout << "hiello" << endl;
 	while(true)
 	{
 		placey.request();
