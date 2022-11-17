@@ -156,7 +156,7 @@ class placeholder
 			// currRequest.URI.clear();
 		}
 
-		void readFromFile()
+		// void readFromFile()
 
 
 	public:
