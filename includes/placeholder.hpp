@@ -149,11 +149,14 @@ class placeholder
 			}
 
 
-
-
+			currRequest.headers.clear();
+			currRequest.body.clear();
+			// currRequest.httpVers.clear();
+			// currRequest.method.clear();
+			// currRequest.URI.clear();
 		}
 
-
+		void readFromFile()
 
 
 	public:
@@ -175,7 +178,7 @@ class placeholder
 			int		requestSocket;
 			int		recvReturn;
 			char	receivingBuffer[MAX_LINE + 1];
-			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.0 200 OK\r\n\r\nThis is a welcoming message version 2!"; // example answer for request
+			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.0 200 OK\r\n\r\n<html>This is a welcoming message version 2!</html>"; // example answer for request
 
 			requestSocket = accept(serverSocket, (SA *) NULL, NULL);
 			failTest(requestSocket, "accept() Socket");
@@ -191,11 +194,6 @@ class placeholder
 			}
 
 			handleRequest(fullRequest);
-			currRequest.headers.clear();
-			currRequest.body.clear();
-			// currRequest.httpVers.clear();
-			// currRequest.method.clear();
-			// currRequest.URI.clear();
 			// funciton to determine what kind of request
 
 			// here we call the corresponding request funciton
