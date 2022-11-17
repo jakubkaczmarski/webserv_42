@@ -156,9 +156,31 @@ class placeholder
 			// currRequest.URI.clear();
 		}
 
-		// void readFromFile()
+		void sendFile(int requestSocket)
+		{
+			ifstream fileToSend;
+			char readBuffer[MAX_LINE];
+			// fileToSend.open("/home/kis619/Desktop/webserv_42/database/cute.png");
+			fileToSend.open("/home/kis619/Desktop/webserv_42/database/index.html");
+			if (!fileToSend.is_open())
+			{
+				cout << "Error opening the file" << endl;
+				// exit(69); does
+			}
 
-
+			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\r\n\r\n"; 
+			failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
+						"Sending answer to Request to requestSocket");
+			while(fileToSend)
+			{
+				fileToSend.read(readBuffer, MAX_LINE);
+				cout << PURPLE << readBuffer << RESET_LINE;
+				cout << PURPLE << strlen(readBuffer) << RESET_LINE;
+				failTest(send(requestSocket, readBuffer, strlen(readBuffer), 0),
+						"Sending answer to Request to requestSocket");
+				memset(readBuffer, 0, MAX_LINE);
+			}
+		}
 	public:
 		placeholder()
 		{
@@ -178,8 +200,9 @@ class placeholder
 			int		requestSocket;
 			int		recvReturn;
 			char	receivingBuffer[MAX_LINE + 1];
-			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.0 200 OK\r\n\r\n<html>This is a welcoming message version 2!</html>"; // example answer for request
+			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\r\n\r\n<html>This is a welcoming message version 2!<h1>NOOO</h1></html>"; // example answer for request
 
+			cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
 			requestSocket = accept(serverSocket, (SA *) NULL, NULL);
 			failTest(requestSocket, "accept() Socket");
 			memset(receivingBuffer, 0, MAX_LINE + 1);	
@@ -194,15 +217,16 @@ class placeholder
 			}
 
 			handleRequest(fullRequest);
+			sendFile(requestSocket);
 			// funciton to determine what kind of request
 
 			// here we call the corresponding request funciton
 
 			// proccess the request here to get an answer
 
-			failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
-						"Sending answer to Request to requestSocket");
-
+			// failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
+			// 			"Sending answer to Request to requestSocket");
+			// cout << strlen("HTTP/1.1 200 OK\r\n\r\n") << endl;
 			failTest(close(requestSocket),
 						"Sending answer to Request to requestSocket");
 			cout << "This is the full Request" << RESET_LINE;
