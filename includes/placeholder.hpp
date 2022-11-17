@@ -61,7 +61,7 @@ class placeholder
 						"listen() of Server Socket");
 		}; // probably here address
 
-		void	fillRequestStruct(std::string &fullRequest)
+		void fillRequestLineItems(string &fullRequest)
 		{
 			//get request line
 			std::string	requestLine = fullRequest.substr(0, fullRequest.find('\n'));
@@ -70,49 +70,61 @@ class placeholder
 			currRequest.URI			= requestLineV[1];
 			currRequest.httpVers	= requestLineV[2];
 
-			//print out request line
-			// cout << "method = " << currRequest.method << endl;
-			// cout << "URI = " << currRequest.URI << endl;
-			// cout << "httpVers = " << currRequest.httpVers << endl;
+			// print out request line
+			cout << YELLOW << "method = " << currRequest.method << endl;
+			cout << "URI = " << currRequest.URI << endl;
+			cout << "httpVers = " << currRequest.httpVers << RESET_LINE;
+		}
 
+		void	fillRequestHeaders(string &fullRequest)
+		{
 			//get headers
 			int begin	= fullRequest.find('\n') + 1;
 			int size	= fullRequest.find("\r\n\r\n") - begin;
 			std::string	headers = fullRequest.substr(begin, size);
-			cout << YELLOW << headers << RESET_LINE;
-			cout << YELLOW << headers[127] << RESET_LINE;
 			std::vector<string> headersVector = split(headers, '\n');
 			std::vector<string> key_value;
 			size_t vectorSize = headersVector.size();
-			for (size_t i = 0; i < vectorSize - 1; i++)
+			for (size_t i = 0; i < vectorSize; i++)
 			{
 				key_value = split(headersVector[i], ':', 1);
 				currRequest.headers.insert(std::make_pair(key_value[0], key_value[1]));
 			}
 			
-			//print headers to terminal
-			// for (auto i : currRequest.headers)
-			// {
-			// 	cout << RED << i.first << ": " << i.second << RESET_LINE;
-			// }
+			// print headers to terminal
+			for (auto i : currRequest.headers)
+			{
+				cout << RED << i.first << ": " << i.second << RESET_LINE;
+			}
+		}
 
+		void fillRequestBody(std::string &fullRequest)
+		{
 			//get body
-			
-
+			size_t	begin;
+			size_t	size;
 			if (currRequest.headers.end() != currRequest.headers.find("Content-Length")) // or 
 			{
 				begin		= fullRequest.find("\r\n\r\n") + 4;
 				size		= stoi(currRequest.headers.at("Content-Length"));
-				cout << begin << endl;
-				cout << size << endl;
+				// cout << begin << endl;
+				// cout << size << endl;
 				std::string	body = fullRequest.substr(begin, size);
-				cout << RED << body << RESET_LINE;
+				currRequest.body = body;
+				// cout << RED << body << RESET_LINE;
 				// cout << RED << "BODY" << fullRequest[149] << RESET_LINE;
 			}
-			
+			// else if (currRequest.headers.end() != currRequest.headers.find("Content-Length"))
 
-			
+			//print body
+			cout << PURPLE << currRequest.body << RESET_LINE;
+		}
 
+		void	fillRequestStruct(std::string &fullRequest)
+		{
+			fillRequestLineItems(fullRequest);
+			fillRequestHeaders(fullRequest);
+			fillRequestBody(fullRequest);
 		}
 
 		void		handleRequest(std::string &fullRequest)
@@ -179,7 +191,11 @@ class placeholder
 			}
 
 			handleRequest(fullRequest);
-
+			currRequest.headers.clear();
+			currRequest.body.clear();
+			// currRequest.httpVers.clear();
+			// currRequest.method.clear();
+			// currRequest.URI.clear();
 			// funciton to determine what kind of request
 
 			// here we call the corresponding request funciton
