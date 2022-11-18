@@ -2,6 +2,8 @@
 #define PLACEHOLDER_HPP
 #include "webserv.hpp"
 // #include <iostream>
+#include <fstream>
+#include <vector>
 
 typedef struct t_request
 {
@@ -12,6 +14,14 @@ typedef struct t_request
 	std::string								body; //for now string
 }	s_request;
 
+typedef struct t_response
+{
+	std::string								httpVers;
+	std::string								statusMessage;			// number + message
+	std::string								headers;
+	std::string								body;					// getBinary()
+}	s_response;
+
 class placeholder
 {
 	private:
@@ -21,6 +31,7 @@ class placeholder
 		int					sizeOfServerAddress = sizeof(serverAddress);
 		std::string			fullRequest;
 		s_request			currRequest;
+		s_response			currResponse;
 
 
 		void	failTest( int check, std::string message )
@@ -116,7 +127,7 @@ class placeholder
 			}
 			// else if (currRequest.headers.end() != currRequest.headers.find("Content-Length"))
 
-			//print body
+			// print body
 			cout << PURPLE << currRequest.body << RESET_LINE;
 		}
 
@@ -156,6 +167,119 @@ class placeholder
 			// currRequest.URI.clear();
 		}
 
+		int getFileSize(const std::string &fileName)
+		{
+			ifstream file(fileName.c_str(), ifstream::in | ifstream::binary);
+
+			if(!file.is_open())
+			{
+				return -1;
+			}
+
+			file.seekg(0);
+			int fileSize = file.tellg();
+			file.close();
+
+			return fileSize;
+		}
+		void sendImage(int requestSocket)
+		{
+			ifstream		imageToSend;
+			char			readBuffer[MAX_LINE + 1];
+
+			imageToSend.open("./database/UFF.png");
+			if (!imageToSend.is_open())
+			{
+				cout << "Error opening the image" << endl;
+				// exit(69); does
+			}
+			// std::string tempp = getBinary("./database/Error_404.png");
+			// std::string tempp = getBinary("./database/index.html");
+			// std::string tempp = getImage("./database/Error_404.png");
+			// const char * temp2 = tempp.c_str();
+			// send(requestSocket, temp2, tempp.size(), 0);
+			std::string temp = ("./database/Error_404.png");
+			sendResponse(requestSocket, temp);
+		}
+
+
+		// std::vector<char>	getBinary(std::string path, std::string file_type)
+		std::string		getBinary(std::string &path, long *size)
+		{
+			FILE	*file_stream = fopen(path.c_str(), "rb");
+			if(file_stream == nullptr)
+			{
+				cout << RED << "errormessage for filestream in getBinary!" << RESET_LINE;
+			}
+			else
+			{
+				fseek(file_stream, 0, SEEK_END);
+				*size = ftell(file_stream);
+				cout << RED << *size << RESET_LINE;
+				rewind(file_stream);
+				std::vector<char>  binaryVector;
+				binaryVector.resize(*size);
+				fread(&binaryVector[0], 1, *size, file_stream);
+				std::string binaryString;
+				for(long i = 0; i < *size; i++)
+				{
+					binaryString.push_back(binaryVector[i]);
+				}
+				cout << GREEN << binaryString.size() << RESET_LINE;
+				return binaryString;
+			}
+			exit(-1);
+		}
+
+
+
+		std::string getImage(const std::string &full_path)
+		{
+			const char* file_name = full_path.c_str();
+			FILE* file_stream = fopen(file_name, "rb");
+			std::string file_str;
+			size_t file_size;
+			if(file_stream != nullptr)
+			{
+				fseek(file_stream, 0, SEEK_END);
+				long file_length = ftell(file_stream);
+				rewind(file_stream);
+				char* buffer = (char*) malloc(sizeof(char) * file_length);
+				if(buffer != nullptr)
+				{
+					file_size = fread(buffer, 1, file_length, file_stream);
+					stringstream out;
+					for(int i = 0; i < file_size; i++)
+					{
+						out << buffer[i];
+					}
+					file_str = out.str();
+				}
+				else
+				{
+					printf("buffer is null!");
+				}
+			}
+			else
+			{
+				printf("file_stream is null! file name -> %s\n", file_name);
+			}
+			std::string html = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-4 \r\n\r\n" + string("FILE NOT FOUND!!");
+			if(file_str.length() > 0)
+			{
+				// HTTP/1.0 200 OK
+				// Server: cchttpd/0.1.0
+				// Content-Type: image/gif
+				// Content-Transfer-Encoding: binary
+				// Content-Length: 41758
+				std::string file_size_str = std::to_string(file_str.length());
+				html = "HTTP/1.1 200 Okay\r\nContent-Type: image/png; Content-Transfer-Encoding: binary; Content-Length: " + file_size_str + ";charset=ISO-8859-4 \r\n\r\n" + file_str;
+				printf("\n\nHTML -> %s\n\nfile_str -> %ld\n\n\n", html.c_str(), file_str.length());
+			}
+			return html;
+		}
+
+
 		void sendFile(int requestSocket)
 		{
 			ifstream fileToSend;
@@ -168,18 +292,60 @@ class placeholder
 				// exit(69); does
 			}
 
-			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\r\n\r\n"; 
+			// char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: \r\n\r\n"; 
+			char		sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: 331777\r\n\r\n"; 
+
+			// HTTP/1.0 200 Ok
+			// Content-Type: image/png
+			// Content-Length: 14580053
 			failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
 						"Sending answer to Request to requestSocket");
+			int i = 0;
 			while(fileToSend)
 			{
 				fileToSend.read(readBuffer, MAX_LINE);
-				cout << PURPLE << readBuffer << RESET_LINE;
-				cout << PURPLE << strlen(readBuffer) << RESET_LINE;
+				// cout << PURPLE << readBuffer << RESET_LINE;
+				// cout << PURPLE << strlen(readBuffer) << RESET_LINE;
+				// fileToSend.
 				failTest(send(requestSocket, readBuffer, strlen(readBuffer), 0),
 						"Sending answer to Request to requestSocket");
 				memset(readBuffer, 0, MAX_LINE);
+				i++;
+
 			}
+			cout << "this is i =  " << i << endl;
+		}
+
+		std::string makeHeader(long bodySize) //prolly other stuff too
+		{
+			std::string		out;
+			out = "Content-Type: image/png; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
+			return (out);
+		}
+
+		void fillResponseStructBinary(std::string &path)
+		{
+			long		bodyLength;
+			currResponse.httpVers = HTTPVERSION;
+			currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
+			currResponse.body = getBinary(path, &bodyLength);
+			currResponse.headers = makeHeader(bodyLength); // still have to do
+		}
+
+		void	sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
+		{
+			std::string		outie;
+
+			fillResponseStructBinary(path);
+			outie.append(currResponse.httpVers + " " + 
+						currResponse.statusMessage + "\r\n" +
+						currResponse.headers + "\r\n\r\n" +
+						currResponse.body);
+
+			const char *	responsy = outie.c_str();
+
+			failTest(send(requestSocket, responsy, strlen(responsy), 0),
+						"Sending answer to Request to requestSocket");
 		}
 	public:
 		placeholder()
@@ -217,7 +383,8 @@ class placeholder
 			}
 
 			handleRequest(fullRequest);
-			sendFile(requestSocket);
+			// sendFile(requestSocket);
+			sendImage(requestSocket);
 			// funciton to determine what kind of request
 
 			// here we call the corresponding request funciton
