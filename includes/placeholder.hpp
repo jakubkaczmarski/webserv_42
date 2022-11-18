@@ -15,7 +15,7 @@ typedef struct t_request
 class placeholder
 {
 	private:
-		const map<string, string> statusCodesAndMessages
+		const std::map<string, string> statusCodesAndMessages
 		{
 			{"100", "Continue"},
 			{"101", "Switching protocols"},
