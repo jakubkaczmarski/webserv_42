@@ -36,12 +36,6 @@ class placeholder
 
 		void	failTest( int check, std::string message )
 		{
-			// if (serverSocket < 0)
-			// {
-			// 	cerr << RED << "Server Socket < 0! Abort!" << endl;
-			// 	cerr << "Errno message: " << strerror(errno) << RESET_LINE;
-			// 	exit(-1);
-			// }
 			if (check < 0)
 			{
 				cerr << RED << message << " < 0! Abort!" << RESET_LINE;
@@ -118,12 +112,8 @@ class placeholder
 			{
 				begin		= fullRequest.find("\r\n\r\n") + 4;
 				size		= stoi(currRequest.headers.at("Content-Length"));
-				// cout << begin << endl;
-				// cout << size << endl;
 				std::string	body = fullRequest.substr(begin, size);
 				currRequest.body = body;
-				// cout << RED << body << RESET_LINE;
-				// cout << RED << "BODY" << fullRequest[149] << RESET_LINE;
 			}
 			// else if (currRequest.headers.end() != currRequest.headers.find("Content-Length"))
 
@@ -138,7 +128,7 @@ class placeholder
 			fillRequestBody(fullRequest);
 		}
 
-		void		handleRequest(std::string &fullRequest)
+		void		handleRequest(int requestSocket, std::string &fullRequest)
 		{
 			fillRequestStruct(fullRequest);
 			if (currRequest.method.compare("GET") == 0)
@@ -158,55 +148,19 @@ class placeholder
 			{
 				cout << "We should throw an error code with a message that we do not support this method" << endl;
 			}
-
-
+			sendResponse(requestSocket, currRequest.URI);
 			currRequest.headers.clear();
 			currRequest.body.clear();
+
 			// currRequest.httpVers.clear();
 			// currRequest.method.clear();
 			// currRequest.URI.clear();
 		}
 
-		int getFileSize(const std::string &fileName)
-		{
-			ifstream file(fileName.c_str(), ifstream::in | ifstream::binary);
-
-			if(!file.is_open())
-			{
-				return -1;
-			}
-
-			file.seekg(0);
-			int fileSize = file.tellg();
-			file.close();
-
-			return fileSize;
-		}
-		void sendImage(int requestSocket)
-		{
-			ifstream		imageToSend;
-			char			readBuffer[MAX_LINE + 1];
-
-			imageToSend.open("./database/UFF.png");
-			if (!imageToSend.is_open())
-			{
-				cout << "Error opening the image" << endl;
-				// exit(69); does
-			}
-			// std::string tempp = getBinary("./database/Error_404.png");
-			// std::string tempp = getBinary("./database/index.html");
-			// std::string tempp = getImage("./database/Error_404.png");
-			// const char * temp2 = tempp.c_str();
-			// send(requestSocket, temp2, tempp.size(), 0);
-			std::string temp = ("./database/Error_404.png");
-			sendResponse(requestSocket, temp);
-		}
-
-
-		// std::vector<char>	getBinary(std::string path, std::string file_type)
 		std::string		getBinary(std::string &path, long *size)
 		{
-			FILE	*file_stream = fopen(path.c_str(), "rb");
+			cout << "Path is = " << path << endl;
+			FILE	*file_stream = fopen(("."+path).c_str(), "rb");
 			if(file_stream == nullptr)
 			{
 				cout << RED << "errormessage for filestream in getBinary!" << RESET_LINE;
@@ -229,91 +183,6 @@ class placeholder
 				return binaryString;
 			}
 			exit(-1);
-		}
-
-
-
-		std::string getImage(const std::string &full_path)
-		{
-			const char* file_name = full_path.c_str();
-			FILE* file_stream = fopen(file_name, "rb");
-			std::string file_str;
-			size_t file_size;
-			if(file_stream != nullptr)
-			{
-				fseek(file_stream, 0, SEEK_END);
-				long file_length = ftell(file_stream);
-				rewind(file_stream);
-				char* buffer = (char*) malloc(sizeof(char) * file_length);
-				if(buffer != nullptr)
-				{
-					file_size = fread(buffer, 1, file_length, file_stream);
-					stringstream out;
-					for(int i = 0; i < file_size; i++)
-					{
-						out << buffer[i];
-					}
-					file_str = out.str();
-				}
-				else
-				{
-					printf("buffer is null!");
-				}
-			}
-			else
-			{
-				printf("file_stream is null! file name -> %s\n", file_name);
-			}
-			std::string html = "HTTP/1.1 200 Okay\r\nContent-Type: text/html; charset=ISO-8859-4 \r\n\r\n" + string("FILE NOT FOUND!!");
-			if(file_str.length() > 0)
-			{
-				// HTTP/1.0 200 OK
-				// Server: cchttpd/0.1.0
-				// Content-Type: image/gif
-				// Content-Transfer-Encoding: binary
-				// Content-Length: 41758
-				std::string file_size_str = std::to_string(file_str.length());
-				html = "HTTP/1.1 200 Okay\r\nContent-Type: image/png; Content-Transfer-Encoding: binary; Content-Length: " + file_size_str + ";charset=ISO-8859-4 \r\n\r\n" + file_str;
-				printf("\n\nHTML -> %s\n\nfile_str -> %ld\n\n\n", html.c_str(), file_str.length());
-			}
-			return html;
-		}
-
-
-		void sendFile(int requestSocket)
-		{
-			ifstream fileToSend;
-			char readBuffer[MAX_LINE];
-			// fileToSend.open("/home/kis619/Desktop/webserv_42/database/cute.png");
-			fileToSend.open("./database/index.html");
-			if (!fileToSend.is_open())
-			{
-				cout << "Error opening the file" << endl;
-				// exit(69); does
-			}
-
-			// char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: \r\n\r\n"; 
-			char		sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\nContent-Type: image/png\nContent-Length: 331777\r\n\r\n"; 
-
-			// HTTP/1.0 200 Ok
-			// Content-Type: image/png
-			// Content-Length: 14580053
-			failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
-						"Sending answer to Request to requestSocket");
-			int i = 0;
-			while(fileToSend)
-			{
-				fileToSend.read(readBuffer, MAX_LINE);
-				// cout << PURPLE << readBuffer << RESET_LINE;
-				// cout << PURPLE << strlen(readBuffer) << RESET_LINE;
-				// fileToSend.
-				failTest(send(requestSocket, readBuffer, strlen(readBuffer), 0),
-						"Sending answer to Request to requestSocket");
-				memset(readBuffer, 0, MAX_LINE);
-				i++;
-
-			}
-			cout << "this is i =  " << i << endl;
 		}
 
 		std::string makeHeader(long bodySize) //prolly other stuff too
@@ -344,7 +213,7 @@ class placeholder
 
 			const char *	responsy = outie.c_str();
 
-			failTest(send(requestSocket, responsy, strlen(responsy), 0),
+			failTest(send(requestSocket, responsy, outie.size(), 0),
 						"Sending answer to Request to requestSocket");
 		}
 	public:
@@ -382,18 +251,7 @@ class placeholder
 				memset(receivingBuffer, 0, MAX_LINE);
 			}
 
-			handleRequest(fullRequest);
-			// sendFile(requestSocket);
-			sendImage(requestSocket);
-			// funciton to determine what kind of request
-
-			// here we call the corresponding request funciton
-
-			// proccess the request here to get an answer
-
-			// failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
-			// 			"Sending answer to Request to requestSocket");
-			// cout << strlen("HTTP/1.1 200 OK\r\n\r\n") << endl;
+			handleRequest(requestSocket, fullRequest);
 			failTest(close(requestSocket),
 						"Sending answer to Request to requestSocket");
 			cout << "This is the full Request" << RESET_LINE;
