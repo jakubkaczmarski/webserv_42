@@ -227,7 +227,7 @@ class placeholder
 			ifstream fileToSend;
 			char readBuffer[MAX_LINE];
 			// fileToSend.open("/home/kis619/Desktop/webserv_42/database/cute.png");
-			fileToSend.open("/home/kis619/Desktop/webserv_42/database/index.html");
+			fileToSend.open("./database/index.html");
 			if (!fileToSend.is_open())
 			{
 				cout << "Error opening the file" << endl;
