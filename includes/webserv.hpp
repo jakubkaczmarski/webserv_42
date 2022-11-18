@@ -6,9 +6,10 @@
 #include <iostream>
 #include <cerrno>
 #include <cstring>
-#include <sstream>
-#include <vector>
-#include <map>
+#include <sstream> //for the split function
+#include <vector> // to store token when splitting
+#include <map> //to store the headers
+#include <fstream> //for opening files
 
 #include <unistd.h>
 
@@ -22,6 +23,7 @@ using std::endl;
 using std::strerror;
 using std::string;
 using std::stringstream;
+using std::ifstream;
 
 #define PORT_NBR 60000 
 #define MAX_LINE 4096
