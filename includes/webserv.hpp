@@ -11,6 +11,12 @@
 #include <map> //to store the headers
 #include <fstream> //for opening files
 
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+
 #include <unistd.h>
 
 

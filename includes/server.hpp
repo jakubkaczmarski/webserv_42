@@ -1,9 +1,7 @@
 #ifndef server_HPP
 #define server_HPP
 #include "webserv.hpp"
-// #include <iostream>
-#include <fstream>
-#include <vector>
+
 
 typedef struct t_request
 {
@@ -32,6 +30,9 @@ class server
 		std::string			fullRequest;
 		s_request			currRequest;
 		s_response			currResponse;
+		int					port;
+		// int					host;  // what is this???
+		size_t				max_client_body_size;
 
 
 		void	failTest( int check, std::string message )
