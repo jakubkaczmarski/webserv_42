@@ -1,13 +1,13 @@
 #include "./includes/webserv.hpp"
 
-#include "./includes/placeholder.hpp"
+#include "./includes/server.hpp"
 
 int main( void )
 {
-	placeholder placey;
+	server servy;
 
 	while(true)
 	{
-		placey.request();
+		servy.request();
 	}
 }

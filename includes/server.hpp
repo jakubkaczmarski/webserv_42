@@ -1,5 +1,5 @@
-#ifndef PLACEHOLDER_HPP
-#define PLACEHOLDER_HPP
+#ifndef server_HPP
+#define server_HPP
 #include "webserv.hpp"
 // #include <iostream>
 #include <fstream>
@@ -22,7 +22,7 @@ typedef struct t_response
 	std::string								body;					// getBinary()
 }	s_response;
 
-class placeholder
+class server
 {
 	private:
 		int					serverSocket;
@@ -217,11 +217,11 @@ class placeholder
 						"Sending answer to Request to requestSocket");
 		}
 	public:
-		placeholder()
+		server()
 		{
 			servAddressInit();
 		};
-		~placeholder() {
+		~server() {
 		};
 		void	handleRequest( void )
 		{
