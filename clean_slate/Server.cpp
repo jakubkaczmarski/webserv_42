@@ -20,6 +20,18 @@ Server::Server()
 
 void Server::process_request(int socket_num)
 {
+    std::string reply = 
+    "HTTP/1.1 200 OK\n"
+    "Date: Thu, 19 Feb 2009 12:27:04 GMT\n"
+    "Server: Apache/2.2.3\n"
+    "Last-Modified: Wed, 18 Jun 2003 16:05:58 GMT\n"
+    "ETag: \"56d-9989200-1132c580\"\n"
+    "Content-Type: text/html\n"
+    "Content-Length: 15\n"
+    "Accept-Ranges: bytes\n"
+    "Connection: close\n"
+    "\n"
+    "sdfkjsdnbfkjbsf";
     int n;
     char buff[256];
     bzero(buff, 256);
@@ -29,11 +41,11 @@ void Server::process_request(int socket_num)
         std::cerr << "Error reading from the socket";
     }
     std::cout << "Message received " << buff << std::endl;
-    n = write(socket_num , "Priviet" , 8); 
-    if(n < 0)
-    {
-        std::cerr << "Error writing to the buffer" << std::endl;
-    }
+    send(newsock_fd, reply.c_str(), reply.length(), 0);
+    // if(n < 0)
+    // {
+    //     std::cerr << "Error writing to the buffer" << std::endl;
+    // }
 }
 
 void Server::run(int port)
