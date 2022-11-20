@@ -31,11 +31,11 @@ void Server::process_request(int socket_num)
     "Accept-Ranges: bytes\n"
     "Connection: close\n"
     "\n"
-    "<h1>Siemaneczko</h1>";
+    "<h1>Siemaneczko</h1>\n\n";
     int n;
-    char buff[256];
-    bzero(buff, 256);
-    n = read(socket_num, buff, 255);
+    char buff[1000];
+    bzero(buff, 1000);
+    n = read(socket_num, buff, 1000);
     if(n < 0)
     {
         std::cerr << "Error reading from the socket";
