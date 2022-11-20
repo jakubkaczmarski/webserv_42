@@ -31,7 +31,7 @@ void Server::process_request(int socket_num)
     "Accept-Ranges: bytes\n"
     "Connection: close\n"
     "\n"
-    "sdfkjsdnbfkjbsf";
+    "<h1>Siemaneczko</h1>";
     int n;
     char buff[256];
     bzero(buff, 256);
