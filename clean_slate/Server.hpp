@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <iostream>
 #include <unistd.h>
+#include <stdio.h>
+#include <fstream>
 //Socket init 
 class Server
 {

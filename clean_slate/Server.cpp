@@ -5,6 +5,44 @@
 // However, port numbers above 2000 are generally available.
 
 #include "Server.hpp"
+static void	populatearr(char *arr, const char *str, int *counter)
+{
+	int	index;
+
+	index = 0;
+	while (str[index] != '\0')
+	{
+		arr[*counter] = str[index];
+		*counter = *counter + 1;
+		index++;
+	}
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	int		counter;
+	int		index;
+	char	*arr;
+
+	if (!s1 || !s2)
+		return (NULL);
+	counter = 0;
+	index = 0;
+	while (s1[index++] != '\0')
+		counter++;
+	index = 0;
+	while (s2[index++] != '\0')
+		counter++;
+	arr = (char *)malloc(sizeof(char) * (counter + 1));
+	if (!arr)
+		return (NULL);
+	counter = 0;
+	populatearr(arr, s1, &counter);
+	populatearr(arr, s2, &counter);
+	arr[counter] = '\0';
+	return (arr);
+
+}
 
 Server::Server(std::string name)
 : host_name(name)
@@ -20,18 +58,32 @@ Server::Server()
 
 void Server::process_request(int socket_num)
 {
-    std::string reply = 
+    char *file_stuff = strdup("");
+    std::ifstream infile("rzut_kostka.html");
+    int content_count;
+
+    for( std::string line; getline( infile, line ); )
+    {
+       
+        file_stuff = ft_strjoin(file_stuff, line.c_str());
+        file_stuff = ft_strjoin(file_stuff, "\n");
+        content_count += line.length();
+    }
+    // std::cout << "Here " << file_stuff << content_count << std::endl;
+    char *reply = strdup( 
     "HTTP/1.1 200 OK\n"
     "Date: Thu, 19 Feb 2009 12:27:04 GMT\n"
     "Server: Apache/2.2.3\n"
     "Last-Modified: Wed, 18 Jun 2003 16:05:58 GMT\n"
     "ETag: \"56d-9989200-1132c580\"\n"
     "Content-Type: text/html\n"
-    "Content-Length: 15\n"
+    "Content-Length: 100000\n"
     "Accept-Ranges: bytes\n"
     "Connection: close\n"
-    "\n"
-    "<h1>Siemaneczko</h1>\n\n";
+    "\n");
+    // std::cout << "reply\n" << reply << std::endl;
+    // std::cout << "file_stuff \n" << file_stuff<< std::endl;
+    reply = ft_strjoin(reply, file_stuff);
     int n;
     char buff[1000];
     bzero(buff, 1000);
@@ -40,8 +92,8 @@ void Server::process_request(int socket_num)
     {
         std::cerr << "Error reading from the socket";
     }
-    std::cout << "Message received " << buff << std::endl;
-    send(newsock_fd, reply.c_str(), reply.length(), 0);
+    
+    send(newsock_fd, reply, strlen(reply), 0);
     // if(n < 0)
     // {
     //     std::cerr << "Error writing to the buffer" << std::endl;
