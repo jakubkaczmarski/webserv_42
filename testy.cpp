@@ -9,7 +9,7 @@ int main( int argc, char **argv )
 	{
 		server	servy;
 
-		cout << servy.getConfig().getConfigMap().at("errorPage") << endl;
+		// cout << servy.getConfig().getConfigMap().at("errorPage404") << endl;
 		while(true)
 		{
 			servy.request();
@@ -20,7 +20,7 @@ int main( int argc, char **argv )
 		server			servy(argv[1]);
 
 
-		cout << servy.getConfig().getConfigMap().at("errorPage") << endl;
+		// cout << servy.getConfig().getConfigMap().at("errorPage404") << endl;
 		while(true)
 		{
 			servy.request();

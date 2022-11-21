@@ -132,15 +132,20 @@ class server
 			fillRequestBody(fullRequest);
 		}
 
-		// int	checkGetRequest()
-		// {
-		// 	if(file_exists( currRequest.URI))
-		// }
-
-		int	checkRequestErrors()
+		int	checkGetRequest(int requestSocket)
 		{
-			// if (currRequest.method.compare("GET") == 0)
-			// 	return (checkGetRequest());
+			if(file_exists( currRequest.URI) == false)
+			{
+				sendResponse(requestSocket, servConfig.getConfigMap().at(ERROR404));
+				return (-1);
+			}
+			return (0);
+		}
+
+		int	checkRequestErrors(int requestSocket)
+		{
+			if (currRequest.method.compare("GET") == 0)
+				return (checkGetRequest(requestSocket));
 			// else if (currRequest.method.compare("POST") == 0)
 			// 	return (checkPostRequest());
 			// else if (currRequest.method.compare("DELETE") == 0)
@@ -148,11 +153,10 @@ class server
 			return (-1);
 		}
 
-
 		void		handleRequest(int requestSocket, std::string &fullRequest)
 		{
 			fillRequestStruct(fullRequest);
-			if (checkRequestErrors() != 0)
+			if (checkRequestErrors(requestSocket) != 0)
 				return ;
 			if (currRequest.method.compare("GET") == 0)
 			{

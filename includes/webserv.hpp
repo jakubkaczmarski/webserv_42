@@ -26,6 +26,21 @@
 #include "colours.h"
 
 
+// Map-key define
+#define SERVNAME		"serverName"
+#define HOST			"host"
+#define PORT			"port"
+#define CLIENTMAXBODY	"clientMaxBodySize"
+#define ERROR404		"errorPage404"
+#define METHODS			"methods"
+#define ROOT			"root"
+#define DIR				"dir"
+
+
+
+
+
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -41,7 +56,7 @@ using std::ifstream;
 #define HTTPVERSION			"HTTP/1.1"
 
 
-inline bool file_exists (const std::string& name);
+bool file_exists (const std::string& name);
 
 std::vector<std::string> split(std::string &str, const char sep, const int &flag=0);
 #endif
