@@ -14,7 +14,7 @@ config::config(char *confPath)
 	std::string		workingLine;
 
 
-	confStream = open(confPath);
+	confStream.open(confPath);
 }
 
 config::~config()

@@ -6,16 +6,16 @@
 int main( int argc, char **argv )
 {
 	server	servy;
-	config	confy;	
+	// config	confy;	
 
-	if (argc == 2)
-		config	confy(argv[1]);
-	else if (argc > 2)
-	{
-		cerr << RED << "Too many arguments!" << RESET_LINE;
-		return (-1);
-	}
-	cout << confy.getConfigMap().at("errorPage") << endl;
+	// if (argc == 2)
+	// 	config	confy(argv[1]);
+	// else if (argc > 2)
+	// {
+	// 	cerr << RED << "Too many arguments!" << RESET_LINE;
+	// 	return (-1);
+	// }
+	// cout << confy.getConfigMap().at("errorPage") << endl;
 
 	while(true)
 	{
