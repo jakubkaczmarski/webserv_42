@@ -17,7 +17,7 @@ class Server
         Server(std::string name);
         Server();
         // int listen(int port);
-        void identify_request(std::string request);
+        void identify_request(std::string request, int pid);
         void run(int port);
         void process_request(int socket_num);
         //
