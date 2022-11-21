@@ -224,23 +224,34 @@ class server
 			// currRequest.URI.clear();
 		}
 
+		std::ifstream::pos_type fileSize(const char* filename)
+        {
+            std::ifstream fileStream(filename, std::ifstream::ate | std::ifstream::binary);
+			if(!fileStream.is_open())
+			{
+				cout << RED << "error message for filestream in getBinary!" << RESET_LINE;
+			}
+            return fileStream.tellg(); 
+        }
+
 		std::string		getBinary(std::string &path, long *size)
 		{
 			cout << "Path is = " << path << endl;
-			FILE	*file_stream = fopen(("."+path).c_str(), "rb");
-			if(file_stream == nullptr)
+
+			ifstream fileStream;
+			*size = fileSize(("." + path).c_str());
+			fileStream.open(("." + path), std::ios_base::in | std::ios_base::binary);
+
+			if(!fileStream.is_open())
 			{
-				cout << RED << "errormessage for filestream in getBinary!" << RESET_LINE;
+				cout << RED << "error message for filestream in getBinary!" << RESET_LINE;
 			}
 			else
 			{
-				fseek(file_stream, 0, SEEK_END);
-				*size = ftell(file_stream);
 				cout << RED << *size << RESET_LINE;
-				rewind(file_stream);
 				std::vector<char>  binaryVector;
 				binaryVector.resize(*size);
-				fread(&binaryVector[0], 1, *size, file_stream);
+				fileStream.read(&binaryVector[0], *size);
 				std::string binaryString;
 				for(long i = 0; i < *size; i++)
 				{
@@ -251,7 +262,6 @@ class server
 			}
 			exit(-1);
 		}
-
 		std::string makeHeader(long bodySize) //prolly other stuff too
 		{
 			std::string		out;
@@ -264,6 +274,7 @@ class server
 			long		bodyLength;
 			currResponse.httpVers = HTTPVERSION;
 			currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
+			cerr << "\n\n\nHEYYYYYYYY\n\n\n" << endl;
 			currResponse.body = getBinary(path, &bodyLength);
 			currResponse.headers = makeHeader(bodyLength); // still have to do
 		}
