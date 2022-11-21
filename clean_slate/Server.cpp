@@ -55,7 +55,10 @@ Server::Server()
 {
 
 }
-
+void Server::identify_request(std::string request) 
+{
+    Request req(request);
+}
 void Server::process_request(int socket_num)
 {
     char *file_stuff = strdup("");
@@ -88,11 +91,12 @@ void Server::process_request(int socket_num)
     char buff[1000];
     bzero(buff, 1000);
     n = read(socket_num, buff, 1000);
+    // std::cout << "Request to process \n" << buff << std::endl;
+    identify_request(buff);
     if(n < 0)
     {
         std::cerr << "Error reading from the socket";
     }
-    
     send(newsock_fd, reply, strlen(reply), 0);
     // if(n < 0)
     // {

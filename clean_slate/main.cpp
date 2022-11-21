@@ -19,12 +19,7 @@
 #include <utility>
 #include <map>
 
-enum method
-{
-    GET,
-    POST,
-    DELETE
-};
+
 //Cgi file parser
 //
 typedef struct s_server_config
@@ -45,5 +40,5 @@ int main(int argc, char **argv)
 {
     //
     Server serv1;
-    serv1.run(3220);
+    serv1.run(3221);
 }

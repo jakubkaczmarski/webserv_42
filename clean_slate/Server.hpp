@@ -8,13 +8,16 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fstream>
+#include "Request.hpp"
 //Socket init 
+
 class Server
 {
     public:
         Server(std::string name);
         Server();
         // int listen(int port);
+        void identify_request(std::string request);
         void run(int port);
         void process_request(int socket_num);
         //
