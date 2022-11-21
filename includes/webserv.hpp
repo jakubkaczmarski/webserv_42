@@ -11,6 +11,12 @@
 #include <map> //to store the headers
 #include <fstream> //for opening files
 
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+
 #include <unistd.h>
 
 
@@ -25,10 +31,11 @@ using std::string;
 using std::stringstream;
 using std::ifstream;
 
-#define PORT_NBR 60000 
-#define MAX_LINE 4096
-#define SA struct sockaddr
-#define SOCKET_BACKLOG 1024
+#define PORT_NBR			60000 
+#define MAX_LINE			4096
+#define SA					struct sockaddr
+#define SOCKET_BACKLOG		1024
+#define HTTPVERSION			"HTTP/1.1"
 
 
 std::vector<std::string> split(std::string &str, const char sep, const int &flag=0);

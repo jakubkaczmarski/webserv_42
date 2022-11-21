@@ -1,7 +1,7 @@
-#ifndef PLACEHOLDER_HPP
-#define PLACEHOLDER_HPP
+#ifndef server_HPP
+#define server_HPP
 #include "webserv.hpp"
-// #include <iostream>
+
 
 typedef struct t_request
 {
@@ -12,7 +12,15 @@ typedef struct t_request
 	std::string								body; //for now string
 }	s_request;
 
-class placeholder
+typedef struct t_response
+{
+	std::string								httpVers;
+	std::string								statusMessage;			// number + message
+	std::string								headers;
+	std::string								body;					// getBinary()
+}	s_response;
+
+class server
 {
 	private:
 		const std::map<string, string> statusCodesAndMessages
@@ -87,16 +95,14 @@ class placeholder
 		int					sizeOfServerAddress = sizeof(serverAddress);
 		std::string			fullRequest;
 		s_request			currRequest;
+		s_response			currResponse;
+		int					port;
+		// int					host;  // what is this???
+		size_t				max_client_body_size;
 
 
 		void	failTest( int check, std::string message )
 		{
-			// if (serverSocket < 0)
-			// {
-			// 	cerr << RED << "Server Socket < 0! Abort!" << endl;
-			// 	cerr << "Errno message: " << strerror(errno) << RESET_LINE;
-			// 	exit(-1);
-			// }
 			if (check < 0)
 			{
 				cerr << RED << message << " < 0! Abort!" << RESET_LINE;
@@ -173,16 +179,12 @@ class placeholder
 			{
 				begin		= fullRequest.find("\r\n\r\n") + 4;
 				size		= stoi(currRequest.headers.at("Content-Length"));
-				// cout << begin << endl;
-				// cout << size << endl;
 				std::string	body = fullRequest.substr(begin, size);
 				currRequest.body = body;
-				// cout << RED << body << RESET_LINE;
-				// cout << RED << "BODY" << fullRequest[149] << RESET_LINE;
 			}
 			// else if (currRequest.headers.end() != currRequest.headers.find("Content-Length"))
 
-			//print body
+			// print body
 			cout << PURPLE << currRequest.body << RESET_LINE;
 		}
 
@@ -193,7 +195,7 @@ class placeholder
 			fillRequestBody(fullRequest);
 		}
 
-		void		handleRequest(std::string &fullRequest)
+		void		handleRequest(int requestSocket, std::string &fullRequest)
 		{
 			fillRequestStruct(fullRequest);
 			if (currRequest.method.compare("GET") == 0)
@@ -213,46 +215,80 @@ class placeholder
 			{
 				cout << "We should throw an error code with a message that we do not support this method" << endl;
 			}
-
-
+			sendResponse(requestSocket, currRequest.URI);
 			currRequest.headers.clear();
 			currRequest.body.clear();
+
 			// currRequest.httpVers.clear();
 			// currRequest.method.clear();
 			// currRequest.URI.clear();
 		}
 
-		void sendFile(int requestSocket)
+		std::string		getBinary(std::string &path, long *size)
 		{
-			ifstream fileToSend;
-			char readBuffer[MAX_LINE];
-			// fileToSend.open("/home/kis619/Desktop/webserv_42/database/cute.png");
-			fileToSend.open("./database/index.html");
-			if (!fileToSend.is_open())
+			cout << "Path is = " << path << endl;
+			FILE	*file_stream = fopen(("."+path).c_str(), "rb");
+			if(file_stream == nullptr)
 			{
-				cout << "Error opening the file" << endl;
-				// exit(69); does
+				cout << RED << "errormessage for filestream in getBinary!" << RESET_LINE;
 			}
+			else
+			{
+				fseek(file_stream, 0, SEEK_END);
+				*size = ftell(file_stream);
+				cout << RED << *size << RESET_LINE;
+				rewind(file_stream);
+				std::vector<char>  binaryVector;
+				binaryVector.resize(*size);
+				fread(&binaryVector[0], 1, *size, file_stream);
+				std::string binaryString;
+				for(long i = 0; i < *size; i++)
+				{
+					binaryString.push_back(binaryVector[i]);
+				}
+				cout << GREEN << binaryString.size() << RESET_LINE;
+				return binaryString;
+			}
+			exit(-1);
+		}
 
-			char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\r\n\r\n"; 
-			failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
+		std::string makeHeader(long bodySize) //prolly other stuff too
+		{
+			std::string		out;
+			out = "Content-Type: image/png; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
+			return (out);
+		}
+
+		void fillResponseStructBinary(std::string &path)
+		{
+			long		bodyLength;
+			currResponse.httpVers = HTTPVERSION;
+			currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
+			currResponse.body = getBinary(path, &bodyLength);
+			currResponse.headers = makeHeader(bodyLength); // still have to do
+		}
+
+		void	sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
+		{
+			std::string		outie;
+
+			fillResponseStructBinary(path);
+			outie.append(currResponse.httpVers + " " + 
+						currResponse.statusMessage + "\r\n" +
+						currResponse.headers + "\r\n\r\n" +
+						currResponse.body);
+
+			const char *	responsy = outie.c_str();
+
+			failTest(send(requestSocket, responsy, outie.size(), 0),
 						"Sending answer to Request to requestSocket");
-			while(fileToSend)
-			{
-				fileToSend.read(readBuffer, MAX_LINE);
-				cout << PURPLE << readBuffer << RESET_LINE;
-				cout << PURPLE << strlen(readBuffer) << RESET_LINE;
-				failTest(send(requestSocket, readBuffer, strlen(readBuffer), 0),
-						"Sending answer to Request to requestSocket");
-				memset(readBuffer, 0, MAX_LINE);
-			}
 		}
 	public:
-		placeholder()
+		server()
 		{
 			servAddressInit();
 		};
-		~placeholder() {
+		~server() {
 		};
 		void	handleRequest( void )
 		{
@@ -282,17 +318,7 @@ class placeholder
 				memset(receivingBuffer, 0, MAX_LINE);
 			}
 
-			handleRequest(fullRequest);
-			sendFile(requestSocket);
-			// funciton to determine what kind of request
-
-			// here we call the corresponding request funciton
-
-			// proccess the request here to get an answer
-
-			// failTest(send(requestSocket, sendingBuffer, strlen(sendingBuffer), 0),
-			// 			"Sending answer to Request to requestSocket");
-			// cout << strlen("HTTP/1.1 200 OK\r\n\r\n") << endl;
+			handleRequest(requestSocket, fullRequest);
 			failTest(close(requestSocket),
 						"Sending answer to Request to requestSocket");
 			cout << "This is the full Request" << RESET_LINE;
