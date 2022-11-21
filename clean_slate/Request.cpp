@@ -64,6 +64,7 @@ Request::Request(std::string request, int pid)
 
 void Request::execute_get_request()
 {
+    
         char *reply = strdup( 
     "HTTP/1.1 200 OK\n"
     "Date: Thu, 19 Feb 2009 12:27:04 GMT\n"
@@ -89,17 +90,24 @@ void Request::execute_get_request()
         std::cerr << "Request is incorrect";
         exit(1);
     }
-    std::cout << "Request for the file " <<  file_name << std::endl;
+    FILE *fp = fopen(&((const char *)file_name.c_str())[1], "r");
+    if (!fp)
+    {
+        std::cerr << "File doesn't exists";
+    }
+    fseek(fp, 0L, SEEK_END);
+    long res = ftell(fp);
+    std::cout << "Request for the file " <<  file_name << " " << res << std::endl;
 
     std::ifstream infile(&file_name[1]);
     for( std::string line; getline( infile, line ); )
     {
-       std::cout << line << std::endl;
+    //    std::cout << line << std::endl;
         file_stuff = ft_strjoin(file_stuff, line.c_str());
         file_stuff = ft_strjoin(file_stuff, "\n");
     }
     reply = ft_strjoin(reply, file_stuff);
-    
+
     send(send_pid, reply, strlen(reply), 0);
     // int i = 0;
     // while()

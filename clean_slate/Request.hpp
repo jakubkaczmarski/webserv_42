@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <stdio.h>
 //Each request needs to be either of type GET | POST | DELETE
 //PATH IT POINTS TO
 //
