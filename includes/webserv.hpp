@@ -12,6 +12,9 @@
 #include <fstream> //for opening files
 
 
+#include <sys/types.h>		// needed for helper function to check if a file exists
+#include <sys/stat.h>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -37,6 +40,8 @@ using std::ifstream;
 #define SOCKET_BACKLOG		1024
 #define HTTPVERSION			"HTTP/1.1"
 
+
+inline bool file_exists (const std::string& name);
 
 std::vector<std::string> split(std::string &str, const char sep, const int &flag=0);
 #endif

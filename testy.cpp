@@ -5,22 +5,34 @@
 
 int main( int argc, char **argv )
 {
-	server	servy;
-	// config	confy;	
+	if(argc == 1)
+	{
+		server	servy;
 
-	// if (argc == 2)
-	// 	config	confy(argv[1]);
-	// else if (argc > 2)
-	// {
-	// 	cerr << RED << "Too many arguments!" << RESET_LINE;
-	// 	return (-1);
-	// }
+		cout << servy.getConfig().getConfigMap().at("errorPage") << endl;
+		while(true)
+		{
+			servy.request();
+		}
+	}
+	else if (argc == 2)
+	{
+		server			servy(argv[1]);
+
+
+		cout << servy.getConfig().getConfigMap().at("errorPage") << endl;
+		while(true)
+		{
+			servy.request();
+		}
+	}
+	else if (argc > 2)
+	{
+		cerr << RED << "Too many arguments!" << RESET_LINE;
+		return (-1);
+	}
 	// cout << confy.getConfigMap().at("errorPage") << endl;
 
-	while(true)
-	{
-		servy.request();
-	}
 }
 
 

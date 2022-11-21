@@ -1,7 +1,7 @@
 #ifndef server_HPP
 #define server_HPP
 #include "webserv.hpp"
-
+#include "config.hpp"
 
 typedef struct t_request
 {
@@ -31,8 +31,11 @@ class server
 		s_request			currRequest;
 		s_response			currResponse;
 		int					port;
+		config				servConfig;
 		// int					host;  // what is this???
 		size_t				max_client_body_size;
+
+
 
 
 		void	failTest( int check, std::string message )
@@ -129,20 +132,45 @@ class server
 			fillRequestBody(fullRequest);
 		}
 
+		// int	checkGetRequest()
+		// {
+		// 	if(file_exists( currRequest.URI))
+		// }
+
+		int	checkRequestErrors()
+		{
+			// if (currRequest.method.compare("GET") == 0)
+			// 	return (checkGetRequest());
+			// else if (currRequest.method.compare("POST") == 0)
+			// 	return (checkPostRequest());
+			// else if (currRequest.method.compare("DELETE") == 0)
+			// 	return (checkDeleteRequest());
+			return (-1);
+		}
+
+
 		void		handleRequest(int requestSocket, std::string &fullRequest)
 		{
 			fillRequestStruct(fullRequest);
+			if (checkRequestErrors() != 0)
+				return ;
 			if (currRequest.method.compare("GET") == 0)
 			{
-				// fillHeadersMap(fullRequest);
+				// test for errors
+
+				// send response
 				cout << "its a get request :)" << endl;
 			}
 			else if (currRequest.method.compare("POST") == 0)
 			{
+				// test for errors
+				// send response
 				cout << "its a post request :)" << endl;
 			}
 			else if (currRequest.method.compare("DELETE") == 0)
 			{
+				// test for errors
+				// send response
 				cout << "its a delete request :)" << endl;
 			}
 			else
@@ -218,8 +246,13 @@ class server
 						"Sending answer to Request to requestSocket");
 		}
 	public:
-		server()
+		server(): servConfig()
 		{
+			servAddressInit();
+		};
+		server(char * confPath): servConfig(confPath)
+		{
+			
 			servAddressInit();
 		};
 		~server() {
@@ -227,6 +260,12 @@ class server
 		void	handleRequest( void )
 		{
 		};
+
+
+		config	getConfig( void )
+		{
+			return (servConfig);
+		}
 
 		void		request( void )
 		{
