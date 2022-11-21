@@ -1,5 +1,43 @@
 #include "Request.hpp"
 
+static void	populatearr(char *arr, const char *str, int *counter)
+{
+	int	index;
+
+	index = 0;
+	while (str[index] != '\0')
+	{
+		arr[*counter] = str[index];
+		*counter = *counter + 1;
+		index++;
+	}
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	int		counter;
+	int		index;
+	char	*arr;
+
+	if (!s1 || !s2)
+		return (NULL);
+	counter = 0;
+	index = 0;
+	while (s1[index++] != '\0')
+		counter++;
+	index = 0;
+	while (s2[index++] != '\0')
+		counter++;
+	arr = (char *)malloc(sizeof(char) * (counter + 1));
+	if (!arr)
+		return (NULL);
+	counter = 0;
+	populatearr(arr, s1, &counter);
+	populatearr(arr, s2, &counter);
+	arr[counter] = '\0';
+	return (arr);
+
+}
 
 Request::Request(std::string request, int pid)
 {
@@ -26,15 +64,43 @@ Request::Request(std::string request, int pid)
 
 void Request::execute_get_request()
 {
+        char *reply = strdup( 
+    "HTTP/1.1 200 OK\n"
+    "Date: Thu, 19 Feb 2009 12:27:04 GMT\n"
+    "Server: Apache/2.2.3\n"
+    "Last-Modified: Wed, 18 Jun 2003 16:05:58 GMT\n"
+    "ETag: \"56d-9989200-1132c580\"\n"
+    "Content-Type: text/html\n"
+    "Content-Length: 100000\n"
+    "Accept-Ranges: bytes\n"
+    "Connection: close\n"
+    "\n");
     int i = 4;
     std::string file_name;
+    char *file_stuff = strdup("");
     while(request_[i] != ' ')
     {
         i++;
     }
     std::cout << i << std::endl;
     file_name.append(request_, 4, i - 4);
+    if(file_name.length() == 0)
+    {
+        std::cerr << "Request is incorrect";
+        exit(1);
+    }
     std::cout << "Request for the file " <<  file_name << std::endl;
+
+    std::ifstream infile(&file_name[1]);
+    for( std::string line; getline( infile, line ); )
+    {
+       std::cout << line << std::endl;
+        file_stuff = ft_strjoin(file_stuff, line.c_str());
+        file_stuff = ft_strjoin(file_stuff, "\n");
+    }
+    reply = ft_strjoin(reply, file_stuff);
+    
+    send(send_pid, reply, strlen(reply), 0);
     // int i = 0;
     // while()
 }

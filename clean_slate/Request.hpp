@@ -1,6 +1,7 @@
-#ifndef REQUEST_HPP
 #define REQUEST_HPP
-
+#ifdef REQUEST_HPP
+#include <sys/socket.h>
+#include <fstream>
 #include <string>
 #include <iostream>
 //Each request needs to be either of type GET | POST | DELETE
