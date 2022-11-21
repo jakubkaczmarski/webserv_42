@@ -14,6 +14,7 @@ fclean:
 re: fclean all
 
 git:
+	git add .gitignore
 	git add *
 	@read -p "Enter the commit message: " halp; \
 	git commit -m "$$halp"
