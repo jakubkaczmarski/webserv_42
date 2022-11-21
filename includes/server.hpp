@@ -275,7 +275,7 @@ class server
 			long		bodyLength;
 			currResponse.httpVers = HTTPVERSION;
 			currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
-			cerr << "\n\n\nHEYYYYYYYY\n\n\n" << endl;
+			// cerr << "\n\n\nHEYYYYYYYY\n\n\n" << endl;
 			currResponse.body = getBinary(path, &bodyLength);
 			currResponse.headers = makeHeader(bodyLength); // still have to do
 		}
