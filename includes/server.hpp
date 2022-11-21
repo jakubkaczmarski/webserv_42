@@ -260,6 +260,7 @@ class server
 				cout << GREEN << binaryString.size() << RESET_LINE;
 				return binaryString;
 			}
+			fileStream.close();
 			exit(-1);
 		}
 		std::string makeHeader(long bodySize) //prolly other stuff too
