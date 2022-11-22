@@ -14,8 +14,8 @@
 // 	std::string		workingLine;
 
 
-// 	confStream = open(confPath);
-// }
+	confStream.open(confPath);
+}
 
 // config::~config()
 // {
@@ -27,6 +27,7 @@
 // 	return (configMap);
 // } 
 
+<<<<<<< HEAD
 // void	config::initDefaultConfig( void )
 // {
 // 	configMap["serverName"] = "defaultServerName";
@@ -43,4 +44,23 @@
 // 	// configMap[""] = "";
 // 	// configMap[""] = "";
 // }
+=======
+void	config::initDefaultConfig( void )
+{
+	configMap[SERVNAME] = "defaultServerName";
+	configMap[HOST] = "0.0.0.0";
+	configMap[PORT] = "1999";
+	configMap[CLIENTMAXBODY] = "1000000";
+	configMap[ERROR404] = "/database/Error_404.png";
+	configMap[METHODS] = "GET";
+	configMap[ROOT] = "/workspaces/webserv_42";
+	configMap[DIR] = "/";
+	configMap[UPLOADDIR] = "/database/uploads";
+	// configMap[""] = "";
+	// configMap[""] = "";
+	// configMap[""] = "";
+	// configMap[""] = "";
+	// configMap[""] = "";
+}
+>>>>>>> main
 
