@@ -8,13 +8,17 @@ config::config()
 
 config::config(char *confPath)
 {
+<<<<<<< HEAD
 	// std::string		confPathStr = confPath;
+=======
+// 	// std::string		confPathStr = confPath;
+>>>>>>> e2ecf6cee60b98c08d0e9d5c74fe742229ec86e3
 
 	std::ifstream	confStream;
 	std::string		workingLine;
 
 
-	confStream.open(confPath);
+// 	confStream.open(confPath);
 }
 
 config::~config()
