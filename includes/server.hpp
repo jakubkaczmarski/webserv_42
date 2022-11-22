@@ -3,6 +3,7 @@
 #include "webserv.hpp"
 #include "config.hpp"
 
+
 typedef struct t_request
 {
 	std::string								method;
@@ -30,6 +31,7 @@ class server
 		std::string			fullRequest;
 		s_request			currRequest;
 		s_response			currResponse;
+		std::map<std::string, std::string> possible_types;
 		int					port;
 		config				servConfig;
 		// int					host;  // what is this???
@@ -47,18 +49,20 @@ class server
 		int				checkGetRequest(int requestSocket);
 		int				checkRequestErrors(int requestSocket);
 		void			handleRequest(int requestSocket, std::string &fullRequest);
-		std::string		getBinary(std::string &path, long *size);
-		std::string		makeHeader(long bodySize);									//prolly other stuff too
-		void			fillResponseStructBinary(std::string &path);
+		std::string		getBinary(std::string &path, long *size, int request_soc);
+		std::string		makeHeader(long bodySize, std::string &path);									//prolly other stuff too
+		void			fillResponseStructBinary(std::string &path, int request_soc);
 		void			sendResponse(int requestSocket, std::string &path);			// im writing this with a get request in mind
-	
+		void			fillInPossibleTypes();
 	public:
 		server(): servConfig()
 		{
+			fillInPossibleTypes();
 			servAddressInit();
 		};
 		server(char * confPath): servConfig(confPath)
 		{
+			fillInPossibleTypes();
 			servAddressInit();
 		};
 		~server() {

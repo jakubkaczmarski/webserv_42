@@ -39,5 +39,5 @@ typedef struct s_server_config
 int main(int argc, char **argv)
 {
     Server serv1;
-    serv1.run(3223);
+    serv1.run(3224);
 }
