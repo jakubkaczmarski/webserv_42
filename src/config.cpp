@@ -1,10 +1,10 @@
-// #include "../includes/config.hpp"
-// #include <fstream> //for opening files
-
-// config::config()
-// {
-// 	initDefaultConfig();
-// }
+#include "../includes/config.hpp"
+#include <fstream> //for opening files
+#include <signal.h>
+config::config()
+{
+	initDefaultConfig();
+}
 
 // config::config(char *confPath)
 // {

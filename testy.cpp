@@ -3,8 +3,17 @@
 #include "./includes/server.hpp"
 #include "./includes/config.hpp"
 
+// void ctrl_c_sig_handler(int code) {
+// 	if(code == SIGINT)
+// 	{
+
+// 		exit(1);
+// 	}
+// }
+
 int main( int argc, char **argv )
 {
+	
 	if(argc == 1)
 	{
 		server	servy;

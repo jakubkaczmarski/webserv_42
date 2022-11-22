@@ -23,7 +23,6 @@ void		server::request( void )
 			break;
 		memset(receivingBuffer, 0, MAX_LINE);
 	}
-
 	handleRequest(requestSocket, fullRequest);
 	failTest(close(requestSocket),
 				"Sending answer to Request to requestSocket");
@@ -40,7 +39,7 @@ void	server::sendResponse(int requestSocket, std::string &path)					// im writin
 {
 	std::string		outie;
 
-	fillResponseStructBinary(path);
+	fillResponseStructBinary(path,requestSocket);
 	outie.append(currResponse.httpVers + " " + 
 				currResponse.statusMessage + "\r\n" +
 				currResponse.headers + "\r\n\r\n" +
@@ -52,13 +51,13 @@ void	server::sendResponse(int requestSocket, std::string &path)					// im writin
 				"Sending answer to Request to requestSocket");
 }
 
-void server::fillResponseStructBinary(std::string &path)
+void server::fillResponseStructBinary(std::string &path, int request_soc)
 {
 	long		bodyLength;
 	currResponse.httpVers = HTTPVERSION;
 	currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
-	currResponse.body = getBinary(path, &bodyLength);
-	currResponse.headers = makeHeader(bodyLength); // still have to do
+	currResponse.body = getBinary(path, &bodyLength, request_soc);
+	currResponse.headers = makeHeader(bodyLength, path); // still have to do
 }
 
 void	server::failTest( int check, std::string message )
@@ -159,7 +158,7 @@ int	server::checkGetRequest(int requestSocket)
 {
 	if(file_exists( currRequest.URI) == false)
 	{
-		sendResponse(requestSocket, servConfig.getConfigMap().at(ERROR404));
+		// sendResponse(requestSocket, servConfig.getConfigMap().at(ERROR404));
 		return (-1);
 	}
 	return (0);
@@ -167,8 +166,8 @@ int	server::checkGetRequest(int requestSocket)
 
 int	server::checkRequestErrors(int requestSocket)
 {
-	if (currRequest.method.compare("GET") == 0)
-		return (checkGetRequest(requestSocket));
+	// if (currRequest.method.compare("GET") == 0)
+	// 	return (checkGetRequest(requestSocket));
 	// else if (currRequest.method.compare("POST") == 0)
 	// 	return (checkPostRequest());
 	// else if (currRequest.method.compare("DELETE") == 0)
@@ -179,13 +178,13 @@ int	server::checkRequestErrors(int requestSocket)
 void		server::handleRequest(int requestSocket, std::string &fullRequest)
 {
 	fillRequestStruct(fullRequest);
-	if (checkRequestErrors(requestSocket) != 0)
-		return ;
+	// if (checkRequestErrors(requestSocket) != 0)
+		// return ;
 	if (currRequest.method.compare("GET") == 0)
 	{
 		// test for errors
-
 		// send response
+		sendResponse(requestSocket, currRequest.URI);
 		cout << "its a get request :)" << endl;
 	}
 	else if (currRequest.method.compare("POST") == 0)
@@ -204,46 +203,97 @@ void		server::handleRequest(int requestSocket, std::string &fullRequest)
 	{
 		cout << "We should throw an error code with a message that we do not support this method" << endl;
 	}
-	sendResponse(requestSocket, currRequest.URI);
 	currRequest.headers.clear();
 	currRequest.body.clear();
-
 	// currRequest.httpVers.clear();
 	// currRequest.method.clear();
 	// currRequest.URI.clear();
 }
 
-std::string		server::getBinary(std::string &path, long *size)
+std::string		server::getBinary(std::string &path, long *size, int request_soc)
 {
-	cout << "Path is = " << path << endl;
-	FILE	*file_stream = fopen(("."+path).c_str(), "rb");
+
+	FILE	*file_stream;
+	std::string def_path("./database/default_index.html");
+	std::string fav_path("./database/favicon.ico");
+	std::string err_path("./database/Error_404.png");
+	if(path.compare("/") == 0)
+	{
+		//Root path for welcome page
+		file_stream = fopen(def_path.c_str() , "rb");
+	}else if(path.compare("/favicon.ico") == 0)
+	{
+		//Favicon for now streamlined
+		file_stream = fopen(fav_path.c_str(), "rb");
+	}
+	else{
+		//If there is a different file user wants to open
+		file_stream = fopen(("."+path).c_str(), "rb");
+	}
 	if(file_stream == nullptr)
 	{
-		cout << RED << "errormessage for filestream in getBinary!" << RESET_LINE;
+		//For errors
+		file_stream = fopen(err_path.c_str(), "rb");
+		path = "/database/Error_404.png";
 	}
-	else
+	std::string binaryString;
+	fseek(file_stream, 0, SEEK_END);
+	*size = ftell(file_stream);
+	cout << RED << *size << RESET_LINE;
+	rewind(file_stream);
+	std::vector<char>  binaryVector;
+	binaryVector.resize(*size);
+	fread(&binaryVector[0], 1, *size, file_stream);
+	
+	for(long i = 0; i < *size; i++)
 	{
-		fseek(file_stream, 0, SEEK_END);
-		*size = ftell(file_stream);
-		cout << RED << *size << RESET_LINE;
-		rewind(file_stream);
-		std::vector<char>  binaryVector;
-		binaryVector.resize(*size);
-		fread(&binaryVector[0], 1, *size, file_stream);
-		std::string binaryString;
-		for(long i = 0; i < *size; i++)
-		{
-			binaryString.push_back(binaryVector[i]);
-		}
-		cout << GREEN << binaryString.size() << RESET_LINE;
-		return binaryString;
+		binaryString.push_back(binaryVector[i]);
 	}
-	exit(-1);
+	cout << GREEN << binaryString.size() << RESET_LINE;
+	return binaryString;
 }
 
-std::string server::makeHeader(long bodySize) //prolly other stuff too
+std::string server::makeHeader(long bodySize, std::string &path) //prolly other stuff too
 {
 	std::string		out;
-	out = "Content-Type: image/png; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
+	std::string extension;
+
+
+	int i = path.length() - 1;
+	while(path[i] && path[i] != '.')
+	{
+		i--;
+	}
+	if(!path[i])
+	{
+		//Default extension if there is none 
+		extension = "text";
+	}else{
+		extension.append(path.substr(i, path.length() - i));
+	}
+	std::cout << "extension thingy " << extension << std::endl; 
+	// out.append(path);
+	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
 	return (out);
+}
+
+
+void			server::fillInPossibleTypes()
+{
+	//Text types
+	// possible_types.insert(".html","text/html");
+	// possible_types.insert(".css","text/css");
+	// possible_types.insert(".csv","text/csv");
+	// possible_types.insert(".js","text/javascript");
+	// possible_types.insert(".txt","text/plain");
+	// possible_types.insert(".xml","text/xml");
+
+	// //Video
+	// possible_types.insert(".mpeg","video/mpeg");
+	// possible_types.insert(".mp4","video/mp4");
+	// possible_types.insert(".mov","video/quicktime");
+	// possible_types.insert(".wmv","video/x-ms-wmv");
+	// possible_types.insert(".avi","x-msvideo");
+
+
 }
