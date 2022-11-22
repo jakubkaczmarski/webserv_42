@@ -74,7 +74,8 @@
 		"ratio": "cpp",
 		"sstream": "cpp",
 		"stack": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"ranges": "cpp"
 	},
     "cmake.sourceDirectory": "${workspaceRoot}/test-project"
 }

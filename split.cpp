@@ -51,7 +51,8 @@ std::vector<std::string> split(std::string &str, const char sep, const int &flag
 			outputArray.push_back(str.substr(start, str.length() - start));
 			break ;
 		}
-		outputArray.push_back(val);
+		if(val.length() > 0)
+			outputArray.push_back(val);
 		i++;
 	}
 	return outputArray;
