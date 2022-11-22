@@ -27,24 +27,6 @@
 // 	return (configMap);
 // } 
 
-<<<<<<< HEAD
-// void	config::initDefaultConfig( void )
-// {
-// 	configMap["serverName"] = "defaultServerName";
-// 	configMap["host"] = "0.0.0.0";
-// 	configMap["port"] = "1999";
-// 	configMap["clientMaxBodySize"] = "1000000";
-// 	configMap["errorPage"] = "/database/Error_404.png";
-// 	configMap["methods"] = "GET";
-// 	configMap["root"] = "/workspaces/webserv_42";
-// 	configMap["dir"] = "/";
-// 	// configMap[""] = "";
-// 	// configMap[""] = "";
-// 	// configMap[""] = "";
-// 	// configMap[""] = "";
-// 	// configMap[""] = "";
-// }
-=======
 void	config::initDefaultConfig( void )
 {
 	configMap[SERVNAME] = "defaultServerName";
@@ -62,5 +44,4 @@ void	config::initDefaultConfig( void )
 	// configMap[""] = "";
 	// configMap[""] = "";
 }
->>>>>>> main
 
