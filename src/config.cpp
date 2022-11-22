@@ -6,21 +6,21 @@ config::config()
 	initDefaultConfig();
 }
 
-// config::config(char *confPath)
-// {
+config::config(char *confPath)
+{
 // 	// std::string		confPathStr = confPath;
 
 // 	std::ifstream	confStream;
 // 	std::string		workingLine;
 
 
-	confStream.open(confPath);
+// 	confStream.open(confPath);
 }
 
-// config::~config()
-// {
+config::~config()
+{
 
-// }
+}
 
 // confMapType&	config::getConfigMap( void )
 // {

@@ -1,16 +1,16 @@
 #ifndef WERBSERV_HPP
 #define WERBSERV_HPP
 
-#include <sys/socket.h> // Needed for socket creating and binding
-#include <netinet/in.h> // Needed to use struct sockaddr_in
+#include <sys/socket.h>		// Needed for socket creating and binding
+#include <netinet/in.h>		// Needed to use struct sockaddr_in
 #include <iostream>
 #include <cerrno>
 #include <cstring>
-#include <sstream> //for the split function
-#include <vector> // to store token when splitting
-#include <map> //to store the headers
-#include <fstream> //for opening files
-
+#include <sstream>			//for the split function
+#include <vector>			// to store token when splitting
+#include <map>				//to store the headers
+#include <fstream>			//for opening files
+#include <string>			// for getline
 
 #include <sys/types.h>		// needed for helper function to check if a file exists
 #include <sys/stat.h>
