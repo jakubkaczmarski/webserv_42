@@ -123,11 +123,22 @@ class server
 	public:
 		server(): servConfig()
 		{
+			if(servConfig.getOutcome() == false)
+			{
+				servConfig.~config();
+				return ;
+			}
 			fillInPossibleTypes();
 			servAddressInit();
 		};
 		server(char * confPath): servConfig(confPath)
 		{
+			if(servConfig.getOutcome() == false)
+			{
+				servConfig.~config();
+				cout << "returning " << endl;
+				return ;
+			}
 			fillInPossibleTypes();
 			servAddressInit();
 		};
@@ -138,8 +149,8 @@ class server
 		};
 
 
-		config	getConfig( void );
-
+		config		getConfig( void );
+		bool		getConfigOutcome( void );
 		void		request( void );
 };
 

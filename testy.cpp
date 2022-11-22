@@ -18,6 +18,8 @@ int main( int argc, char **argv )
 	{
 		server	servy;
 
+		if(servy.getConfigOutcome() == false)
+			return(-1);
 		// cout << servy.getConfig().getConfigMap().at("errorPage404") << endl;
 		while(true)
 		{
@@ -29,6 +31,8 @@ int main( int argc, char **argv )
 		server			servy(argv[1]);
 
 
+		if(servy.getConfigOutcome() == false)
+			return(-1);
 		// cout << servy.getConfig().getConfigMap().at("errorPage404") << endl;
 		while(true)
 		{

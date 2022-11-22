@@ -297,3 +297,8 @@ void			server::fillInPossibleTypes()
 
 
 }
+
+bool		server::getConfigOutcome( void )
+{
+	return(servConfig.getOutcome());
+}

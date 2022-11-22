@@ -8,6 +8,7 @@ class config
 {
 	private:
 		confMapType		configMap;
+		bool			configOutcome;
 
 		void			initDefaultConfig( void );
 	public:
@@ -15,6 +16,7 @@ class config
 		config(char *confPath);
 		~config();
 		confMapType&	getConfigMap( void );
+		bool			getOutcome( void );
 };
 
 #endif

@@ -1,29 +1,59 @@
 #include "../includes/config.hpp"
 #include <fstream> //for opening files
 #include <signal.h>
-config::config()
+
+#define vec_it std::vector<std::string>::iterator
+
+config::config(): configOutcome(true)
 {
 	initDefaultConfig();
 }
 
-config::config(char *confPath)
+config::config(char *confPath): configOutcome(true)
 {
-<<<<<<< HEAD
 	// std::string		confPathStr = confPath;
-=======
-// 	// std::string		confPathStr = confPath;
->>>>>>> e2ecf6cee60b98c08d0e9d5c74fe742229ec86e3
 
-	std::ifstream	confStream;
-	std::string		workingLine;
+	std::ifstream							confStream;
+	std::string								workingLine;
+	std::pair<std::string, std::string>		pair_;
+	std::vector<std::string>				vec_;
 
 
-// 	confStream.open(confPath);
+	confStream.open(confPath);
+	while(std::getline(confStream, workingLine, '\n'))
+	{
+		cout << workingLine << "size == " << workingLine.size() << endl;
+
+		if(workingLine.size() == 0)
+			continue ;
+
+		vec_ = split(workingLine, 9);
+		
+		// for (vec_it it = vec_.begin(); it != vec_.end(); it++)
+		// {
+		// 	cout << "\"" << *it << "\"" << endl;
+		// }
+		
+
+		if (vec_.size() != 2)
+		{
+			cerr << RED << "This line in the config File is not according to our standards! Please fix!" << RESET_LINE << workingLine << endl;
+			configOutcome = false;
+			return ;
+		}
+		if (vec_[0].at(0) == '<')
+		{
+			vec_.clear();
+			continue ;
+		}
+		configMap.insert(std::make_pair(vec_.at(0), vec_.at(1)));
+		vec_.clear();
+	}
 }
 
 config::~config()
 {
-
+	configMap.~map();
 }
 
 confMapType&	config::getConfigMap( void )
@@ -49,3 +79,8 @@ void	config::initDefaultConfig( void )
 	// configMap[""] = "";
 }
 
+
+bool			config::getOutcome( void )
+{
+	return (configOutcome);
+}
