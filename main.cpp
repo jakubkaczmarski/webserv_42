@@ -20,7 +20,6 @@ int main( int argc, char **argv )
 
 		if(servy.getConfigOutcome() == false)
 			return(-1);
-		// cout << servy.getConfig().getConfigMap().at("errorPage404") << endl;
 		while(true)
 		{
 			servy.request();
@@ -33,7 +32,7 @@ int main( int argc, char **argv )
 
 		if(servy.getConfigOutcome() == false)
 			return(-1);
-		// cout << servy.getConfig().getConfigMap().at("errorPage404") << endl;
+		servy.getConfig().printMap();
 		while(true)
 		{
 			servy.request();
@@ -45,7 +44,6 @@ int main( int argc, char **argv )
 		return (-1);
 	}
 	// cout << confy.getConfigMap().at("errorPage") << endl;
-
 }
 
 
