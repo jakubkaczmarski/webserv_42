@@ -152,7 +152,7 @@ class server
 		};
 
 
-		config		getConfig( void );
+		config		&getConfig( void );
 		bool		getConfigOutcome( void );
 		void		request( void );
 };
