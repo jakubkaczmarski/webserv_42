@@ -128,7 +128,7 @@ class server
 		{
 			if(servConfig.getOutcome() == false)
 			{
-				servConfig.~config();
+				// servConfig.~config();
 				return ;
 			}
 			fillInPossibleTypes();
@@ -138,7 +138,7 @@ class server
 		{
 			if(servConfig.getOutcome() == false)
 			{
-				servConfig.~config();
+				// servConfig.~config();
 				cout << "returning " << endl;
 				return ;
 			}
