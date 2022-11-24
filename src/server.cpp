@@ -8,7 +8,7 @@ void		server::requestLoop( void )
 	int		requestSocket;
 	int		recvReturn;
 	char	receivingBuffer[MAX_LINE + 1];
-
+	
 
 	while(true)
 	{
