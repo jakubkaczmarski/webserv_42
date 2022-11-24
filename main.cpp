@@ -13,7 +13,8 @@
 
 int main( int argc, char **argv )
 {
-	
+		// signal(SIGPIPE, SIG_IGN);A SIGPIPE is sent to a process if it tried to write to a socket that had been shutdown for writing or isn't connected (anymore).
+		
 	if(argc == 1)
 	{
 		server	servy;
