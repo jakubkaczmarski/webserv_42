@@ -1,14 +1,13 @@
 #include "../includes/server.hpp"
-
-void		server::request( void )
-{
 	//Request-Line				= Method SP Request-URI SP HTTP-Version CRLF
 	//CR = Carriage return		= \r
 	//LF = Line Feed			= \n
+
+void		server::request( void )
+{
 	int		requestSocket;
 	int		recvReturn;
 	char	receivingBuffer[MAX_LINE + 1];
-	char	sendingBuffer[MAX_LINE + 1] = "HTTP/1.1 200 OK\r\n\r\n<html>This is a welcoming message version 2!<h1>NOOO</h1></html>"; // example answer for request
 
 	cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
 	requestSocket = accept(serverSocket, (SA *) NULL, NULL);
@@ -29,11 +28,6 @@ void		server::request( void )
 				"Sending answer to Request to requestSocket");
 	cout << "This is the full Request" << RESET_LINE;
 	cout << endl << fullRequest << RED << "<<here is the end>>" << RESET_LINE;
-}
-
-config	&server::getConfig( void )
-{
-	return (servConfig);
 }
 
 void	server::sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
@@ -277,7 +271,14 @@ void			server::fillInPossibleTypes()
 
 }
 
-bool		server::getConfigOutcome( void )
+
+config	&server::getConfig( void )
+{
+	return (servConfig);
+}
+
+
+bool	server::getConfigOutcome( void )
 {
 	return(servConfig.getOutcome());
 }
