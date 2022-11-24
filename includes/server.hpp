@@ -154,7 +154,7 @@ class server
 
 		config		&getConfig( void );
 		bool		getConfigOutcome( void );
-		void		request( void );
+		void		requestLoop( void );
 };
 
 #endif

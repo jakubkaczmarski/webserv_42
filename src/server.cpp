@@ -3,31 +3,38 @@
 	//CR = Carriage return		= \r
 	//LF = Line Feed			= \n
 
-void		server::request( void )
+void		server::requestLoop( void )
 {
 	int		requestSocket;
 	int		recvReturn;
 	char	receivingBuffer[MAX_LINE + 1];
 
-	cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
-	requestSocket = accept(serverSocket, (SA *) NULL, NULL);
-	failTest(requestSocket, "accept() Socket");
-	memset(receivingBuffer, 0, MAX_LINE + 1);	
-	fullRequest.clear();
-	while(((recvReturn = recv(requestSocket, receivingBuffer, MAX_LINE, 0)) > 0))
+
+	while(true)
 	{
-		failTest(recvReturn, "Reading into receivingBuffer out of requestSocket");
-		fullRequest.append(receivingBuffer, recvReturn);
-		if (recvReturn < MAX_LINE)
-			break;
-		memset(receivingBuffer, 0, MAX_LINE);
+		cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
+		requestSocket = accept(serverSocket, (SA *) NULL, NULL);
+		failTest(requestSocket, "accept() Socket");
+		memset(receivingBuffer, 0, MAX_LINE + 1);	
+		fullRequest.clear();
+		while(((recvReturn = recv(requestSocket, receivingBuffer, MAX_LINE, 0)) > 0))
+		{
+			failTest(recvReturn, "Reading into receivingBuffer out of requestSocket");
+			fullRequest.append(receivingBuffer, recvReturn);
+			if (recvReturn < MAX_LINE)
+				break;
+			memset(receivingBuffer, 0, MAX_LINE);
+		}
+		failTest(recvReturn, "recv() call to read from requestSocket");
+		handleRequest(requestSocket, fullRequest);
+		failTest(close(requestSocket),
+					"Sending answer to Request to requestSocket");
+
+
+		//printing the request
+		// cout << "This is the full Request" << RESET_LINE;
+		// cout << endl << fullRequest << RED << "<<here is the end>>" << RESET_LINE;
 	}
-	failTest(recvReturn, "recv() call to read from requestSocket");
-	handleRequest(requestSocket, fullRequest);
-	failTest(close(requestSocket),
-				"Sending answer to Request to requestSocket");
-	cout << "This is the full Request" << RESET_LINE;
-	cout << endl << fullRequest << RED << "<<here is the end>>" << RESET_LINE;
 }
 
 void	server::sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
