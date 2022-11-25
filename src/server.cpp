@@ -3,37 +3,90 @@
 	//CR = Carriage return		= \r
 	//LF = Line Feed			= \n
 
+
+//register events of fd to epfd
+static void epoll_ctl_add(int epfd, int fd, uint32_t events)
+{
+	struct epoll_event ev;
+	ev.events = events;
+	ev.data.fd = fd;
+	if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
+	{
+		cout << "Error number: " << errno << " - " << strerror(errno) << endl;
+		
+
+		exit(1);
+	}
+}
+
 void		server::requestLoop( void )
 {
+	int		idx;
 	int		requestSocket;
 	int		recvReturn;
 	char	receivingBuffer[MAX_LINE + 1];
 	
+	
+	int epollFD = epoll_create1(0);
+	failTest(epollFD, "epoll_create1");
 
+	struct epoll_event events[MAX_EVENTS]; //should be a define
+	epoll_ctl_add(epollFD, serverSocket, EPOLLIN | EPOLLOUT | EPOLLET);
+
+	int nfds;
 	while(true)
 	{
-		cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
-		requestSocket = accept(serverSocket, (SA *) NULL, NULL);
-		failTest(requestSocket, "accept() Socket");
-		memset(receivingBuffer, 0, MAX_LINE + 1);	
-		fullRequest.clear();
-		while(((recvReturn = recv(requestSocket, receivingBuffer, MAX_LINE, 0)) > 0))
+		// nfds = epoll_wait(epollFD, events, MAX_EVENTS, -1); //-1 blocks forever, 0 never blocks in both examplse they use -1? //zero gives back only part of the image
+		// cout << YELLOW << "Number of fds ready: " << nfds << RESET_LINE;
+		for (idx = 0; idx < nfds; idx++)
 		{
-			failTest(recvReturn, "Reading into receivingBuffer out of requestSocket");
-			fullRequest.append(receivingBuffer, recvReturn);
-			if (recvReturn < MAX_LINE)
-				break;
-			memset(receivingBuffer, 0, MAX_LINE);
-		}
-		failTest(recvReturn, "recv() call to read from requestSocket");
-		handleRequest(requestSocket, fullRequest);
-		failTest(close(requestSocket),
-					"Sending answer to Request to requestSocket");
+			// cout << RED << "IDX: " << idx << RESET_LINE;
+ 			// if (events[idx].data.fd == serverSocket) //ready to accept a new connection
+			{
+				cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
+				requestSocket = accept(serverSocket, (SA *) NULL, NULL);
+				failTest(requestSocket, "accept() Socket");
+				// epoll_ctl_add(epollFD, requestSocket, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP);
+			}
+			// else if(events[idx].events & EPOLLIN) /* handle EPOLLIN event */
+			{
+				// cout << RED << "ELSE IF" << RESET_LINE;
+				memset(receivingBuffer, 0, MAX_LINE + 1);	
+				fullRequest.clear();
+				// while(((recvReturn = recv(events[idx].data.fd , receivingBuffer, MAX_LINE, 0)) > 0))
+				while(((recvReturn = recv(requestSocket , receivingBuffer, MAX_LINE, 0)) > 0))
+				{
+					fullRequest.append(receivingBuffer, recvReturn);
+					if (recvReturn < MAX_LINE)
+					{
+						memset(receivingBuffer, 0, MAX_LINE);
+						break;
+					}
+					memset(receivingBuffer, 0, MAX_LINE);
+					cout << PURPLE << "Inside else if: " << recvReturn << RESET_LINE;
+				}
+				failTest(recvReturn, "recv() call to read from requestSocket");
+				// handleRequest(events[idx].data.fd , fullRequest);
+				handleRequest(requestSocket, fullRequest);
+				// failTest(close(events[idx].data.fd ), "Sending answer to Request to requestSocket");
+				// epoll_ctl(epollFD, EPOLL_CTL_DEL, events[idx].data.fd, NULL);
+				failTest(close(requestSocket), "Sending answer to Request to requestSocket");
+			}
+
+			/* check if the connection is closing */
+			// if (events[idx].events & (EPOLLRDHUP | EPOLLHUP))
+			// {
+			// 	printf("[+] connection closed\n");
+			// 	epoll_ctl(epollFD, EPOLL_CTL_DEL, events[idx].data.fd, NULL);
+			// 	close(events[idx].data.fd);
+			// 	continue;
+			// }
 
 
 		//printing the request
-		// cout << "This is the full Request" << RESET_LINE;
+		cout << "This is the full Request" << RESET_LINE;
 		// cout << endl << fullRequest << RED << "<<here is the end>>" << RESET_LINE;
+		}
 	}
 }
 
@@ -219,7 +272,7 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 	std::string binaryString;
 	fseek(file_stream, 0, SEEK_END);
 	*size = ftell(file_stream);
-	cout << RED << *size << RESET_LINE;
+	cout << YELLOW << *size << RESET_LINE;
 	rewind(file_stream);
 	std::vector<char>  binaryVector;
 	binaryVector.resize(*size);
