@@ -55,6 +55,7 @@ using std::ifstream;
 #define SA					struct sockaddr
 #define SOCKET_BACKLOG		1024
 #define HTTPVERSION			"HTTP/1.1"
+#define MAX_EVENTS	10
 
 
 bool file_exists (const std::string& name);
