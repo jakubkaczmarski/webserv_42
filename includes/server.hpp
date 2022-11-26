@@ -23,12 +23,15 @@ typedef struct t_response
 	std::string								body;					// getBinary()
 }	s_response;
 
-typedef struct t_connecData
+class connecData
 {
-	int										socket;
-	s_response								request;
-	s_request								response;
-} s_connecData;
+	public:
+		bool									finishedRequest;
+		bool									finishedResponse;
+		int										socket;
+		s_request								request;
+		s_response								response;
+};
 
 class server
 {
@@ -99,9 +102,10 @@ class server
 		// 	{"510", "Not Extended"},
 		// 	{"511", "Network Authentication Required"},
 		// };
-		int					serverSocket;
-		s_connecData		connections[MAX_EVENTS - 1];
-		size_t				currConnections;
+		int								serverSocket;
+		std::vector<connecData*>		connections;
+		int								epollFD;
+		// size_t							currConnections;  // no need because connecctions is a vector now
 
 		// do we need this shit?
 		struct sockaddr_in	serverAddress;
@@ -134,7 +138,16 @@ class server
 		void			sendResponse(int requestSocket, std::string &path);			// im writing this with a get request in mind
 		void			fillInPossibleTypes();
 		void			handle_post(int requestSocket, std::string &path, std::string &fullRequest);
-		void			acceptConnection( void );
+		void			acceptConnection( int epollFD );
+		void			closeAndRemoveFromEpoll( struct epoll_event ev );
+		void			doRequestStuff( struct epoll_event ev );
+		void			doResponseStuff( struct epoll_event ev );
+		std::vector<connecData*>::iterator				findStructVectorIt( struct epoll_event ev);
+		void			endRequest( struct epoll_event ev );
+		void			endResponse( struct epoll_event ev );
+		void			confusedEpoll( struct epoll_event ev );
+		
+		// void			removeFromEpoll( struct epoll_event ev );
 		
 
 
@@ -148,7 +161,7 @@ class server
 			}
 			fillInPossibleTypes();
 			servAddressInit();
-			currConnections = 0;
+			// currConnections = 0;
 		};
 		server(char * confPath): servConfig(confPath)
 		{
@@ -160,7 +173,7 @@ class server
 			}
 			fillInPossibleTypes();
 			servAddressInit();
-			currConnections = 0;
+			// currConnections = 0;
 		};
 		~server() {
 		};
