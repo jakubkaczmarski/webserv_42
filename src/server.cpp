@@ -209,7 +209,7 @@ void		server::handle_post(int requestSocket, std::string &path, std::string &ful
 
 void		server::handleRequest(int requestSocket, std::string &fullRequest)
 {
-	fillRequestStruct(fullRequest);
+	// fillRequestStruct(fullRequest);
 	// if (checkRequestErrors(requestSocket) != 0)
 		// return ;
 	if (currRequest.method.compare("GET") == 0)

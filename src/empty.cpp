@@ -30,12 +30,24 @@ std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
+void	server::parseRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+
+
+	fillRequestStruct(it);
+}
+
 void	server::endRequest( struct epoll_event ev )
 {
 	int		tmpFD = ev.data.fd;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	ev = createEpollStruct(tmpFD, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
+	parseRequest(ev);
+
+	cout << RED << "endRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
 
 }
