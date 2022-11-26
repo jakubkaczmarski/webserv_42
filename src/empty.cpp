@@ -51,6 +51,11 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
+void	server::responseHeader( struct epoll_event ev )
+{
+
+}
+
 void	server::endResponse( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
@@ -123,8 +128,11 @@ void	server::doRequestStuff( struct epoll_event ev )
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
 	if (recReturn < MAX_LINE)
+	{
 		endRequest(ev, it);
-		// done reading close event and open new writing event
+		responseHeader(it);
+	}
+	// done reading close event and open new writing event
 }
 
 
