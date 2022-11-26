@@ -7,6 +7,7 @@
 
 typedef struct t_request
 {
+	std::string								raw;
 	std::string								method;
 	std::string								URI;
 	std::string								httpVers;
@@ -21,6 +22,13 @@ typedef struct t_response
 	std::string								headers;
 	std::string								body;					// getBinary()
 }	s_response;
+
+typedef struct t_connecData
+{
+	int										socket;
+	s_response								request;
+	s_request								response;
+} s_connecData;
 
 class server
 {
@@ -92,17 +100,21 @@ class server
 		// 	{"511", "Network Authentication Required"},
 		// };
 		int					serverSocket;
-		int					connectionSocket;
+		s_connecData		connections[MAX_EVENTS - 1];
+		size_t				currConnections;
+
+		// do we need this shit?
 		struct sockaddr_in	serverAddress;
 		int					sizeOfServerAddress = sizeof(serverAddress);
-		std::string			fullRequest;
-		s_request			currRequest;
-		s_response			currResponse;
-		std::map<std::string, std::string> possible_types;
-		int					port;
-		config				servConfig;
-		// int					host;  // what is this???
-		size_t				max_client_body_size;
+
+		
+
+		int									connectionSocket;
+		std::string							fullRequest;
+		s_request							currRequest;
+		s_response							currResponse;
+		std::map<std::string, std::string>	possible_types;
+		config								servConfig;
 
 
 
@@ -122,7 +134,10 @@ class server
 		void			sendResponse(int requestSocket, std::string &path);			// im writing this with a get request in mind
 		void			fillInPossibleTypes();
 		void			handle_post(int requestSocket, std::string &path, std::string &fullRequest);
+		void			acceptConnection( void );
 		
+
+
 	public:
 		server(): servConfig()
 		{
@@ -133,6 +148,7 @@ class server
 			}
 			fillInPossibleTypes();
 			servAddressInit();
+			currConnections = 0;
 		};
 		server(char * confPath): servConfig(confPath)
 		{
@@ -144,6 +160,7 @@ class server
 			}
 			fillInPossibleTypes();
 			servAddressInit();
+			currConnections = 0;
 		};
 		~server() {
 		};
