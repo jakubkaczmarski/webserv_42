@@ -95,26 +95,16 @@ void	server::confusedEpoll( struct epoll_event ev )
 void	server::doResponseStuff( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
-	
-	cout << "do response stuff" << endl;
-	cout << (*it)->request.raw << endl;
+	char								sendBuffer[MAX_LINE];
+	int									sendReturn;
+	int									readReturn;
 
-	// send in chunks the response
+	sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
 
-	// if end of response 
-	endResponse(ev);
+	failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 
-	// char								recBuffer[MAX_LINE];
-	// int									recReturn;
-
-
-	// memset(recBuffer, 0, MAX_LINE);	
-	// // fullRequest.clear();
-	// failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
-	// (*it)->request.raw.append(recBuffer, recReturn);
-	// if (recReturn < MAX_LINE)
-	// 	endRequest(ev);
-	// 	// done reading close event and open new writing event
+	if(sendReturn < MAX_LINE)
+		endResponse(ev);
 }
 
 void	server::doRequestStuff( struct epoll_event ev )

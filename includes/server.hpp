@@ -20,7 +20,7 @@ typedef struct t_response
 	std::string								httpVers;
 	std::string								statusMessage;			// number + message
 	std::string								headers;
-	std::string								body;					// getBinary()
+	// std::string								body;					// getBinary()
 	int										body_fd;
 }	s_response;
 

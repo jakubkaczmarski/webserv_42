@@ -90,21 +90,21 @@ static void epoll_ctl_add(int epfd, int fd, uint32_t events)
 // 	}
 // }
 
-void	server::sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
-{
-	std::string		outie;
+// void	server::sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
+// {
+// 	std::string		outie;
 
-	fillResponseStructBinary(path,requestSocket);
-	outie.append(currResponse.httpVers + " " + 
-				currResponse.statusMessage + "\r\n" +
-				currResponse.headers + "\r\n\r\n" +
-				currResponse.body);
+// 	fillResponseStructBinary(path,requestSocket);
+// 	outie.append(currResponse.httpVers + " " + 
+// 				currResponse.statusMessage + "\r\n" +
+// 				currResponse.headers + "\r\n\r\n" +
+// 				currResponse.body);
 
-	const char *	responsy = outie.c_str();
+// 	const char *	responsy = outie.c_str();
 
-	failTest(send(requestSocket, responsy, outie.size(), 0),
-				"Sending answer to Request to requestSocket");
-}
+// 	failTest(send(requestSocket, responsy, outie.size(), 0),
+// 				"Sending answer to Request to requestSocket");
+// }
 
 
 
@@ -153,14 +153,14 @@ int	server::checkGetRequest(int requestSocket)
 }
 
 
-void server::fillResponseStructBinary(std::string &path, int request_soc)
-{
-	long		bodyLength;
-	currResponse.httpVers = HTTPVERSION;
-	currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
-	currResponse.body = getBinary(path, &bodyLength, request_soc);
-	currResponse.headers = makeHeader(bodyLength, path); // still have to do
-}
+// void server::fillResponseStructBinary(std::string &path, int request_soc)
+// {
+// 	long		bodyLength;
+// 	currResponse.httpVers = HTTPVERSION;
+// 	currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
+// 	currResponse.body = getBinary(path, &bodyLength, request_soc);
+// 	currResponse.headers = makeHeader(bodyLength, path); // still have to do
+// }
 
 int	server::checkRequestErrors(int requestSocket)
 {
@@ -207,41 +207,41 @@ void		server::handle_post(int requestSocket, std::string &path, std::string &ful
 	}
 }
 
-void		server::handleRequest(int requestSocket, std::string &fullRequest)
-{
-	// fillRequestStruct(fullRequest);
-	// if (checkRequestErrors(requestSocket) != 0)
-		// return ;
-	if (currRequest.method.compare("GET") == 0)
-	{
-		// test for errors
-		// send response
-		sendResponse(requestSocket, currRequest.URI);
-		cout << "its a get request :)" << endl;
-	}
-	else if (currRequest.method.compare("POST") == 0)
-	{
-		// test for errors
-		// send response
-		handle_post(requestSocket, currRequest.URI, fullRequest);
-		cout << "its a post request :)" << endl;
-	}
-	else if (currRequest.method.compare("DELETE") == 0)
-	{
-		// test for errors
-		// send response
-		cout << "its a delete request :)" << endl;
-	}
-	else
-	{
-		cout << "We should throw an error code with a message that we do not support this method" << endl;
-	}
-	currRequest.headers.clear();
-	currRequest.body.clear();
-	// currRequest.httpVers.clear();
-	// currRequest.method.clear();
-	// currRequest.URI.clear();
-}
+// void		server::handleRequest(int requestSocket, std::string &fullRequest)
+// {
+// 	// fillRequestStruct(fullRequest);
+// 	// if (checkRequestErrors(requestSocket) != 0)
+// 		// return ;
+// 	if (currRequest.method.compare("GET") == 0)
+// 	{
+// 		// test for errors
+// 		// send response
+// 		sendResponse(requestSocket, currRequest.URI);
+// 		cout << "its a get request :)" << endl;
+// 	}
+// 	else if (currRequest.method.compare("POST") == 0)
+// 	{
+// 		// test for errors
+// 		// send response
+// 		handle_post(requestSocket, currRequest.URI, fullRequest);
+// 		cout << "its a post request :)" << endl;
+// 	}
+// 	else if (currRequest.method.compare("DELETE") == 0)
+// 	{
+// 		// test for errors
+// 		// send response
+// 		cout << "its a delete request :)" << endl;
+// 	}
+// 	else
+// 	{
+// 		cout << "We should throw an error code with a message that we do not support this method" << endl;
+// 	}
+// 	currRequest.headers.clear();
+// 	currRequest.body.clear();
+// 	// currRequest.httpVers.clear();
+// 	// currRequest.method.clear();
+// 	// currRequest.URI.clear();
+// }
 
 std::string		server::getBinary(std::string &path, long *size, int request_soc)
 {
