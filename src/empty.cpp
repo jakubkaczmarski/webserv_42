@@ -51,9 +51,10 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
-void	server::responseHeader( struct epoll_event ev )
+void	server::responseHeader( std::vector<connecData*>::iterator it )
 {
-
+	// parse and send header to client
+	// open fd into the (*it)->response.body_fd for the body
 }
 
 void	server::endResponse( struct epoll_event ev )

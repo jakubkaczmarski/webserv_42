@@ -148,7 +148,7 @@ class server
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			parseRequest( struct epoll_event ev );
-		void			responseHeader( struct epoll_event ev );
+		void			responseHeader( std::vector<connecData*>::iterator it );
 		
 		// void			removeFromEpoll( struct epoll_event ev );
 		
