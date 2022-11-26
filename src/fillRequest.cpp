@@ -54,7 +54,7 @@ void server::fillRequestBody(std::vector<connecData*>::iterator	it)
 	{
 		begin		= (*it)->request.raw.find("\r\n\r\n") + 4;
 		size		= stoi((*it)->request.headers.at("Content-Length"));
-		std::string	body = (*it)->request.raw.substr(begin, size);
+		std::string	body = (*it)->request.raw.substr(begin, size);			//still have to do (what if big body .. idea is to char* to data(+size of headers))
 		(*it)->request.body = body;
 	}
 	// else if ((*it)->request.headers.end() != (*it)->request.headers.find("Content-Length"))

@@ -22,6 +22,7 @@ std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_eve
 {
 	std::vector<connecData*>::iterator	it = connections.begin();
 	std::vector<connecData*>::iterator	it_e = connections.end();
+
 	for (; it != it_e; it++)
 	{
 		if(ev.data.fd == (*it)->socket)
@@ -34,18 +35,16 @@ void	server::parseRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
-
-
 	fillRequestStruct(it);
 }
 
-void	server::endRequest( struct epoll_event ev )
+void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
-	int		tmpFD = ev.data.fd;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-	ev = createEpollStruct(tmpFD, EPOLLOUT);
-	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	parseRequest(ev);
+	ev = createEpollStruct((*it)->socket, EPOLLOUT);
+	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
+	(*it)->finishedRequest = true;
 
 	cout << RED << "endRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
@@ -59,6 +58,8 @@ void	server::endResponse( struct epoll_event ev )
 	delete (*it);
 	connections.erase(it);
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+
+	
 }
 
 void	server::confusedEpoll( struct epoll_event ev )
@@ -68,7 +69,7 @@ void	server::confusedEpoll( struct epoll_event ev )
 	if ((*it)->finishedRequest && (*it)->finishedResponse)
 		endResponse(ev);
 	else if ((*it)->finishedRequest)
-		endRequest(ev);
+		endRequest(ev, it);
 	cout << RED << "confusedEpoll i dont know what to do!" << RESET_LINE;	
 }
 
@@ -92,6 +93,9 @@ void	server::doResponseStuff( struct epoll_event ev )
 	cout << "do response stuff" << endl;
 	cout << (*it)->request.raw << endl;
 
+	// send in chunks the response
+
+	// if end of response 
 	endResponse(ev);
 
 	// char								recBuffer[MAX_LINE];
@@ -119,7 +123,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
 	if (recReturn < MAX_LINE)
-		endRequest(ev);
+		endRequest(ev, it);
 		// done reading close event and open new writing event
 }
 
@@ -145,11 +149,10 @@ void	server::acceptConnection( int epollFD )
 	connecData			*tmp = new connecData();
 	struct epoll_event	ev;
 
-	
 	tmp->socket = accept(serverSocket, (SA *) NULL, NULL);
+	failTest(tmp->socket, "accept new Socket");
 	tmp->finishedResponse = false;
 	tmp->finishedRequest = false;
-	failTest(tmp->socket, "accept new Socket");
 	connections.push_back(tmp);
 	// currConnections++;
 	ev = createEpollStruct(tmp->socket, EPOLLIN );

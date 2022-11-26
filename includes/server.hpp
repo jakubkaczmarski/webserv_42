@@ -20,7 +20,8 @@ typedef struct t_response
 	std::string								httpVers;
 	std::string								statusMessage;			// number + message
 	std::string								headers;
-	std::string								body;					// getBinary()
+	// std::string								body;					// getBinary()
+	int										body_fd;
 }	s_response;
 
 class connecData
@@ -143,7 +144,7 @@ class server
 		void			doRequestStuff( struct epoll_event ev );
 		void			doResponseStuff( struct epoll_event ev );
 		std::vector<connecData*>::iterator				findStructVectorIt( struct epoll_event ev);
-		void			endRequest( struct epoll_event ev );
+		void			endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			parseRequest( struct epoll_event ev );
