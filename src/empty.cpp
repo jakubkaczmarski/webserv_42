@@ -55,6 +55,13 @@ void	server::responseHeader( std::vector<connecData*>::iterator it )
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
+	(*it)->response.headers = "HTTP/1.1 200 OK\n"
+"Content-Length: 10\n"
+"Content-Type: text/html\n"
+"Connection: Closed\n\n";
+	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+	FILE *f = fopen("database/default_index.html", "rb");
+	(*it)->response.body_fd = fileno(f);
 }
 
 void	server::endResponse( struct epoll_event ev )
