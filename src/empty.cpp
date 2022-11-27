@@ -180,7 +180,7 @@ void		server::requestLoop( void )
 
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 
-	cout << "serverSocket: " << serverSocket << endl;
+	cout << "epollFD: " << epollFD << endl << "serverSocket: " << serverSocket << endl;
 
 	while(1)
 	{
