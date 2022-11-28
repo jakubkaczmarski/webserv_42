@@ -166,7 +166,6 @@ void	server::doResponseStuff( struct epoll_event ev )
 	sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
 
 	failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
-	
 	if(sendReturn < MAX_LINE)
 		endResponse(ev);
 }
@@ -180,6 +179,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 
 	memset(recBuffer, 0, MAX_LINE);	
 	// fullRequest.clear();
+	std::cout << "Siemanko time do process post request" << std::endl;
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
 	if (recReturn < MAX_LINE)
