@@ -55,13 +55,69 @@ void	server::responseHeader( std::vector<connecData*>::iterator it )
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
-	(*it)->response.headers = "HTTP/1.1 200 OK\n"
-"Content-Length: 19000\n"
-"Content-Type: text/html\n"
-"Connection: Closed\n\n\n";
+
+	FILE	*file_stream;
+	std::string def_path("./database/default_index.html");
+	std::string fav_path("./database/favicon.ico");
+	std::string err_path("./database/Error_404.png");
+	std::cout << "Hereeeeeeeeeee" << std::endl;
+	std::cout << (*it)->request.URI << std::endl;
+	if((*it)->request.URI.compare("/") == 0)
+	{
+		//Root path for welcome page
+		file_stream = fopen(def_path.c_str() , "rb");
+	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
+	{
+		//Favicon for now streamlined
+		file_stream = fopen(fav_path.c_str(), "rb");
+	}
+	else{
+		//If there is a different file user wants to open
+		file_stream = fopen(("."+ (*it)->request.URI).c_str(), "rb");
+	}
+	if(file_stream == nullptr)
+	{
+		//For errors
+		file_stream = fopen(err_path.c_str(), "rb");
+		(*it)->request.URI = "/database/Error_404.png";
+
+	}
+	std::string binaryString;
+	fseek(file_stream, 0, SEEK_END);
+	std::string extension;
+	int i = (*it)->request.URI.length() - 1;
+	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+	{
+		i--;
+	}
+	if(!(*it)->request.URI[i])
+	{
+		//Default extension if there is none 
+		extension = "text";
+	}else{
+		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+	}
+	int file_num = fileno(file_stream);
+	std::stringstream conv;
+	(*it)->response.content_lenght = ftell(file_stream);
+	conv << (*it)->response.content_lenght; 
+	
+	(*it)->response.headers = "HTTP/1.1 200 OK\n";
+	(*it)->response.headers.append("Content-Length: ");
+	(*it)->response.headers.append(conv.str());
+	(*it)->response.headers.append("\n");
+	(*it)->response.headers.append("Content-Type: ");
+	(*it)->response.headers.append(extension);
+	(*it)->response.headers.append("\n\n");
+	(*it)->response.body_fd = file_num;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
-	FILE *f = fopen("database/default_index.html", "rb");
-	(*it)->response.body_fd = fileno(f);
+	// (*it)->response.headers.append("Connection: Closed\n\n\n");
+	std::cout << (*it)->response.headers << std::endl;
+	std::cout << (*it)->response.body_fd << std::endl;
+	rewind(file_stream);
+	
+
+	
 }
 
 void	server::endResponse( struct epoll_event ev )
@@ -110,7 +166,7 @@ void	server::doResponseStuff( struct epoll_event ev )
 	sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
 
 	failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
-
+	
 	if(sendReturn < MAX_LINE)
 		endResponse(ev);
 }
