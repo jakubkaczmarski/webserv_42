@@ -104,11 +104,46 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 		std::cout << "Wrong path mate" << std::endl;
 	}
 }
-void	server::responseHeader( std::vector<connecData*>::iterator it )
+
+void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
+{
+	FILE	*file_stream;
+	std::cout << (*it)->request.URI << std::endl;
+
+	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
+	{
+		//Root path for welcome page
+		std::string ret = ".";
+		ret.append((*it)->request.URI);
+		if(remove(ret.c_str()) != 0)
+		{
+			std::cout << "Cannot remove this file " << "." + (*it)->request.URI << std::endl;
+		}
+		endResponse(ev);
+		return ;
+	}else{
+		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
+		endResponse(ev);
+		return ;
+	}
+	if(file_stream == nullptr)
+	{
+		//For errors
+		std::cout << "File not found " << std::endl;
+		endResponse(ev);
+	}
+	
+}
+
+void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
-	if((*it)->request.method.compare("POST") == 0)
+	if((*it)->request.method.compare("DELETE") == 0)
+	{
+		handle_delete(it, ev);
+	}
+	else if((*it)->request.method.compare("POST") == 0)
 	{
 		handle_post(it);
 	}else if((*it)->request.method.compare("GET") == 0){
@@ -256,7 +291,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 		
 		std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
 		endRequest(ev, it);
-		responseHeader(it);
+		responseHeader(it, ev);
 	}
 	// done reading close event and open new writing event
 }

@@ -142,6 +142,7 @@ class server
 		void			sendResponse(int requestSocket, std::string &path);			// im writing this with a get request in mind
 		void			fillInPossibleTypes();
 		void 			handle_post( std::vector<connecData*>::iterator it);
+		void			handle_delete(std::vector<connecData*>::iterator it ,struct epoll_event	ev);
 		void			acceptConnection( int epollFD );
 		void			closeAndRemoveFromEpoll( struct epoll_event ev );
 		void			doRequestStuff( struct epoll_event ev );
@@ -151,7 +152,7 @@ class server
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			parseRequest( struct epoll_event ev );
-		void			responseHeader( std::vector<connecData*>::iterator it );
+		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		
 		// void			removeFromEpoll( struct epoll_event ev );
 		
