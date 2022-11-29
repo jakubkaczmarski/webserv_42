@@ -80,7 +80,8 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 		}else{
 			for(i = (*iter).second.length() - 1; i > 0 && (*iter).second[i - 1] != '/'; i--)
 			{}
-			std::string full = "uploads/upload." + (*iter).second.substr(i, (*iter).second.length() - i);
+			(*it)->request.URI.append(".");
+			std::string full = &(*it)->request.URI[1] + (*iter).second.substr(i, (*iter).second.length() - i);
 			f = fopen(full.c_str(), "wb");
 		}
 		// extension = content_type.substr(i, content_type.length() - 1);
