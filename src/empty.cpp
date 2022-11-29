@@ -55,16 +55,12 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 {
 	size_t index = (*it)->request.raw.find("Content-Type:");
 	std::string content_type;
-	// file_name.append(content_type)
 	int start = index + 8;
 	index = index + 8;
 	while((*it)->request.raw[index] && (*it)->request.raw[index] != '\n')
 	{
 		index++;
 	}
-	// std::cout << "Index " << index << "\nStart " << start << std::endl;
-	// content_type = (*it)->request.raw.substr(start, index);
-	// std::cout << (*it)->request.raw << std::endl;
 
 	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
 	{
@@ -92,13 +88,8 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 			}
 			
 			f = fopen(full.c_str(), "wb");
-		}
-		// extension = content_type.substr(i, content_type.length() - 1);
-		// std::ofstream file("./uploads/" + file_name + "." + extension,  std::ios::out | std::ios::binary);
-		
+		}		
 		(*it)->request.fd = fileno(f);
-		// (*it)-> 
-		// std::cout << "tak tutaj mozesz wrzucac " << extension <<  std::endl;
 
 	}else{
 		std::cout << "Wrong path mate" << std::endl;
@@ -119,22 +110,81 @@ void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 		{
 			std::cout << "Cannot remove this file " << "." + (*it)->request.URI << std::endl;
 		}
-		endResponse(ev);
 		return ;
 	}else{
 		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
-		endResponse(ev);
 		return ;
 	}
 	if(file_stream == nullptr)
 	{
 		//For errors
 		std::cout << "File not found " << std::endl;
-		endResponse(ev);
+
 	}
 	
 }
 
+void	server::handleGet(std::vector<connecData*>::iterator it)
+{
+	FILE	*file_stream;
+	std::string def_path("./database/default_index.html");
+	std::string fav_path("./database/favicon.ico");
+	std::string err_path("./database/Error_404.png");
+	std::cout << (*it)->request.URI << std::endl;
+
+	if((*it)->request.URI.compare("/") == 0)
+	{
+		//Root path for welcome page
+		file_stream = fopen(def_path.c_str() , "rb");
+	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
+	{
+		//Favicon for now streamlined
+		file_stream = fopen(fav_path.c_str(), "rb");
+	}
+	else{
+		//If there is a different file user wants to open
+		file_stream = fopen(("."+ (*it)->request.URI).c_str(), "rb");
+	}
+	if(file_stream == nullptr)
+	{
+		//For errors
+		file_stream = fopen(err_path.c_str(), "rb");
+		(*it)->request.URI = "/database/Error_404.png";
+
+	}
+	std::string binaryString;
+	fseek(file_stream, 0, SEEK_END);
+	std::string extension;
+	int i = (*it)->request.URI.length() - 1;
+	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+	{
+		i--;
+	}
+	if(!(*it)->request.URI[i])
+	{
+		//Default extension if there is none 
+		extension = "text";
+	}else{
+		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+	}
+	int file_num = fileno(file_stream);
+	std::stringstream conv;
+	(*it)->response.content_lenght = ftell(file_stream);
+	conv << (*it)->response.content_lenght; 
+	
+	(*it)->response.headers = "HTTP/1.1 200 OK\n";
+	(*it)->response.headers.append("Content-Length: ");
+	(*it)->response.headers.append(conv.str());
+	(*it)->response.headers.append("\n");
+	(*it)->response.headers.append("Content-Type: ");
+	(*it)->response.headers.append(extension);
+	(*it)->response.headers.append("\n\n");
+	(*it)->response.body_fd = file_num;
+	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+	std::cout << (*it)->response.headers << std::endl;
+	std::cout << (*it)->response.body_fd << std::endl;
+	rewind(file_stream);
+}
 void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
 	// parse and send header to client
@@ -142,72 +192,14 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handle_delete(it, ev);
+		endResponse(ev);
 	}
 	else if((*it)->request.method.compare("POST") == 0)
 	{
 		handle_post(it);
 	}else if((*it)->request.method.compare("GET") == 0){
-		FILE	*file_stream;
-		std::string def_path("./database/default_index.html");
-		std::string fav_path("./database/favicon.ico");
-		std::string err_path("./database/Error_404.png");
-		std::cout << (*it)->request.URI << std::endl;
-
-		if((*it)->request.URI.compare("/") == 0)
-		{
-			//Root path for welcome page
-			file_stream = fopen(def_path.c_str() , "rb");
-		}else if((*it)->request.URI.compare("./favicon.ico") == 0)
-		{
-			//Favicon for now streamlined
-			file_stream = fopen(fav_path.c_str(), "rb");
-		}
-		else{
-			//If there is a different file user wants to open
-			file_stream = fopen(("."+ (*it)->request.URI).c_str(), "rb");
-		}
-		if(file_stream == nullptr)
-		{
-			//For errors
-			file_stream = fopen(err_path.c_str(), "rb");
-			(*it)->request.URI = "/database/Error_404.png";
-
-		}
-		std::string binaryString;
-		fseek(file_stream, 0, SEEK_END);
-		std::string extension;
-		int i = (*it)->request.URI.length() - 1;
-		while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
-		{
-			i--;
-		}
-		if(!(*it)->request.URI[i])
-		{
-			//Default extension if there is none 
-			extension = "text";
-		}else{
-			extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
-		}
-		int file_num = fileno(file_stream);
-		std::stringstream conv;
-		(*it)->response.content_lenght = ftell(file_stream);
-		conv << (*it)->response.content_lenght; 
-		
-		(*it)->response.headers = "HTTP/1.1 200 OK\n";
-		(*it)->response.headers.append("Content-Length: ");
-		(*it)->response.headers.append(conv.str());
-		(*it)->response.headers.append("\n");
-		(*it)->response.headers.append("Content-Type: ");
-		(*it)->response.headers.append(extension);
-		(*it)->response.headers.append("\n\n");
-		(*it)->response.body_fd = file_num;
-		send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
-		// (*it)->response.headers.append("Connection: Closed\n\n\n");
-		std::cout << (*it)->response.headers << std::endl;
-		std::cout << (*it)->response.body_fd << std::endl;
-		rewind(file_stream);
+		handleGet(it);
 	}
-	
 	
 }
 
@@ -233,19 +225,6 @@ void	server::confusedEpoll( struct epoll_event ev )
 		endRequest(ev, it);
 	cout << RED << "confusedEpoll i dont know what to do!" << RESET_LINE;	
 }
-
-// void	server::removeFromEpoll( struct epoll_event ev )
-// {
-// 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-
-// }
-
-// void	server::closeAndRemoveFromEpoll( struct epoll_event ev )
-// {
-// 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
-// 	delete (*it);
-// 	connections.erase(it);
-// }
 
 void	server::doResponseStuff( struct epoll_event ev )
 {
@@ -296,23 +275,6 @@ void	server::doRequestStuff( struct epoll_event ev )
 	// done reading close event and open new writing event
 }
 
-
-
-
-	// // if (it == connections.end())
-	// if ((*it)->untouched)
-	// {}	// read until start of body
-	// else
-	// {
-	// }	// read the rest // if here we get to end of fd close epoll struct and open new one for writing
-
-
-	// char buf[1000];
-	// while(recv(ev.data.fd, buf, 999, 0))
-	// {}
-
-
-
 void	server::acceptConnection( int epollFD )
 {
 	connecData			*tmp = new connecData();
@@ -323,7 +285,6 @@ void	server::acceptConnection( int epollFD )
 	tmp->finishedResponse = false;
 	tmp->finishedRequest = false;
 	connections.push_back(tmp);
-	// currConnections++;
 	ev = createEpollStruct(tmp->socket, EPOLLIN );
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 }
