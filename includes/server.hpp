@@ -13,6 +13,8 @@ typedef struct t_request
 	std::string								httpVers;
 	std::map<std::string, std::string>		headers;
 	std::string								body; //for now string
+	int										already_sent = 0;
+	int										fd = 0;
 }	s_request;
 
 typedef struct t_response
@@ -139,7 +141,7 @@ class server
 		void			fillResponseStructBinary(std::string &path, int request_soc);
 		void			sendResponse(int requestSocket, std::string &path);			// im writing this with a get request in mind
 		void			fillInPossibleTypes();
-		void			handle_post(int requestSocket, std::string &path, std::string &fullRequest);
+		void 			handle_post( std::vector<connecData*>::iterator it);
 		void			acceptConnection( int epollFD );
 		void			closeAndRemoveFromEpoll( struct epoll_event ev );
 		void			doRequestStuff( struct epoll_event ev );

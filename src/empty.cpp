@@ -51,72 +51,110 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
+void 	server::handle_post( std::vector<connecData*>::iterator it)
+{
+	size_t index = (*it)->request.raw.find("Content-Type:");
+	std::string content_type;
+	// file_name.append(content_type)
+	int start = index + 8;
+	index = index + 8;
+	while((*it)->request.raw[index] && (*it)->request.raw[index] != '\n')
+	{
+		index++;
+	}
+	std::cout << "Index " << index << "\nStart " << start << std::endl;
+	content_type = (*it)->request.raw.substr(start, index);
+	std::cout << (*it)->request.raw << std::endl;
+
+	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
+	{
+		std::string file_name = "file";
+		std::string extension;
+		int i;
+		for(i = content_type.length() - 1; content_type[i - 1] && content_type[i] && content_type[i - 1] != '/'; i--)
+		{
+		}
+		extension = content_type.substr(i, content_type.length() - 1);
+		std::string ex = "./uploads/file." + extension;
+		// std::ofstream file("./uploads/" + file_name + "." + extension,  std::ios::out | std::ios::binary);
+		FILE *f = fopen("./uploads/file.png", "wb");
+		(*it)->request.fd = fileno(f);
+		// (*it)-> 
+		// std::cout << "tak tutaj mozesz wrzucac " << extension <<  std::endl;
+
+	}else{
+		std::cout << "Wrong path mate" << std::endl;
+	}
+}
 void	server::responseHeader( std::vector<connecData*>::iterator it )
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
+	if((*it)->request.method.compare("POST") == 0)
+	{
+		handle_post(it);
+	}else if((*it)->request.method.compare("GET") == 0){
+		FILE	*file_stream;
+		std::string def_path("./database/default_index.html");
+		std::string fav_path("./database/favicon.ico");
+		std::string err_path("./database/Error_404.png");
+		std::cout << (*it)->request.URI << std::endl;
 
-	FILE	*file_stream;
-	std::string def_path("./database/default_index.html");
-	std::string fav_path("./database/favicon.ico");
-	std::string err_path("./database/Error_404.png");
-	std::cout << "Hereeeeeeeeeee" << std::endl;
-	std::cout << (*it)->request.URI << std::endl;
-	if((*it)->request.URI.compare("/") == 0)
-	{
-		//Root path for welcome page
-		file_stream = fopen(def_path.c_str() , "rb");
-	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
-	{
-		//Favicon for now streamlined
-		file_stream = fopen(fav_path.c_str(), "rb");
-	}
-	else{
-		//If there is a different file user wants to open
-		file_stream = fopen(("."+ (*it)->request.URI).c_str(), "rb");
-	}
-	if(file_stream == nullptr)
-	{
-		//For errors
-		file_stream = fopen(err_path.c_str(), "rb");
-		(*it)->request.URI = "/database/Error_404.png";
+		if((*it)->request.URI.compare("/") == 0)
+		{
+			//Root path for welcome page
+			file_stream = fopen(def_path.c_str() , "rb");
+		}else if((*it)->request.URI.compare("./favicon.ico") == 0)
+		{
+			//Favicon for now streamlined
+			file_stream = fopen(fav_path.c_str(), "rb");
+		}
+		else{
+			//If there is a different file user wants to open
+			file_stream = fopen(("."+ (*it)->request.URI).c_str(), "rb");
+		}
+		if(file_stream == nullptr)
+		{
+			//For errors
+			file_stream = fopen(err_path.c_str(), "rb");
+			(*it)->request.URI = "/database/Error_404.png";
 
+		}
+		std::string binaryString;
+		fseek(file_stream, 0, SEEK_END);
+		std::string extension;
+		int i = (*it)->request.URI.length() - 1;
+		while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+		{
+			i--;
+		}
+		if(!(*it)->request.URI[i])
+		{
+			//Default extension if there is none 
+			extension = "text";
+		}else{
+			extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+		}
+		int file_num = fileno(file_stream);
+		std::stringstream conv;
+		(*it)->response.content_lenght = ftell(file_stream);
+		conv << (*it)->response.content_lenght; 
+		
+		(*it)->response.headers = "HTTP/1.1 200 OK\n";
+		(*it)->response.headers.append("Content-Length: ");
+		(*it)->response.headers.append(conv.str());
+		(*it)->response.headers.append("\n");
+		(*it)->response.headers.append("Content-Type: ");
+		(*it)->response.headers.append(extension);
+		(*it)->response.headers.append("\n\n");
+		(*it)->response.body_fd = file_num;
+		send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+		// (*it)->response.headers.append("Connection: Closed\n\n\n");
+		std::cout << (*it)->response.headers << std::endl;
+		std::cout << (*it)->response.body_fd << std::endl;
+		rewind(file_stream);
 	}
-	std::string binaryString;
-	fseek(file_stream, 0, SEEK_END);
-	std::string extension;
-	int i = (*it)->request.URI.length() - 1;
-	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
-	{
-		i--;
-	}
-	if(!(*it)->request.URI[i])
-	{
-		//Default extension if there is none 
-		extension = "text";
-	}else{
-		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
-	}
-	int file_num = fileno(file_stream);
-	std::stringstream conv;
-	(*it)->response.content_lenght = ftell(file_stream);
-	conv << (*it)->response.content_lenght; 
 	
-	(*it)->response.headers = "HTTP/1.1 200 OK\n";
-	(*it)->response.headers.append("Content-Length: ");
-	(*it)->response.headers.append(conv.str());
-	(*it)->response.headers.append("\n");
-	(*it)->response.headers.append("Content-Type: ");
-	(*it)->response.headers.append(extension);
-	(*it)->response.headers.append("\n\n");
-	(*it)->response.body_fd = file_num;
-	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
-	// (*it)->response.headers.append("Connection: Closed\n\n\n");
-	std::cout << (*it)->response.headers << std::endl;
-	std::cout << (*it)->response.body_fd << std::endl;
-	rewind(file_stream);
-	
-
 	
 }
 
@@ -124,7 +162,7 @@ void	server::endResponse( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
-	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
+	cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
 	close((*it)->response.body_fd);		// fd to body of response
 	delete (*it);
 	connections.erase(it);
@@ -163,11 +201,24 @@ void	server::doResponseStuff( struct epoll_event ev )
 	int									sendReturn;
 	int									readReturn;
 
-	sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
+	if ((*it)->request.fd != 0) // process request body
+	{
+		sendReturn = write((*it)->request.fd , ((*it)->request.body.c_str()) + (*it)->request.already_sent , MAX_LINE);
 
-	failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
-	if(sendReturn < MAX_LINE)
-		endResponse(ev);
+		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
+		if(sendReturn < MAX_LINE)
+			endResponse(ev);
+		(*it)->request.already_sent += sendReturn;
+		/* code */
+	}
+	else
+	{
+		sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
+
+		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
+		if(sendReturn < MAX_LINE)
+			endResponse(ev);
+	}
 }
 
 void	server::doRequestStuff( struct epoll_event ev )
@@ -179,11 +230,13 @@ void	server::doRequestStuff( struct epoll_event ev )
 
 	memset(recBuffer, 0, MAX_LINE);	
 	// fullRequest.clear();
-	std::cout << "Siemanko time do process post request" << std::endl;
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
-	if (recReturn < MAX_LINE)
+	if (recReturn < MAX_LINE) 
 	{
+		std::cout << "Raw Souce " << (*it)->request.raw;
+		
+		std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
 		endRequest(ev, it);
 		responseHeader(it);
 	}
@@ -267,7 +320,6 @@ void		server::requestLoop( void )
 			else if (events[idx].events & ( EPOLLIN ))				// check for read() fd
 			{
 				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
-
 				doRequestStuff(events[idx]);
 				// closeAndRemoveFromEpoll(events[idx], epollFD);  //testing purposes
 			}

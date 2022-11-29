@@ -13,8 +13,6 @@ static void epoll_ctl_add(int epfd, int fd, uint32_t events)
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev) == -1)
 	{
 		cout << "Error number: " << errno << " - " << strerror(errno) << endl;
-		
-
 		exit(1);
 	}
 }
@@ -172,40 +170,40 @@ int	server::checkRequestErrors(int requestSocket)
 	// 	return (checkDeleteRequest());
 	return (-1);
 }
-void		server::handle_post(int requestSocket, std::string &path, std::string &fullrequest)
-{
-	//Content-type deduction 
-	size_t index = fullRequest.find("Content-Type:");
-	std::string content_type;
-	// file_name.append(content_type)
-	int start = index + 8;
-	index = index + 8;
-	while(fullRequest[index] && fullRequest[index] != '\n')
-	{
-		index++;
-	}
-	content_type = fullRequest.substr(start, index);
-	std::cout << content_type << std::endl;
-	if(path.compare(0, 8,"/uploads") == 0)
-	{
-		std::string file_name = "file";
-		std::string extension;
-		int i;
-		for(i = content_type.length() - 1; content_type[i - 1] && content_type[i] && content_type[i - 1] != '/'; i--)
-		{
-		}
-		extension = content_type.substr(i, content_type.length() - 1);
-		// std::ofstream file("./uploads/" + file_name + "." + extension,  std::ios::out | std::ios::binary);
-		std::ofstream file("./uploads/file.png",  std::ios::out | std::ios::binary);
-		file << currRequest.body;
-		write(requestSocket, "200 OK\r\n", 7);
-		file.close();
-		// std::cout << "tak tutaj mozesz wrzucac " << extension <<  std::endl;
+// void		server::handle_post(int requestSocket, std::string &path, std::string &fullrequest)
+// {
+// 	//Content-type deduction 
+// 	size_t index = fullRequest.find("Content-Type:");
+// 	std::string content_type;
+// 	// file_name.append(content_type)
+// 	int start = index + 8;
+// 	index = index + 8;
+// 	while(fullRequest[index] && fullRequest[index] != '\n')
+// 	{
+// 		index++;
+// 	}
+// 	content_type = fullRequest.substr(start, index);
+// 	std::cout << content_type << std::endl;
+// 	if(path.compare(0, 8,"/uploads") == 0)
+// 	{
+// 		std::string file_name = "file";
+// 		std::string extension;
+// 		int i;
+// 		for(i = content_type.length() - 1; content_type[i - 1] && content_type[i] && content_type[i - 1] != '/'; i--)
+// 		{
+// 		}
+// 		extension = content_type.substr(i, content_type.length() - 1);
+// 		// std::ofstream file("./uploads/" + file_name + "." + extension,  std::ios::out | std::ios::binary);
+// 		std::ofstream file("./uploads/file.png",  std::ios::out | std::ios::binary);
+// 		file << currRequest.body;
+// 		write(requestSocket, "200 OK\r\n", 7);
+// 		file.close();
+// 		// std::cout << "tak tutaj mozesz wrzucac " << extension <<  std::endl;
 
-	}else{
-		std::cout << "Wrong path mate" << std::endl;
-	}
-}
+// 	}else{
+// 		std::cout << "Wrong path mate" << std::endl;
+// 	}
+// }
 
 // void		server::handleRequest(int requestSocket, std::string &fullRequest)
 // {

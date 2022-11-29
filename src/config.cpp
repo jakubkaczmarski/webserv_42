@@ -83,12 +83,7 @@ void	config::initDefaultConfig( void )
 	configMap[METHODS] = "GET";
 	configMap[ROOT] = "/workspaces/webserv_42";
 	configMap[DIR] = "/";
-	configMap[UPLOADDIR] = "/database/uploads";
-	// configMap[""] = "";
-	// configMap[""] = "";
-	// configMap[""] = "";
-	// configMap[""] = "";
-	// configMap[""] = "";
+	configMap[UPLOADDIR] = "/database/uploads"; 
 }
 
 
