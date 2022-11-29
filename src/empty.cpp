@@ -1,12 +1,5 @@
 #include "../includes/server.hpp"
 
-// s_connecData	initConnectionStruct(int fd)
-// {
-// 	connecData	out;
-
-// 	out.socket = fd;
-// 	return (out);
-// }
 
 struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
 {
