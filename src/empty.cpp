@@ -62,22 +62,30 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 	{
 		index++;
 	}
-	std::cout << "Index " << index << "\nStart " << start << std::endl;
-	content_type = (*it)->request.raw.substr(start, index);
-	std::cout << (*it)->request.raw << std::endl;
+	// std::cout << "Index " << index << "\nStart " << start << std::endl;
+	// content_type = (*it)->request.raw.substr(start, index);
+	// std::cout << (*it)->request.raw << std::endl;
 
 	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
 	{
 		std::string file_name = "file";
-		std::string extension;
+		std::map<std::string, std::string>::iterator iter;
+		iter = (*it)->request.headers.find("Content-Type");
+
 		int i;
-		for(i = content_type.length() - 1; content_type[i - 1] && content_type[i] && content_type[i - 1] != '/'; i--)
+		FILE *f;
+		if((*iter).second.empty())
 		{
+			f = fopen( "file" , "wb");
+		}else{
+			for(i = (*iter).second.length() - 1; i > 0 && (*iter).second[i - 1] != '/'; i--)
+			{}
+			std::string full = "uploads/upload." + (*iter).second.substr(i, (*iter).second.length() - i);
+			f = fopen(full.c_str(), "wb");
 		}
-		extension = content_type.substr(i, content_type.length() - 1);
-		std::string ex = "./uploads/file." + extension;
+		// extension = content_type.substr(i, content_type.length() - 1);
 		// std::ofstream file("./uploads/" + file_name + "." + extension,  std::ios::out | std::ios::binary);
-		FILE *f = fopen("./uploads/file.png", "wb");
+		
 		(*it)->request.fd = fileno(f);
 		// (*it)-> 
 		// std::cout << "tak tutaj mozesz wrzucac " << extension <<  std::endl;
