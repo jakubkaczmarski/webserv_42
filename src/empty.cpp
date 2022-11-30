@@ -39,7 +39,7 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
 
-	cout << RED << "endRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
+	// cout << RED << "endRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
 
 }
@@ -165,26 +165,40 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	{
 		i--;
 	}
-	if(!(*it)->request.URI[i])
+	if((*it)->request.URI.compare("/") == 0)
+	{
+		extension = ".html";
+	}
+	else if(!(*it)->request.URI[i])
 	{
 		//Default extension if there is none 
-		extension = "text";
-	}else{
+		extension = ".txt";
+	}
+	else{
 		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
 	}
 	// 
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
+	std::cout << extension << std::endl;
 	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
-	
+	// std::cout << << std::endl;
 	// cout << "body fd = " << file_num << endl;
+	if(get_possible_type(extension, false).empty())
+	{
+		extension = "text/plain";
+		std::cout << "Error "<< std::endl;
+	}else{
+		extension = get_possible_type(extension, false);
+	}
 	(*it)->response.headers = "HTTP/1.1 200 OK\n";
 	(*it)->response.headers.append("Content-Length: ");
 	(*it)->response.headers.append(conv.str());
 	(*it)->response.headers.append("\n");
 	(*it)->response.headers.append("Content-Type: ");
-	(*it)->response.headers.append(&extension[1]);
-	(*it)->response.headers.append("\n\n");
+	(*it)->response.headers.append(extension);
+	(*it)->response.headers.append("\n");
+	// (*it)->response.headers.append();
 	(*it)->response.body_fd = fileno(file_str_2);
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
 	std::cout << (*it)->response.headers << std::endl;
@@ -243,7 +257,7 @@ void	server::doResponseStuff( struct epoll_event ev )
 	if ((*it)->request.fd != 0) // process request body
 	{
 		memset(sendBuffer, 0, MAX_LINE);
-		cout << "this is do response stuff if" << endl;
+		// cout << "this is do response stuff if" << endl;
 		sendReturn = write((*it)->request.fd , ((*it)->request.body.c_str()) + (*it)->request.already_sent , MAX_LINE);
 
 		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
@@ -255,10 +269,10 @@ void	server::doResponseStuff( struct epoll_event ev )
 	else
 	{
 		memset(sendBuffer, 0, MAX_LINE);
-		cout << "this is do response stuff else  with fd = " << (*it)->response.body_fd << endl;
+		// cout << "this is do response stuff else  with fd = " << (*it)->response.body_fd << endl;
 		sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
 
-		cout << "sendreturn = " << sendReturn << endl <<  sendBuffer << endl << "end of buffer print" <<  endl;
+		// cout << "sendreturn = " << sendReturn << endl <<  sendBuffer << endl << "end of buffer print" <<  endl;
 
 		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 		if(sendReturn < MAX_LINE)
@@ -282,7 +296,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 	{
 		std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		
-		std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
+		// std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
 		endRequest(ev, it);
 		responseHeader(it, ev);
 	}
@@ -317,37 +331,37 @@ void		server::requestLoop( void )
 
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 
-	cout << "epollFD: " << epollFD << endl << "serverSocket: " << serverSocket << endl;
-
+	// cout << "epollFD: " << epollFD << endl << "serverSocket: " << serverSocket << endl;
+	fillInPossibleTypes();
 	while(1)
 	{
-		cout << "calling epoll_wait" << endl;
+		// cout << "calling epoll_wait" << endl;
 		readyFDs = epoll_wait(epollFD, events, MAX_EVENTS, -1);
 		failTest(readyFDs, "epoll_wait");
 
-		cout << "epoll_wait call successful" << endl;
+		// cout << "epoll_wait call successful" << endl;
 		for (int idx = 0; idx < readyFDs; idx++)
 		{
 			if (events[idx].data.fd == serverSocket)				//accepting a connection
 			{
-				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 1" << endl;
+				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 1" << endl;
 				acceptConnection(epollFD);
 			}
 			else if (events[idx].events & (EPOLLRDHUP | EPOLLHUP))	// check for end of connection
 			{
-				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 2" << endl;
+				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 2" << endl;
 				// closeAndRemoveFromEpoll(events[idx]);
 				endResponse(events[idx]);
 			}
 			else if (events[idx].events & ( EPOLLOUT ))				// check for  write() fd
 			{
-				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
+				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
 				doResponseStuff(events[idx]);
 
 			}
 			else if (events[idx].events & ( EPOLLIN ))				// check for read() fd
 			{
-				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
+				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
 				doRequestStuff(events[idx]);
 				// closeAndRemoveFromEpoll(events[idx], epollFD);  //testing purposes
 			}
@@ -356,10 +370,10 @@ void		server::requestLoop( void )
 				// beConfused()
 				cout << RED << "Why did we get here. FD: " << events[idx].data.fd << RESET_LINE;
 			}
-			cout << "currConnections: " << connections.size() << endl;
+			// cout << "currConnections: " << connections.size() << endl;
 			for (size_t i = 0; i < connections.size(); i++)
 			{
-				cout << "ind: " << i << " socket: " << connections[i]->socket << endl;
+				// cout << "ind: " << i << " socket: " << connections[i]->socket << endl;
 			}
 		}
 	}
