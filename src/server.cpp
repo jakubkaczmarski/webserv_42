@@ -138,6 +138,7 @@ void	server::create_response_and_send(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append("Content-Length: ");
 	(*it)->response.headers.append((*it)->response.content_lenght_str);
 	(*it)->response.headers.append("\n");
+	(*it)->response.headers.append("Connection: close\n");
 	(*it)->response.headers.append("Content-Type: ");
 	(*it)->response.headers.append((*it)->response.content_type);
 	(*it)->response.headers.append("\n");
