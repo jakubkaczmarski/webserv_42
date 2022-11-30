@@ -136,7 +136,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	}
 	else{
 		//If there is a different file user wants to open
-		file_stream = fopen(("."+ (*it)->request.URI).c_str(), "rb");
+		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
 	}
 	if(file_stream == nullptr)
 	{
@@ -170,7 +170,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append(conv.str());
 	(*it)->response.headers.append("\n");
 	(*it)->response.headers.append("Content-Type: ");
-	(*it)->response.headers.append(extension);
+	(*it)->response.headers.append(&extension[1]);
 	(*it)->response.headers.append("\n\n");
 	(*it)->response.body_fd = file_num;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
@@ -196,7 +196,7 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	
 }
 
-void	server::endResponse( struct epoll_event ev )
+void	server::	endResponse( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
