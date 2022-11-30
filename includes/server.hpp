@@ -20,6 +20,7 @@ typedef struct t_request
 typedef struct t_response
 {
 	std::string								httpVers;
+	std::string								status_code;
 	std::string								statusMessage;			// number + message
 	std::string								headers;
 	int										content_lenght;

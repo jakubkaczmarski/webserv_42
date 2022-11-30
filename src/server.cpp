@@ -130,7 +130,11 @@ std::string server::makeHeader(long bodySize, std::string &path) //prolly other 
 }
 void	server::create_response_and_send(std::vector<connecData*>::iterator it)
 {
-	(*it)->response.headers = "HTTP/1.1 200 OK\n";
+	(*it)->response.headers = "HTTP/1.1 ";
+	(*it)->response.headers.append((*it)->response.status_code);
+	(*it)->response.headers.append(" ");
+	(*it)->response.headers.append((*it)->response.statusMessage);
+	(*it)->response.headers.append("\n");
 	(*it)->response.headers.append("Content-Length: ");
 	(*it)->response.headers.append((*it)->response.content_lenght_str);
 	(*it)->response.headers.append("\n");

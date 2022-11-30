@@ -191,7 +191,8 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	}else{
 		extension = get_possible_type(extension, false);
 	}
-	(*it)->response.statusMessage = "200";
+	(*it)->response.status_code = "200";
+	(*it)->response.statusMessage = possible_return_code[(*it)->response.status_code];
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	create_response_and_send(it);
