@@ -124,6 +124,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	std::string fav_path("./database/favicon.ico");
 	std::string err_path("./database/Error_404.png");
 	std::cout << (*it)->request.URI << std::endl;
+	cout << "hanleGET file" << endl;
 
 	if((*it)->request.URI.compare("/") == 0)
 	{
@@ -137,6 +138,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	else{
 		//If there is a different file user wants to open
 		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
+		cout << "FOUND THE PATH BOIIIIS" << endl;
 	}
 	if(file_stream == nullptr)
 	{
@@ -146,7 +148,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 
 	}
 	std::string binaryString;
-	fseek(file_stream, 0, SEEK_END);
+	// fseek(file_stream, 0, SEEK_END);					// this line is creating problems with small files
 	std::string extension;
 	int i = (*it)->request.URI.length() - 1;
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
@@ -161,10 +163,13 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
 	}
 	int file_num = fileno(file_stream);
+	// rewind(file_stream);
 	std::stringstream conv;
 	(*it)->response.content_lenght = ftell(file_stream);
 	conv << (*it)->response.content_lenght; 
 	
+	// cout << "body fd = " << file_num << endl;
+
 	(*it)->response.headers = "HTTP/1.1 200 OK\n";
 	(*it)->response.headers.append("Content-Length: ");
 	(*it)->response.headers.append(conv.str());
@@ -175,7 +180,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	(*it)->response.body_fd = file_num;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
 	std::cout << (*it)->response.headers << std::endl;
-	std::cout << (*it)->response.body_fd << std::endl;
+	std::cout << "this is response body fd " <<  (*it)->response.body_fd << std::endl;
 	rewind(file_stream);
 }
 void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
@@ -191,6 +196,7 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	{
 		handle_post(it);
 	}else if((*it)->request.method.compare("GET") == 0){
+		cout << "response header get if" << endl;
 		handleGet(it);
 	}
 	
@@ -228,6 +234,8 @@ void	server::doResponseStuff( struct epoll_event ev )
 
 	if ((*it)->request.fd != 0) // process request body
 	{
+		memset(sendBuffer, 0, MAX_LINE);
+		cout << "this is do response stuff if" << endl;
 		sendReturn = write((*it)->request.fd , ((*it)->request.body.c_str()) + (*it)->request.already_sent , MAX_LINE);
 
 		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
@@ -238,7 +246,11 @@ void	server::doResponseStuff( struct epoll_event ev )
 	}
 	else
 	{
+		memset(sendBuffer, 0, MAX_LINE);
+		cout << "this is do response stuff else  with fd = " << (*it)->response.body_fd << endl;
 		sendReturn = read((*it)->response.body_fd, sendBuffer, MAX_LINE);
+
+		cout << "sendreturn = " << sendReturn << endl <<  sendBuffer << endl << "end of buffer print" <<  endl;
 
 		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 		if(sendReturn < MAX_LINE)
@@ -257,9 +269,10 @@ void	server::doRequestStuff( struct epoll_event ev )
 	// fullRequest.clear();
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
+	std::cout << "doing some request stuff" << endl;
 	if (recReturn < MAX_LINE) 
 	{
-		std::cout << "Raw Souce " << (*it)->request.raw;
+		std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		
 		std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
 		endRequest(ev, it);
