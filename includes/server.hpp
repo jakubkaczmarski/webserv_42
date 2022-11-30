@@ -106,6 +106,7 @@ class server
 		// 	{"510", "Not Extended"},
 		// 	{"511", "Network Authentication Required"},
 		// };
+		std::map<std::string, std::string> possible_types;
 		int								serverSocket;
 		std::vector<connecData*>		connections;
 		int								epollFD;
@@ -167,6 +168,7 @@ class server
 				// servConfig.~config();
 				return ;
 			}
+			
 			fillInPossibleTypes();
 			servAddressInit();
 			// currConnections = 0;
