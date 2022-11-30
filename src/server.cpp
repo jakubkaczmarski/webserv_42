@@ -128,7 +128,17 @@ std::string server::makeHeader(long bodySize, std::string &path) //prolly other 
 	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
 	return (out);
 }
-
+void	server::create_response_and_send(std::vector<connecData*>::iterator it)
+{
+	(*it)->response.headers = "HTTP/1.1 200 OK\n";
+	(*it)->response.headers.append("Content-Length: ");
+	(*it)->response.headers.append((*it)->response.content_lenght_str);
+	(*it)->response.headers.append("\n");
+	(*it)->response.headers.append("Content-Type: ");
+	(*it)->response.headers.append((*it)->response.content_type);
+	(*it)->response.headers.append("\n");
+	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+}
 std::string server::get_possible_type(std::string type, bool first)
 {
 	std::map<std::string, std::string>::iterator it = possible_types.find(type);

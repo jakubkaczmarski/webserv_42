@@ -23,7 +23,9 @@ typedef struct t_response
 	std::string								statusMessage;			// number + message
 	std::string								headers;
 	int										content_lenght;
-	// std::string								body;					// getBinary()
+	std::string										content_lenght_str;
+	// std::string								body;
+	std::string								content_type;				// getBinary()
 	int										body_fd;
 }	s_response;
 
@@ -90,7 +92,7 @@ class server
 		void			confusedEpoll( struct epoll_event ev );
 		void			parseRequest( struct epoll_event ev );
 		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
-		
+		void			create_response_and_send(std::vector<connecData*>::iterator it);
 		// void			removeFromEpoll( struct epoll_event ev );
 		
 

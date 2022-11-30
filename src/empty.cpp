@@ -191,16 +191,13 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	}else{
 		extension = get_possible_type(extension, false);
 	}
-	(*it)->response.headers = "HTTP/1.1 200 OK\n";
-	(*it)->response.headers.append("Content-Length: ");
-	(*it)->response.headers.append(conv.str());
-	(*it)->response.headers.append("\n");
-	(*it)->response.headers.append("Content-Type: ");
-	(*it)->response.headers.append(extension);
-	(*it)->response.headers.append("\n");
+	(*it)->response.statusMessage = "200";
+	(*it)->response.content_type = extension;
+	(*it)->response.content_lenght_str = conv.str();
+	create_response_and_send(it);
 	// (*it)->response.headers.append();
 	(*it)->response.body_fd = fileno(file_str_2);
-	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+
 	std::cout << (*it)->response.headers << std::endl;
 	std::cout << "this is response body fd " <<  (*it)->response.body_fd << std::endl;
 	rewind(file_stream);
