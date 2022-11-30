@@ -17,96 +17,6 @@ static void epoll_ctl_add(int epfd, int fd, uint32_t events)
 	}
 }
 
-
-// void		server::requestLoop( void )
-// {
-// 	int		idx;
-// 	int		requestSocket;
-// 	int		recvReturn;
-// 	char	receivingBuffer[MAX_LINE + 1];
-	
-	
-// 	int epollFD = epoll_create1(0);
-// 	failTest(epollFD, "epoll_create1");
-
-// 	struct epoll_event events[MAX_EVENTS]; //should be a define
-// 	epoll_ctl_add(epollFD, serverSocket, EPOLLIN | EPOLLOUT | EPOLLET);
-
-// 	int nfds;
-// 	while(true)
-// 	{
-// 		nfds = epoll_wait(epollFD, events, MAX_EVENTS, -1); //-1 blocks forever, 0 never blocks in both examples they use -1? 
-// 		// cout << YELLOW << "Number of fds ready: " << nfds << RESET_LINE;
-// 		for (idx = 0; idx < nfds; idx++)
-// 		{
-// 			// cout << RED << "IDX: " << idx << RESET_LINE;
-//  			if (events[idx].data.fd == serverSocket) //ready to accept a new connection
-// 			{
-// 				cout << "Waiting for a connection on PORT: " << PORT_NBR << endl;
-// 				requestSocket = accept(serverSocket, (SA *) NULL, NULL);
-// 				failTest(requestSocket, "accept() Socket");
-// 				epoll_ctl_add(epollFD, requestSocket, EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP);
-// 			}
-// 			else if(events[idx].events & EPOLLIN) /* handle EPOLLIN event */
-// 			{
-// 				// cout << RED << "ELSE IF" << RESET_LINE;
-// 				memset(receivingBuffer, 0, MAX_LINE + 1);	
-// 				fullRequest.clear();
-// 				while(((recvReturn = recv(events[idx].data.fd , receivingBuffer, MAX_LINE, 0)) > 0))
-// 				// while(((recvReturn = recv(requestSocket , receivingBuffer, MAX_LINE, 0)) > 0))
-// 				{
-// 					fullRequest.append(receivingBuffer, recvReturn);
-// 					if (recvReturn < MAX_LINE)
-// 					{
-// 						memset(receivingBuffer, 0, MAX_LINE);
-// 						break;
-// 					}
-// 					memset(receivingBuffer, 0, MAX_LINE);
-// 					cout << PURPLE << "Inside else if: " << recvReturn << RESET_LINE;
-// 				}
-// 				failTest(recvReturn, "recv() call to read from requestSocket");
-// 				handleRequest(events[idx].data.fd , fullRequest);
-// 				// handleRequest(requestSocket, fullRequest);
-// 				// failTest(close(events[idx].data.fd ), "Sending answer to Request to requestSocket");
-// 				// epoll_ctl(epollFD, EPOLL_CTL_DEL, events[idx].data.fd, NULL);
-// 				failTest(close(requestSocket), "Sending answer to Request to requestSocket");
-// 			}
-
-// 			/* check if the connection is closing */
-// 			// if (events[idx].events & (EPOLLRDHUP | EPOLLHUP))
-// 			// {
-// 			// 	printf("[+] connection closed\n");
-// 			// 	epoll_ctl(epollFD, EPOLL_CTL_DEL, events[idx].data.fd, NULL);
-// 			// 	close(events[idx].data.fd);
-// 			// 	continue;
-// 			// }
-
-
-// 		//printing the request
-// 		cout << "This is the full Request" << RESET_LINE;
-// 		// cout << endl << fullRequest << RED << "<<here is the end>>" << RESET_LINE;
-// 		}
-// 	}
-// }
-
-// void	server::sendResponse(int requestSocket, std::string &path)					// im writing this with a get request in mind
-// {
-// 	std::string		outie;
-
-// 	fillResponseStructBinary(path,requestSocket);
-// 	outie.append(currResponse.httpVers + " " + 
-// 				currResponse.statusMessage + "\r\n" +
-// 				currResponse.headers + "\r\n\r\n" +
-// 				currResponse.body);
-
-// 	const char *	responsy = outie.c_str();
-
-// 	failTest(send(requestSocket, responsy, outie.size(), 0),
-// 				"Sending answer to Request to requestSocket");
-// }
-
-
-
 void	server::failTest( int check, std::string message )
 {
 	if (check < 0)
@@ -150,97 +60,6 @@ int	server::checkGetRequest(int requestSocket)
 	}
 	return (0);
 }
-
-
-// void server::fillResponseStructBinary(std::string &path, int request_soc)
-// {
-// 	long		bodyLength;
-// 	currResponse.httpVers = HTTPVERSION;
-// 	currResponse.statusMessage = "200 Everything is A-Ok";// still have to do
-// 	currResponse.body = getBinary(path, &bodyLength, request_soc);
-// 	currResponse.headers = makeHeader(bodyLength, path); // still have to do
-// }
-
-int	server::checkRequestErrors(int requestSocket)
-{
-	// if (currRequest.method.compare("GET") == 0)
-	// 	return (checkGetRequest(requestSocket));
-	// else if (currRequest.method.compare("POST") == 0)
-	// 	return (checkPostRequest());
-	// else if (currRequest.method.compare("DELETE") == 0)
-	// 	return (checkDeleteRequest());
-	return (-1);
-}
-// void		server::handle_post(int requestSocket, std::string &path, std::string &fullrequest)
-// {
-// 	//Content-type deduction 
-// 	size_t index = fullRequest.find("Content-Type:");
-// 	std::string content_type;
-// 	// file_name.append(content_type)
-// 	int start = index + 8;
-// 	index = index + 8;
-// 	while(fullRequest[index] && fullRequest[index] != '\n')
-// 	{
-// 		index++;
-// 	}
-// 	content_type = fullRequest.substr(start, index);
-// 	std::cout << content_type << std::endl;
-// 	if(path.compare(0, 8,"/uploads") == 0)
-// 	{
-// 		std::string file_name = "file";
-// 		std::string extension;
-// 		int i;
-// 		for(i = content_type.length() - 1; content_type[i - 1] && content_type[i] && content_type[i - 1] != '/'; i--)
-// 		{
-// 		}
-// 		extension = content_type.substr(i, content_type.length() - 1);
-// 		// std::ofstream file("./uploads/" + file_name + "." + extension,  std::ios::out | std::ios::binary);
-// 		std::ofstream file("./uploads/file.png",  std::ios::out | std::ios::binary);
-// 		file << currRequest.body;
-// 		write(requestSocket, "200 OK\r\n", 7);
-// 		file.close();
-// 		// std::cout << "tak tutaj mozesz wrzucac " << extension <<  std::endl;
-
-// 	}else{
-// 		std::cout << "Wrong path mate" << std::endl;
-// 	}
-// }
-
-// void		server::handleRequest(int requestSocket, std::string &fullRequest)
-// {
-// 	// fillRequestStruct(fullRequest);
-// 	// if (checkRequestErrors(requestSocket) != 0)
-// 		// return ;
-// 	if (currRequest.method.compare("GET") == 0)
-// 	{
-// 		// test for errors
-// 		// send response
-// 		sendResponse(requestSocket, currRequest.URI);
-// 		cout << "its a get request :)" << endl;
-// 	}
-// 	else if (currRequest.method.compare("POST") == 0)
-// 	{
-// 		// test for errors
-// 		// send response
-// 		handle_post(requestSocket, currRequest.URI, fullRequest);
-// 		cout << "its a post request :)" << endl;
-// 	}
-// 	else if (currRequest.method.compare("DELETE") == 0)
-// 	{
-// 		// test for errors
-// 		// send response
-// 		cout << "its a delete request :)" << endl;
-// 	}
-// 	else
-// 	{
-// 		cout << "We should throw an error code with a message that we do not support this method" << endl;
-// 	}
-// 	currRequest.headers.clear();
-// 	currRequest.body.clear();
-// 	// currRequest.httpVers.clear();
-// 	// currRequest.method.clear();
-// 	// currRequest.URI.clear();
-// }
 
 std::string		server::getBinary(std::string &path, long *size, int request_soc)
 {
@@ -309,7 +128,18 @@ std::string server::makeHeader(long bodySize, std::string &path) //prolly other 
 	return (out);
 }
 
-
+std::string server::get_possible_type(std::string type, bool first)
+{
+	std::map<std::string, std::string>::iterator it = possible_types.find(type);
+	
+	if(first && it != possible_types.end())
+	{
+		return (*it).first;
+	}else if (it != possible_types.end()){
+		return (*it).second;
+	}
+	return NULL;
+}
 
 void			server::fillInPossibleTypes()
 {

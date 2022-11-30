@@ -62,7 +62,7 @@ class server
 
 
 
-
+		std::string 	get_possible_type(std::string type, bool first);
 		void			failTest( int check, std::string message );
 		void			servAddressInit( void );
 		void			fillRequestLineItems(std::vector<connecData*>::iterator	it);
