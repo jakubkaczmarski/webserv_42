@@ -120,6 +120,7 @@ void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 void	server::handleGet(std::vector<connecData*>::iterator it)
 {
 	FILE	*file_stream;
+	FILE	*file_str_2;
 	std::string def_path("./database/default_index.html");
 	std::string fav_path("./database/favicon.ico");
 	std::string err_path("./database/Error_404.png");
@@ -130,25 +131,34 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	{
 		//Root path for welcome page
 		file_stream = fopen(def_path.c_str() , "rb");
+		file_str_2 = fopen(def_path.c_str() , "rb");
 	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
 		file_stream = fopen(fav_path.c_str(), "rb");
+		file_str_2 = fopen(fav_path.c_str(), "rb");
+
 	}
 	else{
 		//If there is a different file user wants to open
 		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
+		file_str_2 = fopen(("." + (*it)->request.URI).c_str(), "rb");
 		cout << "FOUND THE PATH BOIIIIS" << endl;
 	}
 	if(file_stream == nullptr)
 	{
 		//For errors
 		file_stream = fopen(err_path.c_str(), "rb");
+		file_str_2 = fopen(err_path.c_str(), "rb");
 		(*it)->request.URI = "/database/Error_404.png";
+		
 
 	}
+	fseek(file_stream, 0, SEEK_END);
+	(*it)->response.content_lenght = ftell(file_stream);
+	rewind(file_stream);
 	std::string binaryString;
-	// fseek(file_stream, 0, SEEK_END);					// this line is creating problems with small files
+	// this line is creating problems with small files
 	std::string extension;
 	int i = (*it)->request.URI.length() - 1;
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
@@ -162,14 +172,12 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	}else{
 		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
 	}
-	int file_num = fileno(file_stream);
-	// rewind(file_stream);
+	// 
 	std::stringstream conv;
-	(*it)->response.content_lenght = ftell(file_stream);
-	conv << (*it)->response.content_lenght; 
+	conv << (*it)->response.content_lenght;
+	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
 	
 	// cout << "body fd = " << file_num << endl;
-
 	(*it)->response.headers = "HTTP/1.1 200 OK\n";
 	(*it)->response.headers.append("Content-Length: ");
 	(*it)->response.headers.append(conv.str());
@@ -177,7 +185,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append("Content-Type: ");
 	(*it)->response.headers.append(&extension[1]);
 	(*it)->response.headers.append("\n\n");
-	(*it)->response.body_fd = file_num;
+	(*it)->response.body_fd = fileno(file_str_2);
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
 	std::cout << (*it)->response.headers << std::endl;
 	std::cout << "this is response body fd " <<  (*it)->response.body_fd << std::endl;
