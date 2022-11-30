@@ -148,6 +148,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	if(file_stream == nullptr)
 	{
 		//For errors
+		(*it)->response.status_code = "404";
 		file_stream = fopen(err_path.c_str(), "rb");
 		file_str_2 = fopen(err_path.c_str(), "rb");
 		(*it)->request.URI = "/database/Error_404.png";
@@ -186,14 +187,18 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	// cout << "body fd = " << file_num << endl;
 	if(get_possible_type(extension, false).empty())
 	{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "409";
 		extension = "text/plain";
 		std::cout << "Error "<< std::endl;
 	}else{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "200";
 		extension = get_possible_type(extension, false);
 	}
 	//Those values are sent in the header as a response
-	(*it)->response.status_code = "200";
-	(*it)->response.statusMessage = possible_return_code[(*it)->response.status_code];
+
+
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	create_response_and_send(it);
