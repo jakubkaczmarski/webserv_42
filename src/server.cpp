@@ -27,6 +27,13 @@ void	server::failTest( int check, std::string message )
 	}
 }
 
+#include <netinet/in.h>
+
+
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 void	server::servAddressInit( void )
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);			// SOCK_STREAM == TCP
@@ -36,9 +43,13 @@ void	server::servAddressInit( void )
 	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
 
 	serverAddress.sin_family		= AF_INET;							// means IPv4 / AD_INET6 =IPv6 
-	serverAddress.sin_port			= htons(PORT_NBR);					// Used port
-	serverAddress.sin_addr.s_addr	= htonl(INADDR_LOOPBACK);			// Address this socket is litening to
+	// serverAddress.sin_port			= htons(PORT_NBR);					// Used port
+	serverAddress.sin_port			= htons(ft_atoi(servConfig.getPort().c_str()));					// Used port
+	// serverAddress.sin_addr.s_addr	= htonl(INADDR_LOOPBACK);			// Address this socket is litening to
+	// serverAddress.sin_addr.s_addr	= htonl((unsigned int)ft_atoi(servConfig.getHost().c_str()));			// Address this socket is litening to
+	serverAddress.sin_addr.s_addr	= inet_addr(servConfig.getHost().c_str());			// Address this socket is litening to
 
+	cout << INADDR_LOOPBACK << endl;
 
 	failTest(serverSocket, "Server Socket");
 
@@ -65,17 +76,14 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 {
 
 	FILE	*file_stream;
-	std::string def_path("./database/default_index.html");
-	std::string fav_path("./database/favicon.ico");
-	std::string err_path("./database/Error_404.png");
 	if(path.compare("/") == 0)
 	{
 		//Root path for welcome page
-		file_stream = fopen(def_path.c_str() , "rb");
+		file_stream = fopen(DEFAULT_PATH , "rb");
 	}else if(path.compare("/favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
-		file_stream = fopen(fav_path.c_str(), "rb");
+		file_stream = fopen(FAV_ICON_PATH, "rb");
 	}
 	else{
 		//If there is a different file user wants to open
@@ -84,7 +92,7 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 	if(file_stream == nullptr)
 	{
 		//For errors
-		file_stream = fopen(err_path.c_str(), "rb");
+		file_stream = fopen(ERROR_404_PATH, "rb");
 		path = "/database/Error_404.png";
 	}
 	std::string binaryString;

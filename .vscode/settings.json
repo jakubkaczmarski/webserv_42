@@ -75,7 +75,8 @@
 		"sstream": "cpp",
 		"stack": "cpp",
 		"filesystem": "cpp",
-		"ranges": "cpp"
+		"ranges": "cpp",
+		"netfwd": "cpp"
 	},
     "cmake.sourceDirectory": "${workspaceRoot}/test-project"
 }
