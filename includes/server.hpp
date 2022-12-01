@@ -14,7 +14,10 @@ typedef struct t_request
 	std::map<std::string, std::string>		headers;
 	std::string								body; //for now string
 	int										already_sent = 0;
+	char*									body_in_char;
 	int										fd = 0;
+	long long								content_size;
+
 }	s_request;
 
 typedef struct t_response
@@ -67,7 +70,8 @@ class server
 		std::map<std::string, std::string>	get_cgi_env(std::vector<connecData*>::iterator it);
 		std::string 	get_possible_type(std::string type, bool first);
 		void			failTest( int check, std::string message );
-		std::string		get_extension_from_request(std::vector<connecData*>::iterator it);
+		std::string		get_extension_from_request_get(std::vector<connecData*>::iterator it);
+		std::string		get_extension_from_request_post(std::vector<connecData*>::iterator it);
 		void			servAddressInit( void );
 		void			fillRequestLineItems(std::vector<connecData*>::iterator	it);
 		void			fillRequestHeaders(std::vector<connecData*>::iterator	it);

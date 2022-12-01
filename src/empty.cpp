@@ -44,7 +44,7 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
-std::string	server::get_extension_from_request(std::vector<connecData*>::iterator it)
+std::string	server::get_extension_from_request_get(std::vector<connecData*>::iterator it)
 {
 	std::string extension;
 	int i = (*it)->request.URI.length() - 1;
@@ -78,13 +78,77 @@ std::string	server::get_extension_from_request(std::vector<connecData*>::iterato
 	return extension;
 }
 
+std::string	server::get_extension_from_request_post(std::vector<connecData*>::iterator it)
+{
+	std::string extension;
+	FILE	*file_stream;
+	int i = (*it)->request.URI.length() - 1;
+	if((*it)->request.URI.compare(0, 8, "/cgi-bin") == 0)
+	{
+		std::cout << "CGI" << std::endl;
+		return extension;
+	}else if((*it)->request.URI.compare(0,8, "/uploads") == 0)
+	{
+		if((*it)->request.URI.length() < 9)
+		{
+			std::cout << "Path not specified correctly " << std::endl;
+			return extension;
+		}else{
+			file_stream = fopen(("." + (*it)->request.URI).c_str(), "wb");
+			if(!file_stream)
+			{
+				std::cout << "Cannot create a file " << std::endl;
+				return extension;
+			}
+		}
+	}else{
+		return extension;
+	}
+
+	int pos = (*it)->request.raw.find("content-length: ");
+	int j;
+	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
+	{
+	}
+
+	(*it)->request.content_size = ft_atoi(((*it)->request.raw.substr(pos + 15, j - 15 - pos)).c_str());
+
+	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+	{
+		i--;
+	}
+	extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+	if(get_possible_type(extension, false).empty())
+	{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "409";
+		extension = "text/plain";
+		std::cout << "Error "<< std::endl;
+	}else{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "200";
+		extension = get_possible_type(extension, false);
+	}
+		(*it)->request.fd = fileno(file_stream);
+
+		(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
+	std::cout << "Extension thingy \n" << std::endl;
+	return extension;
+}
 
 void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
-	std::cout << "Chuj " << std::endl;
 	std::cout << (*it)->request.raw << std::endl;
+	std::string extension;
+	extension = get_extension_from_request_post(it);
+	if(extension.empty())
+	{
+		endResponse(ev);
+	}
 	// if((*it)->request.URI.
+
 }
+
 std::map<std::string, std::string> server::get_cgi_env(std::vector<connecData*>::iterator it)
 {
 	std::map<std::string, std::string> env;
@@ -160,9 +224,7 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	rewind(file_stream);
 	std::string binaryString;
 	// this line is creating problems with small files
-	std::string extension = get_extension_from_request(it);
-	
-	// 
+	std::string extension = get_extension_from_request_get(it);
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
 	std::cout << extension << std::endl;
@@ -188,7 +250,6 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	else if((*it)->request.method.compare("POST") == 0)
 	{
 		handle_post(it, ev);
-		endResponse(ev);
 	}else if((*it)->request.method.compare("GET") == 0){
 		cout << "response header get if" << endl;
 		handleGet(it);
@@ -225,20 +286,18 @@ void	server::doResponseStuff( struct epoll_event ev )
 	char								sendBuffer[MAX_LINE];
 	int									sendReturn;
 	int									readReturn;
-
+	
 	if ((*it)->request.fd != 0) // process request body
 	{
-		memset(sendBuffer, 0, MAX_LINE);
-		// cout << "this is do response stuff if" << endl;
-		sendReturn = write((*it)->request.fd , ((*it)->request.body.c_str()) + (*it)->request.already_sent , MAX_LINE);
-
-		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
-		if(sendReturn < MAX_LINE)
+		if((*it)->request.content_size - 200 <= 0)
+		{
+			sendReturn = write((*it)->request.fd, (*it)->request.body_in_char, (*it)->request.content_size);
+			close((*it)->request.fd);
 			endResponse(ev);
-		else{
-			(*it)->request.already_sent += sendReturn;
 		}
-		/* code */
+		sendReturn = write((*it)->request.fd, (*it)->request.body_in_char, 200);
+		(*it)->request.body_in_char = (*it)->request.body_in_char + sendReturn;
+		(*it)->request.content_size -= sendReturn;
 	}
 	else
 	{
@@ -268,7 +327,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 	std::cout << "doing some request stuff" << endl;
 	if (recReturn < MAX_LINE) 
 	{
-		std::cout << "Raw Souce " << endl << (*it)->request.raw;
+		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		
 		// std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
 		endRequest(ev, it);
