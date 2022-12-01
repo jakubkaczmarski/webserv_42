@@ -44,7 +44,7 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
-void 	server::handle_post( std::vector<connecData*>::iterator it)
+void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
 	size_t index = (*it)->request.raw.find("Content-Type:");
 	std::string content_type;
@@ -60,7 +60,6 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 		std::string file_name = "file";
 		std::map<std::string, std::string>::iterator iter;
 		iter = (*it)->request.headers.find("Content-Type");
-
 		int i;
 		FILE *f;
 		if((*iter).second.empty())
@@ -79,13 +78,14 @@ void 	server::handle_post( std::vector<connecData*>::iterator it)
 				(*it)->request.URI.append(".");
 				full = &(*it)->request.URI[1] + (*iter).second.substr(i, (*iter).second.length() - i);
 			}
-			
+			std::cout << "Opened file " << full << std::endl;
 			f = fopen(full.c_str(), "wb");
 		}		
 		(*it)->request.fd = fileno(f);
 
 	}else{
 		std::cout << "Wrong path mate" << std::endl;
+		endResponse(ev);
 	}
 }
 
@@ -143,7 +143,6 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 		//If there is a different file user wants to open
 		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
 		file_str_2 = fopen(("." + (*it)->request.URI).c_str(), "rb");
-		cout << "FOUND THE PATH BOIIIIS" << endl;
 	}
 	if(file_stream == nullptr)
 	{
@@ -152,8 +151,6 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 		file_stream = fopen(err_path.c_str(), "rb");
 		file_str_2 = fopen(err_path.c_str(), "rb");
 		(*it)->request.URI = "/database/Error_404.png";
-		
-
 	}
 	fseek(file_stream, 0, SEEK_END);
 	(*it)->response.content_lenght = ftell(file_stream);
@@ -183,8 +180,8 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	conv << (*it)->response.content_lenght;
 	std::cout << extension << std::endl;
 	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
-	// std::cout << << std::endl;
-	// cout << "body fd = " << file_num << endl;
+
+
 	if(get_possible_type(extension, false).empty())
 	{
 		if((*it)->response.status_code != "404")
@@ -218,7 +215,7 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	}
 	else if((*it)->request.method.compare("POST") == 0)
 	{
-		handle_post(it);
+		handle_post(it, ev);
 	}else if((*it)->request.method.compare("GET") == 0){
 		cout << "response header get if" << endl;
 		handleGet(it);
@@ -265,7 +262,9 @@ void	server::doResponseStuff( struct epoll_event ev )
 		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 		if(sendReturn < MAX_LINE)
 			endResponse(ev);
-		(*it)->request.already_sent += sendReturn;
+		else{
+			(*it)->request.already_sent += sendReturn;
+		}
 		/* code */
 	}
 	else
