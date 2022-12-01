@@ -27,6 +27,13 @@ void	server::failTest( int check, std::string message )
 	}
 }
 
+#include <netinet/in.h>
+
+
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 void	server::servAddressInit( void )
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);			// SOCK_STREAM == TCP
@@ -36,9 +43,13 @@ void	server::servAddressInit( void )
 	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
 
 	serverAddress.sin_family		= AF_INET;							// means IPv4 / AD_INET6 =IPv6 
-	serverAddress.sin_port			= htons(PORT_NBR);					// Used port
-	serverAddress.sin_addr.s_addr	= htonl(INADDR_LOOPBACK);			// Address this socket is litening to
+	// serverAddress.sin_port			= htons(PORT_NBR);					// Used port
+	serverAddress.sin_port			= htons(ft_atoi(servConfig.getPort().c_str()));					// Used port
+	// serverAddress.sin_addr.s_addr	= htonl(INADDR_LOOPBACK);			// Address this socket is litening to
+	// serverAddress.sin_addr.s_addr	= htonl((unsigned int)ft_atoi(servConfig.getHost().c_str()));			// Address this socket is litening to
+	serverAddress.sin_addr.s_addr	= inet_addr(servConfig.getHost().c_str());			// Address this socket is litening to
 
+	cout << INADDR_LOOPBACK << endl;
 
 	failTest(serverSocket, "Server Socket");
 
