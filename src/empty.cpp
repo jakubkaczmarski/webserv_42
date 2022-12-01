@@ -112,7 +112,20 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	}
 
 	(*it)->request.content_size = ft_atoi(((*it)->request.raw.substr(pos + 15, j - 15 - pos)).c_str());
-
+	//Alokuj kurwa
+	if((*it)->request.content_size  == 0)
+	{
+		//Nothing to send 
+		return extension;
+	}
+	int body_pos = (*it)->request.raw.find("\r\n");
+	if(body_pos == (*it)->request.raw.npos)
+	{
+		std::cout << "Japierdole" << std::endl;
+		return extension;
+	}
+	(*it)->request.body = (*it)->request.raw.substr(body_pos, (*it)->request.raw.length() - body_pos);
+	// (*it)->request.raw = 
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
 	{
 		i--;
@@ -129,22 +142,17 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 			(*it)->response.status_code = "200";
 		extension = get_possible_type(extension, false);
 	}
-		(*it)->request.fd = fileno(file_stream);
 
-		(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
-	std::cout << "Extension thingy \n" << std::endl;
+	(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
+	(*it)->request.fd = fileno(file_stream);
+	// std::cout << "Extension thingy \n" << std::endl;
+	// std::cout << 	(*it)->request.content_size << std::endl;
 	return extension;
 }
 
 void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
-	std::cout << (*it)->request.raw << std::endl;
-	std::string extension;
-	extension = get_extension_from_request_post(it);
-	if(extension.empty())
-	{
-		endResponse(ev);
-	}
+	std::string extension = get_extension_from_request_post(it);
 	// if((*it)->request.URI.
 
 }
@@ -289,15 +297,14 @@ void	server::doResponseStuff( struct epoll_event ev )
 	
 	if ((*it)->request.fd != 0) // process request body
 	{
-		if((*it)->request.content_size - 200 <= 0)
+		std::cout << (*it)->request.body << std::endl;
+		if((*it)->request.content_size - MAX_LINE <= 0)
 		{
-			sendReturn = write((*it)->request.fd, (*it)->request.body_in_char, (*it)->request.content_size);
+			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str(), (*it)->request.content_size);
 			close((*it)->request.fd);
 			endResponse(ev);
 		}
-		sendReturn = write((*it)->request.fd, (*it)->request.body_in_char, 200);
-		(*it)->request.body_in_char = (*it)->request.body_in_char + sendReturn;
-		(*it)->request.content_size -= sendReturn;
+		(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str(), MAX_LINE);
 	}
 	else
 	{

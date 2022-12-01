@@ -108,7 +108,7 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 	{
 		binaryString.push_back(binaryVector[i]);
 	}
-	// cout << GREEN << binaryString.size() << RESET_LINE;
+	cout << GREEN << binaryString.size() << RESET_LINE;
 	return binaryString;
 }
 
