@@ -64,9 +64,10 @@ class server
 		config								servConfig;
 
 
-		char **			get_cgi_env(std::vector<connecData*>::iterator it);
+		std::map<std::string, std::string>	get_cgi_env(std::vector<connecData*>::iterator it);
 		std::string 	get_possible_type(std::string type, bool first);
 		void			failTest( int check, std::string message );
+		std::string		get_extension_from_request(std::vector<connecData*>::iterator it);
 		void			servAddressInit( void );
 		void			fillRequestLineItems(std::vector<connecData*>::iterator	it);
 		void			fillRequestHeaders(std::vector<connecData*>::iterator	it);

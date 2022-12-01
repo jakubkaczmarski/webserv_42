@@ -44,58 +44,57 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
+std::string	server::get_extension_from_request(std::vector<connecData*>::iterator it)
+{
+	std::string extension;
+	int i = (*it)->request.URI.length() - 1;
+	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+	{
+		i--;
+	}
+	if((*it)->request.URI.compare("/") == 0)
+	{
+		extension = ".html";
+	}
+	else if(!(*it)->request.URI[i])
+	{
+		//Default extension if there is none 
+		extension = ".txt";
+	}
+	else{
+		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+	}
+	if(get_possible_type(extension, false).empty())
+	{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "409";
+		extension = "text/plain";
+		std::cout << "Error "<< std::endl;
+	}else{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "200";
+		extension = get_possible_type(extension, false);
+	}
+	return extension;
+}
+
+
 void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
-	size_t index = (*it)->request.raw.find("Content-Type:");
-	std::string content_type;
-	int start = index + 8;
-	index = index + 8;
-	while((*it)->request.raw[index] && (*it)->request.raw[index] != '\n')
-	{
-		index++;
-	}
-
-	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
-	{
-		std::string file_name = "file";
-		std::map<std::string, std::string>::iterator iter;
-		iter = (*it)->request.headers.find("Content-Type");
-		int i;
-		FILE *f;
-		if((*iter).second.empty())
-		{
-			f = fopen( "file" , "wb");
-		}else{
-			for(i = (*iter).second.length() - 1; i > 0 && (*iter).second[i - 1] != '/'; i--)
-			{}
-			std::string full;
-		
-			if((*it)->request.URI.length() > 9)
-			{
-				full = ".";
-				full.append((*it)->request.URI);
-			}else{
-				(*it)->request.URI.append(".");
-				full = &(*it)->request.URI[1] + (*iter).second.substr(i, (*iter).second.length() - i);
-			}
-			std::cout << "Opened file " << full << std::endl;
-			f = fopen(full.c_str(), "wb");
-		}		
-		(*it)->request.fd = fileno(f);
-
-	}else{
-		if((*it)->request.URI.compare(0, 8,"/cgi-bin") == 0)
-		{
-			get_cgi_env(it);
-			std::cout << "Welcome to the great world of CGI" << std::endl;
-		}
-		endResponse(ev);
-	}
+	std::cout << "Chuj " << std::endl;
+	std::cout << (*it)->request.raw << std::endl;
+	// if((*it)->request.URI.
 }
-char **server::get_cgi_env(std::vector<connecData*>::iterator it)
+std::map<std::string, std::string> server::get_cgi_env(std::vector<connecData*>::iterator it)
 {
-
+	std::map<std::string, std::string> env;
+	std::map<std::string, std::string>::iterator iter;
+	for(iter = env.begin(); iter != env.end(); )
+	{
+		// env
+	}
 }
+
 void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
 	FILE	*file_stream;
@@ -114,8 +113,7 @@ void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 	}else{
 		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
 		return ;
-	}
-	if(file_stream == nullptr)
+	}	if(file_stream == nullptr)
 	{
 		//For errors
 		std::cout << "File not found " << std::endl;
@@ -162,45 +160,14 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	rewind(file_stream);
 	std::string binaryString;
 	// this line is creating problems with small files
-	std::string extension;
-	int i = (*it)->request.URI.length() - 1;
-	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
-	{
-		i--;
-	}
-	if((*it)->request.URI.compare("/") == 0)
-	{
-		extension = ".html";
-	}
-	else if(!(*it)->request.URI[i])
-	{
-		//Default extension if there is none 
-		extension = ".txt";
-	}
-	else{
-		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
-	}
+	std::string extension = get_extension_from_request(it);
+	
 	// 
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
 	std::cout << extension << std::endl;
 	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
-
-
-	if(get_possible_type(extension, false).empty())
-	{
-		if((*it)->response.status_code != "404")
-			(*it)->response.status_code = "409";
-		extension = "text/plain";
-		std::cout << "Error "<< std::endl;
-	}else{
-		if((*it)->response.status_code != "404")
-			(*it)->response.status_code = "200";
-		extension = get_possible_type(extension, false);
-	}
 	//Those values are sent in the header as a response
-
-
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	create_response_and_send(it);
@@ -221,6 +188,7 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	else if((*it)->request.method.compare("POST") == 0)
 	{
 		handle_post(it, ev);
+		endResponse(ev);
 	}else if((*it)->request.method.compare("GET") == 0){
 		cout << "response header get if" << endl;
 		handleGet(it);
