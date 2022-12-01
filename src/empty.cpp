@@ -128,22 +128,20 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 {
 	FILE	*file_stream;
 	FILE	*file_str_2;
-	std::string def_path("./database/default_index.html");
-	std::string fav_path("./database/favicon.ico");
-	std::string err_path("./database/Error_404.png");
+
 	std::cout << (*it)->request.URI << std::endl;
 	cout << "hanleGET file" << endl;
 
 	if((*it)->request.URI.compare("/") == 0)
 	{
 		//Root path for welcome page
-		file_stream = fopen(def_path.c_str() , "rb");
-		file_str_2 = fopen(def_path.c_str() , "rb");
+		file_stream = fopen(DEFAULT_PATH , "rb");
+		file_str_2 = fopen(DEFAULT_PATH , "rb");
 	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
-		file_stream = fopen(fav_path.c_str(), "rb");
-		file_str_2 = fopen(fav_path.c_str(), "rb");
+		file_stream = fopen(FAV_ICON_PATH, "rb");
+		file_str_2 = fopen(FAV_ICON_PATH, "rb");
 
 	}
 	else{
@@ -155,8 +153,8 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	{
 		//For errors
 		(*it)->response.status_code = "404";
-		file_stream = fopen(err_path.c_str(), "rb");
-		file_str_2 = fopen(err_path.c_str(), "rb");
+		file_stream = fopen(ERROR_404_PATH, "rb");
+		file_str_2 = fopen(ERROR_404_PATH, "rb");
 		(*it)->request.URI = "/database/Error_404.png";
 	}
 	fseek(file_stream, 0, SEEK_END);
