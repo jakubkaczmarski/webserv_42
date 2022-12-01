@@ -65,17 +65,14 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 {
 
 	FILE	*file_stream;
-	std::string def_path("./database/default_index.html");
-	std::string fav_path("./database/favicon.ico");
-	std::string err_path("./database/Error_404.png");
 	if(path.compare("/") == 0)
 	{
 		//Root path for welcome page
-		file_stream = fopen(def_path.c_str() , "rb");
+		file_stream = fopen(DEFAULT_PATH , "rb");
 	}else if(path.compare("/favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
-		file_stream = fopen(fav_path.c_str(), "rb");
+		file_stream = fopen(FAV_ICON_PATH, "rb");
 	}
 	else{
 		//If there is a different file user wants to open
@@ -84,7 +81,7 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 	if(file_stream == nullptr)
 	{
 		//For errors
-		file_stream = fopen(err_path.c_str(), "rb");
+		file_stream = fopen(ERROR_404_PATH, "rb");
 		path = "/database/Error_404.png";
 	}
 	std::string binaryString;
