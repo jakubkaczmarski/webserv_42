@@ -56,7 +56,8 @@ config::config(char *confPath): configOutcome(true)
 			return ;
 		}
 		// configMap.insert(std::make_pair(tmp, vec_.at(1)));
-		configMap.insert(std::make_pair(tmp, vec_.at(1)));
+		// configMap.insert(std::make_pair(tmp, vec_.at(1)));
+		configMap[tmp] = vec_.at(1);
 		tmp.clear();
 		vec_.clear();
 	}
