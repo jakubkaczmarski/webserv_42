@@ -64,7 +64,7 @@ class server
 		config								servConfig;
 
 
-
+		char **			get_cgi_env(std::vector<connecData*>::iterator it);
 		std::string 	get_possible_type(std::string type, bool first);
 		void			failTest( int check, std::string message );
 		void			servAddressInit( void );

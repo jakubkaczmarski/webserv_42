@@ -84,11 +84,18 @@ void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 		(*it)->request.fd = fileno(f);
 
 	}else{
-		std::cout << "Wrong path mate" << std::endl;
+		if((*it)->request.URI.compare(0, 8,"/cgi-bin") == 0)
+		{
+			get_cgi_env(it);
+			std::cout << "Welcome to the great world of CGI" << std::endl;
+		}
 		endResponse(ev);
 	}
 }
+char **server::get_cgi_env(std::vector<connecData*>::iterator it)
+{
 
+}
 void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
 	FILE	*file_stream;
