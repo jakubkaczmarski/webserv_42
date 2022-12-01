@@ -49,3 +49,12 @@ No whitespace is allowed between the header field-name and colon.  In
 segfault when trying to submit an image through the form
 only loaded localhost:3332 and it segfaulted
 }
+
+
+
+CGI stuffs:
+The Query_String and Method Get
+The query string is the simplest method of passing form data to a script.
+If you append a question mark (?) to the url of your script,
+then any characters after the question mark will be passed
+to your script in the environment variable called QUERY_STRING. 
