@@ -83,12 +83,7 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	std::string extension;
 	FILE	*file_stream;
 	int i = (*it)->request.URI.length() - 1;
-	if((*it)->request.URI.compare(0, 8, "/cgi-bin") == 0)
-	{
-		std::cout << "CGI" << std::endl;
-		get_cgi_env(it);
-		return extension;
-	}else if((*it)->request.URI.compare(0,8, "/uploads") == 0)
+ 	if((*it)->request.URI.compare(0,8, "/uploads") == 0)
 	{
 		if((*it)->request.URI.length() < 9)
 		{
@@ -164,12 +159,17 @@ void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 
 std::map<std::string, std::string> server::get_cgi_env(std::vector<connecData*>::iterator it)
 {
-	std::map<std::string, std::string> env;
-	std::map<std::string, std::string>::iterator iter;
-	for(iter = env.begin(); iter != env.end(); )
-	{
-		// env
-	}
+	// std::map<std::string, std::string> env;
+	// std::map<std::string, std::string>::iterator iter;
+	// std::cout << "Cgi stuff" << std::endl;
+	// int pid = fork();
+	// if(!pid)
+	// {
+	// 	execve("../cgi-bin/put_photo_in_cat.py", NULL, NULL);
+	// }else{
+	// 	waitpid(pid, 0, 0 );
+	// }
+
 }
 
 void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
@@ -184,19 +184,23 @@ void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 		ret.append((*it)->request.URI);
 		if(remove(ret.c_str()) != 0)
 		{
+			(*it)->response.status_code = "417";
 			std::cout << "Cannot remove this file " << "." + (*it)->request.URI << std::endl;
 		}
 		return ;
 	}else{
 		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
+		(*it)->response.status_code = "417";
 		return ;
 	}	if(file_stream == nullptr)
 	{
 		//For errors
+		(*it)->response.status_code = "404";
 		std::cout << "File not found " << std::endl;
-
 	}
-	
+	// (*it)->response.content_type = extension;
+	// (*it)->response.content_lenght_str = conv.str();
+	create_response_and_send(it);
 }
 
 void	server::handleGet(std::vector<connecData*>::iterator it)
@@ -251,11 +255,49 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	std::cout << (*it)->response.headers << std::endl;
 	rewind(file_stream);
 }
+void	server::handle_cgi(std::vector<connecData *>::iterator it)
+{
+
+	if((*it)->request.URI.compare((*it)->request.URI.length() - 3, 3 ,".py") == 0)
+	{
+		std::cout << "It's a python script yeey" << std::endl;
+		int pid = fork();
+		if(pid == 0)
+		{
+			FILE *f = fopen("out.txt", "w");
+			int fd = fileno(f);
+			dup2(fd, 1);
+			dup2(fd, 2);
+			close(fd);
+			char *arr[3];
+			arr[0] = (char *)possible_cgi_paths["py"].c_str();
+			int location = (*it)->request.URI.find(".py");
+			int i;
+			for(i = location; (*it)->request.URI[i] != '/'; i--)
+			{
+
+			}
+			arr[1] = (char *)(*it)->request.URI.substr(i, location + 3).c_str();
+			arr[2] = NULL;
+			execve(arr[0], arr, NULL);
+		}
+		std::cout << "Done " << std::endl;
+		
+	}
+
+	// possible_cgi_paths[i]
+}
+
 void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
-	if((*it)->request.method.compare("DELETE") == 0)
+	if((*it)->request.URI.compare(0, 9, "/cgi-bin/") == 0)
+	{
+		std::cout << "CGI" << std::endl;
+		handle_cgi(it);
+		endResponse(ev);
+	}else if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handle_delete(it, ev);
 		endResponse(ev);
@@ -427,5 +469,4 @@ void		server::requestLoop( void )
 			}
 		}
 	}
-
 }

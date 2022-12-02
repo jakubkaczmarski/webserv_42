@@ -3,7 +3,7 @@
 #include "webserv.hpp"
 #include <fstream>
 #include "config.hpp"
-
+ #include <sys/wait.h>
 
 typedef struct t_request
 {
@@ -64,6 +64,7 @@ class server
 		s_response							currResponse;
 		std::map<std::string, std::string>	possible_types;
 		std::map<std::string, std::string>	possible_return_code;
+		std::map<std::string, std::string>	possible_cgi_paths;
 		config								servConfig;
 
 
@@ -99,6 +100,7 @@ class server
 		void			parseRequest( struct epoll_event ev );
 		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			create_response_and_send(std::vector<connecData*>::iterator it);
+		void			handle_cgi(std::vector<connecData *>::iterator it);
 		// void			removeFromEpoll( struct epoll_event ev );
 		
 

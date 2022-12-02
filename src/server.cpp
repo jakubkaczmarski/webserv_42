@@ -305,6 +305,11 @@ void			server::fillInPossibleTypes()
 	{"510", "Not Extended"},
 	{"511", "Network Authentication Required"},
 };
+possible_cgi_paths = 
+{
+	{"py", "/usr/bin/python3"},
+	{"sh", "/bin/sh"},
+};
 }
 
 

@@ -1,5 +1,5 @@
 
-#!/usr/bin/env python3
+
 
 #open file in read mode
 import os
