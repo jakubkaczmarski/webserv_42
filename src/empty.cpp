@@ -24,17 +24,63 @@ std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
-void	server::parseRequest( struct epoll_event ev )
+void			server::stopInvaldiRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+	// close((*it)->response.body_fd);		// fd to body of response
+	delete (*it);
+	connections.erase(it);
+	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+	close(ev.data.fd);	
+}
+
+bool	server::validateRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+	if (servConfig.allowedMETHOD((*it)->request.method) == false)
+	{
+		cerr << RED << "Request rejected because of Invalid Method: " << (*it)->request.method << RESET_LINE;
+		stopInvaldiRequest(ev); // stop request because illegal
+		return (false);
+	}
+	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
+	{
+		cerr << RED << "Request rejected because of Invalid URI: " << (*it)->request.URI << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return (false);
+	}
+	if ((*it)->request.httpVers.compare((std::string)HTTPVERSION) != 0)
+	{
+		cout << RED << "Request rejected because of Invalid HTTP Version: " << (*it)->request.httpVers << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return (false);
+	}
+	try
+	{
+		if (ft_atoi((*it)->request.headers.at("content-length").c_str()) > servConfig.getClientMaxBody())
+			return (false);
+	}
+	catch(const std::exception& e)
+	{
+	}
+	return (true);
+}
+
+bool	server::parseRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
+	return (validateRequest(ev));
 }
 
 void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-	parseRequest(ev);
+	if (parseRequest(ev) == false)
+		return ;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;

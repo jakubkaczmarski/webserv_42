@@ -116,12 +116,18 @@ void			config::validatePort( void )
 
 void			config::validateCMBS( void )
 {
-	std::string		port = configMap[PORT];
-	for (size_t i = 0; i < port.size(); i++)
+	std::string		CMBS = configMap[CLIENTMAXBODY];
+
+	if (CMBS.size() == 0)
 	{
-		if (isdigit((port[i]) == 0))
+		cout << RED << "Invalid Port Format: " << RESET_LINE;
+		exit(-1);
+	}
+	for (size_t i = 0; i < CMBS.size(); i++)
+	{
+		if (isdigit((CMBS[i]) == 0))
 		{
-			cout << RED << "Invalid Port Format: " << configMap[PORT] << RESET_LINE;
+			cout << RED << "Invalid Port Format: " << configMap[CLIENTMAXBODY] << RESET_LINE;
 			exit(-1);
 		}
 	}
@@ -150,6 +156,12 @@ void			config::validateMethods( void )
 			cout << RED << "Invalid Methods: " << configMap[METHODS] << endl << "Allowed Methods are only \"GET\", \"POST\" and \"DELETE\" "<< RESET_LINE;
 			exit(-1);
 		}
+		if (it->compare("GET") == 0 )
+			methods["GET"] = true;
+		else if (it->compare("POST") == 0 )
+			methods["POST"] = true;
+		else if (it->compare("DELETE") == 0 )
+			methods["DELETE"] = true;
 	}
 }
 
@@ -196,6 +208,10 @@ void	config::initDefaultConfig( void )
 	configMap[ROOT] = "/workspaces/webserv_42";
 	configMap[DIR] = "/";
 	configMap[UPLOADDIR] = "/database/uploads"; 
+	configMap[HTTP] = HTTPVERSION;
+	methods["GET"] = false;
+	methods["POST"] = false;
+	methods["DELETE"] = false;
 }
 
 
@@ -229,9 +245,9 @@ std::string		config::getPort( void )
 	return(configMap.at(PORT));
 }
 
-std::string		config::getClientMaxBody( void )
+int				config::getClientMaxBody( void )
 {
-	return(configMap.at(CLIENTMAXBODY));
+	return(ft_atoi(configMap.at(CLIENTMAXBODY).c_str()));
 }
 
 std::string		config::getRoot( void )
@@ -252,4 +268,23 @@ std::string		config::getUploadDir( void )
 std::string		config::getMethods( void )
 {
 	return(configMap.at(METHODS));
+}
+
+bool			config::allowedMETHOD( std::string meth )
+{
+	if (meth.compare("GET") != 0 && meth.compare("POST") != 0 && meth.compare("DELETE") != 0)
+	{
+		cout << "return in if" << endl;
+		return (false);
+	}
+	return (methods[meth]);
+}
+
+bool			config::allowedURI( std::string URI, std::string method )
+{
+	if (method.compare("GET") == 0)
+		return (true);
+	if (configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
+		return (true);
+	return (false);
 }

@@ -16,6 +16,8 @@ void server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 	(*it)->request.method		= requestLineV[0];
 	(*it)->request.URI			= requestLineV[1];
 	(*it)->request.httpVers		= requestLineV[2];
+	if ((*it)->request.httpVers[(*it)->request.httpVers.size() - 1] == '\r')		// return '\r' of first line :)
+		(*it)->request.httpVers.erase((*it)->request.httpVers.size() - 1);
 
 	// print out request line
 	// cout << YELLOW << "method = " << (*it)->request.method << endl;
@@ -36,6 +38,13 @@ void	server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 	for (size_t i = 0; i < vectorSize; i++)
 	{
 		key_value = split(headersVector[i], ':', 1);
+		if (key_value[1][key_value[1].size() - 1] == '\n' || key_value[1][key_value[1].size() - 1] == '\r')
+			key_value[1].erase(key_value[1].size() - 1);
+		if (key_value.size() != 2 )
+			continue ;
+		if (key_value[1].size() == 0 )
+			continue ;		
+		cout << "adding " << key_value[0] << " size " << key_value.size() << " val |" << key_value[1] << "|" << endl;
 		(*it)->request.headers.insert(std::make_pair(key_value[0], key_value[1]));
 	}
 	
@@ -50,14 +59,16 @@ void server::fillRequestBody(std::vector<connecData*>::iterator	it)
 	//get body
 	size_t	begin;
 	size_t	size;
-	if ((*it)->request.headers.end() != (*it)->request.headers.find("Content-Length")) // or 
+	if ((*it)->request.headers.end() != (*it)->request.headers.find("content-length")) // or 
 	{
 		begin		= (*it)->request.raw.find("\r\n\r\n") + 4;
-		size		= stoi((*it)->request.headers.at("Content-Length"));
+		cout << "XD LOL " << endl;
+		size		= stoi((*it)->request.headers.at("content-length"));
+		cout << "XD LOL " << endl;
 		std::string	body = (*it)->request.raw.substr(begin, size);			//still have to do (what if big body .. idea is to char* to data(+size of headers))
 		(*it)->request.body = body;
 	}
-	// else if ((*it)->request.headers.end() != (*it)->request.headers.find("Content-Length"))
+	// else if ((*it)->request.headers.end() != (*it)->request.headers.find("content-length"))
 
 	// print body
 	// cout << PURPLE << (*it)->request.body << RESET_LINE;

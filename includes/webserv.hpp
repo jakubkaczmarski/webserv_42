@@ -60,6 +60,7 @@ using std::ifstream;
 #define SA					struct sockaddr
 #define SOCKET_BACKLOG		1024
 #define HTTPVERSION			"HTTP/1.1"
+#define HTTP				"HTTPVERS"
 #define MAX_EVENTS	10
 
 

@@ -3,12 +3,15 @@
 #include "webserv.hpp"
 
 #define	confMapType	std::map<std::string, std::string>
+#define	methodmap	std::map<std::string, bool>
+
 
 class config
 {
 	private:
 		confMapType		configMap;
 		bool			configOutcome;
+		methodmap		methods;
 
 		void			initDefaultConfig( void );
 		void			validateConfig( void );
@@ -27,11 +30,16 @@ class config
 		std::string		getServName( void );
 		std::string		getHost( void );
 		std::string		getPort( void );
-		std::string		getClientMaxBody( void );
+		int				getClientMaxBody( void );
 		std::string		getRoot( void );
 		std::string		getDir( void );
 		std::string		getUploadDir( void );
 		std::string		getMethods( void );
+		bool			allowedMETHOD( std::string );
+		bool			allowedURI( std::string, std::string );
+		// bool			allowedGET(  );
+		// bool			allowedPOST( void );
+		// bool			allowedDELETE( void );
 };
 
 #endif
