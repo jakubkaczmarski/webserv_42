@@ -28,11 +28,11 @@ std::vector<std::string> split(std::string &str, const char sep, const int &flag
 			outputArray.push_back(val);
 
 		if (sep == '?')
-			cout << RED << "Value: " << val << RESET_LINE;
+			// cout << RED << "Value: " << val << RESET_LINE;
 		i++;
 	}
-			cout << RED << "Value: " << val << RESET_LINE;
-			cout << RED << "Value: " << outputArray[1] << RESET_LINE;
+			// cout << RED << "Value: " << val << RESET_LINE;
+			// cout << RED << "Value: " << outputArray[1] << RESET_LINE;
 	return outputArray;
 }
 
