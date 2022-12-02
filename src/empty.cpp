@@ -1,6 +1,6 @@
 #include "../includes/server.hpp"
 
-
+#include <filesystem>
 struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
 {
 	struct	epoll_event	ev;
@@ -125,7 +125,12 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	std::cout << (*it)->request.URI << std::endl;
 	cout << "hanleGET file" << endl;
 
-	if ((*it)->request.URI.compare("/") == 0)
+	if ((*it)->isCGI)
+	{
+		file_stream = fopen((*it)->fileCGI.c_str(), "rb");
+		file_str_2 = fopen((*it)->fileCGI.c_str(), "rb");
+	}
+	else if ((*it)->request.URI.compare("/") == 0)
 	{
 		//Root path for welcome page
 		file_stream = fopen(DEFAULT_PATH , "rb");
@@ -208,28 +213,54 @@ void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
-	if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH)) //CGI
+	if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 	{
-		(*it)->isCGI = true;
-		if ((*it)->request.method.compare("GET"))
-		{
-			objectCGI.env["QUERY_STRING"] = split((*it)->request.URI, '?', true)[1]; //gets everything after the question mark
-			objectCGI.env["REQUEST_METHOD"] = "GET";
-		}
-		if ((*it)->request.method.compare("POST"))
-		{
-			// objectCGI.env["QUERY_STRING"] = 
-			objectCGI.env["REQUEST_METHOD"] = "POST";
-			
-		}
-		objectCGI.env["SCRIPT_NAME"] = split((*it)->request.URI, '?', true)[0]; //The virtual path (e.g., /cgi-bin/program.pl) of the script being executed.
-		objectCGI.env["SERVER_NAME"] = servConfig.getServName();
-		objectCGI.env["SERVER_PORT"] = servConfig.getPort();
-		objectCGI.env["SERVER_PROTOCOL"] = HTTPVERSION;
+		//check if path to script is legit maybe?
 
+		cout << YELLOW << "IT IS CGI" << RESET_LINE << RESET_LINE;
+		//mark as CGI
+		(*it)->isCGI = true;
+
+		//prepare environment
+		objectCGI.setEnvironment(it, servConfig);
+
+		//create file to write to
+		(*it)->fileCGI = std::to_string((*it)->socket) + "_fileCGI";
+		// std::ofstream fileCGI((*it)->fileCGI, std::ios_base::out);
+		// if (!file_exists((*it)->fileCGI))
+		// {
+		// 	cout << RED << __func__ << ": could not create file" << endl;
+		// 	exit(77);
+		// }
+		// fileCGI.close();
+
+		//fork
+		pid_t pid = fork();
+
+		//CHILD
+		if (pid == 0)
+		{
+			//change output stream;
+			// cout.rdbuf(fileCGI.rdbuf());
+			//make data doble array
+			cout << "BEFORE ENV" << endl;
+			char **env = objectCGI.envToDoubleCharacterArray();
+			cout << "AFTER ENV" << endl;
+			std::string yes = "/workspaces/webserv_42" + objectCGI.env.at("SCRIPT_NAME");
+			// std::string yes = "/workspaces/webserv_42/cgi-bin/put_photo_in_cat.py";
+			cout << PURPLE << yes << RESET_LINE;
+			//execute
+			execve((yes).c_str(), NULL, env);
+			// execve("../cgi-bin/put_photo_in_cat.py", NULL, env);
+			perror("Execve: ");
+			free(env);
+			exit(33);
+		}
+		cout << "response header get if" << endl;
+		handleGet(it);
 		// executeCGI();
 	}
-	if((*it)->request.method.compare("DELETE") == 0)
+	else if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handle_delete(it, ev);
 		endResponse(ev);
@@ -281,8 +312,12 @@ void	Server::doResponseStuff( struct epoll_event ev )
 		sendReturn = write((*it)->request.fd , ((*it)->request.body.c_str()) + (*it)->request.already_sent , MAX_LINE);
 
 		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
-		if(sendReturn < MAX_LINE)
+		if(sendReturn < MAX_LINE) //if already_sent == however many should have been sent maybe?
+		{
+			if ((*it)->isCGI)
+				remove((*it)->fileCGI.c_str());
 			endResponse(ev);
+		}
 		else{
 			(*it)->request.already_sent += sendReturn;
 		}
@@ -383,7 +418,7 @@ void		Server::requestLoop( void )
 			}
 			else if (events[idx].events & ( EPOLLIN ))				// check for read() fd
 			{
-				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
+				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
 				doRequestStuff(events[idx]);
 				// closeAndRemoveFromEpoll(events[idx], epollFD);  //testing purposes
 			}

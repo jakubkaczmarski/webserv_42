@@ -2,6 +2,7 @@
 
 #include "./includes/server.hpp"
 #include "./includes/config.hpp"
+#include "./includes/CGI.hpp"
 
 // void ctrl_c_sig_handler(int code) {
 // 	if(code == SIGINT)
@@ -21,7 +22,7 @@ int main( int argc, char **argv )
 
 		if(servy.getConfigOutcome() == false)
 			return(-1);
-		servy.getConfig().printMap();
+		// servy.getConfig().printMap();
 		servy.requestLoop();
 
 	}

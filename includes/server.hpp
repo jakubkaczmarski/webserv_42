@@ -3,7 +3,7 @@
 #include "webserv.hpp"
 #include <fstream>
 #include "config.hpp"
-#include "CGI.hpp"
+
 
 
 typedef struct t_request
@@ -39,9 +39,11 @@ class connecData
 		int										socket;
 		s_request								request;
 		s_response								response;
-		bool									isCGI;
+		bool									isCGI = false;
+		string									fileCGI;
 };
 
+#include "CGI.hpp"
 class Server
 {
 	private:

@@ -1,18 +1,23 @@
 #ifndef CGI_HPP_42
 #define CGI_HPP_42
 
-#include "webserv.hpp"
-#include <fstream>
-#include "config.hpp"
+#include "server.hpp"
+// #include <fstream>
+// #include "config.hpp"
+
+
 
 class CGI
 {
 	public:
 		std::map<string, string>	env;
+		string						fileCGI;
 
-		void setEnvironment(std::vector<connecData*>::iterator )
+		void setEnvironment(std::vector<connecData*>::iterator it, config servConfig);
+		// void executeCGI();
+		char **envToDoubleCharacterArray();
 	
-	CGI(){};
+	// CGI(){};
 };
 
 
