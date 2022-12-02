@@ -95,7 +95,8 @@ class server
 		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			create_response_and_send(std::vector<connecData*>::iterator it);
 		// void			removeFromEpoll( struct epoll_event ev );
-		
+		void			validateRequest( struct epoll_event ev );
+		void			stopInvaldiRequest( struct epoll_event ev );
 
 
 	public:

@@ -150,6 +150,12 @@ void			config::validateMethods( void )
 			cout << RED << "Invalid Methods: " << configMap[METHODS] << endl << "Allowed Methods are only \"GET\", \"POST\" and \"DELETE\" "<< RESET_LINE;
 			exit(-1);
 		}
+		if (it->compare("GET") == 0 )
+			methods["GET"] = true;
+		else if (it->compare("POST") == 0 )
+			methods["POST"] = true;
+		else if (it->compare("DELETE") == 0 )
+			methods["DELETE"] = true;
 	}
 }
 
@@ -196,6 +202,10 @@ void	config::initDefaultConfig( void )
 	configMap[ROOT] = "/workspaces/webserv_42";
 	configMap[DIR] = "/";
 	configMap[UPLOADDIR] = "/database/uploads"; 
+	configMap[HTTP] = HTTPVERSION;
+	methods["GET"] = false;
+	methods["POST"] = false;
+	methods["DELETE"] = false;
 }
 
 
@@ -252,4 +262,23 @@ std::string		config::getUploadDir( void )
 std::string		config::getMethods( void )
 {
 	return(configMap.at(METHODS));
+}
+
+bool			config::allowedMETHOD( std::string meth )
+{
+	if (meth.compare("GET") != 0 && meth.compare("POST") != 0 && meth.compare("DELETE") != 0)
+	{
+		cout << "return in if" << endl;
+		return (false);
+	}
+	return (methods[meth]);
+}
+
+bool			config::allowedURI( std::string URI, std::string method )
+{
+	if (method.compare("GET") == 0)
+		return (true);
+	if (configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
+		return (true);
+	return (false);
 }

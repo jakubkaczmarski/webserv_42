@@ -24,11 +24,64 @@ std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
+void			server::stopInvaldiRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+	// close((*it)->response.body_fd);		// fd to body of response
+	delete (*it);
+	connections.erase(it);
+	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+	close(ev.data.fd);	
+}
+
+void	server::validateRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+	if (servConfig.allowedMETHOD((*it)->request.method) == false)
+	{
+		cerr << RED << "Request rejected because of Invalid Method: " << (*it)->request.method << RESET_LINE;
+		stopInvaldiRequest(ev); // stop request because illegal
+		return ;
+	}
+	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
+	{
+		cerr << RED << "Request rejected because of Invalid URI: " << (*it)->request.URI << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return ;
+	}
+	if ((*it)->request.httpVers.compare(HTTPVERSION) != 0);
+	{
+		cerr << (*it)->request.httpVers << "||" << endl <<  HTTPVERSION << "||"<< endl;
+		cerr << RED << "Request rejected because of Invalid HTTP Version: " << (*it)->request.httpVers << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return ;
+	}
+	try
+	{
+		(*it)->request.headers.at("Content");
+
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
+	// if ((*it)->request.URI.compare() !=);
+	// (*it)->request.headers["Content"];
+
+	// validateRequest
+
+
+}
+
 void	server::parseRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
+	validateRequest(ev);
 }
 
 void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
