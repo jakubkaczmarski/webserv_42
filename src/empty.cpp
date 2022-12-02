@@ -59,7 +59,7 @@ bool	Server::validateRequest( struct epoll_event ev )
 	}
 	try
 	{
-		if (ft_atoi((*it)->request.headers.at("content-length").c_str()) > servConfig.getClientMaxBody())
+		if (ft_atoi((*it)->request.headers.at("Content-Length").c_str()) > servConfig.getClientMaxBody())
 			return (false);
 	}
 	catch(const std::exception& e)
@@ -147,7 +147,7 @@ std::string	Server::get_extension_from_request_post(std::vector<connecData*>::it
 		return extension;
 	}
 
-	int pos = (*it)->request.raw.find("content-length: ");
+	int pos = (*it)->request.raw.find("Content-Length: ");
 	int j;
 	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
 	{
@@ -203,8 +203,8 @@ void 	Server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 
 }
 
-std::map<std::string, std::string> Server::get_cgi_env(std::vector<connecData*>::iterator it)
-{
+// std::map<std::string, std::string> Server::get_cgi_env(std::vector<connecData*>::iterator it)
+// {
 	// std::map<std::string, std::string> env;
 	// std::map<std::string, std::string>::iterator iter;
 	// std::cout << "Cgi stuff" << std::endl;
@@ -216,7 +216,7 @@ std::map<std::string, std::string> Server::get_cgi_env(std::vector<connecData*>:
 	// 	waitpid(pid, 0, 0 );
 	// }
 
-}
+// }
 
 void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
@@ -254,11 +254,12 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	FILE	*file_stream;
 	FILE	*file_str_2;
 
-	std::cout << (*it)->request.URI << std::endl;
-	cout << "hanleGET file" << endl;
+	cout << YELLOW << __func__ << "URI: "  << (*it)->request.URI << RESET_LINE;
+	cout << YELLOW << __func__ << "CGI: "  << (*it)->fileCGI << RESET_LINE;
 
 	if ((*it)->isCGI)
 	{
+		cout << YELLOW << __func__ << " IS CGI" << RESET_LINE;
 		file_stream = fopen((*it)->fileCGI.c_str(), "rb");
 		file_str_2 = fopen((*it)->fileCGI.c_str(), "rb");
 	}
@@ -268,12 +269,21 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 		file_stream = fopen(DEFAULT_PATH , "rb");
 		file_str_2 = fopen(DEFAULT_PATH , "rb");
 	}
-	else if ((*it)->request.URI.compare("./favicon.ico") == 0)
+	else if ((*it)->request.URI.compare("/favicon.ico") == 0)
+	// else if ((*it)->request.URI.compare("./favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
 		file_stream = fopen(FAV_ICON_PATH, "rb");
 		file_str_2 = fopen(FAV_ICON_PATH, "rb");
 
+	}
+	/*THIS IS TEMPORARY BECAUSE I CANNOT TEST IN THE CONTAINER*/
+	else if ((*it)->request.URI.compare(0, 5, "/home") == 0) 
+	// else if ((*it)->request.URI.compare(0, 11, "/webserv_42") == 0) 
+	{
+		cout << RED << "home" << RESET_LINE;
+		file_stream = fopen((*it)->request.URI.c_str(), "rb");
+		file_str_2 = fopen((*it)->request.URI.c_str(), "rb");
 	}
 	else
 	{
@@ -284,28 +294,31 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	if(file_stream == nullptr)
 	{
 		//For errors
+		cout << GREEN << "Error??\n\n\n" << RESET_LINE;
 		(*it)->response.status_code = "404";
 		file_stream = fopen(ERROR_404_PATH, "rb");
 		file_str_2 = fopen(ERROR_404_PATH, "rb");
 		(*it)->request.URI = "/database/Error_404.png";
 	}
+
 	fseek(file_stream, 0, SEEK_END);
 	(*it)->response.content_lenght = ftell(file_stream);
+
 	rewind(file_stream);
 	std::string binaryString;
 	// this line is creating problems with small files
 	std::string extension = get_extension_from_request_get(it);
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
-	std::cout << extension << std::endl;
-	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
+	// std::cout << RED << "Extension: " << extension << std::endl;
+	std::cout << "Reponse Content-Lenght == " << (*it)->response.content_lenght << std::endl;
 	//Those values are sent in the header as a response
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	create_response_and_send(it);
 	(*it)->response.body_fd = fileno(file_str_2);
 
-	std::cout << (*it)->response.headers << std::endl;
+	// std::cout << (*it)->response.headers << std::endl;
 	rewind(file_stream);
 }
 void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
@@ -316,46 +329,56 @@ void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	{
 		//check if path to script is legit maybe?
 
-		cout << YELLOW << "IT IS CGI" << RESET_LINE << RESET_LINE;
 		//mark as CGI
 		(*it)->isCGI = true;
 
 		//prepare environment
 		objectCGI.setEnvironment(it, servConfig);
 
+		//create file name
+		(*it)->fileCGI = DEFAULT_CGI_FILE_PATH + std::to_string((*it)->socket) + "_fileCGI.html";
+		// (*it)->fileCGI = "/webserv_42/database/intraPictures/" + std::to_string((*it)->socket) + "_fileCGI.html";
+		
 		//create file to write to
-		(*it)->fileCGI = std::to_string((*it)->socket) + "_fileCGI";
-		// std::ofstream fileCGI((*it)->fileCGI, std::ios_base::out);
-		// if (!file_exists((*it)->fileCGI))
-		// {
-		// 	cout << RED << __func__ << ": could not create file" << endl;
-		// 	exit(77);
-		// }
-		// fileCGI.close();
+		FILE * fileCGI= fopen((*it)->fileCGI.c_str(), "w");
+		if (!file_exists((*it)->fileCGI))
+		{
+			cout << RED << __func__ << (*it)->fileCGI.c_str() << ": could not create file" << endl;
+			exit(77);
+		}
 
+		//get file descriptor for dup
+		int fdFileCGI = fileno(fileCGI);
+
+		//give new file URI to the request struct
+		(*it)->request.URI = (*it)->fileCGI;
 		//fork
 		pid_t pid = fork();
 
 		//CHILD
 		if (pid == 0)
 		{
-			//change output stream;
-			// cout.rdbuf(fileCGI.rdbuf());
+			// change output stream to the CGI file;
+			dup2(fdFileCGI, 1);
+
 			//make data doble array
-			cout << "BEFORE ENV" << endl;
 			char **env = objectCGI.envToDoubleCharacterArray();
-			cout << "AFTER ENV" << endl;
-			std::string yes = "/workspaces/webserv_42" + objectCGI.env.at("SCRIPT_NAME");
-			// std::string yes = "/workspaces/webserv_42/cgi-bin/put_photo_in_cat.py";
-			cout << PURPLE << yes << RESET_LINE;
+			
+			//create path to executable
+
+			// std::string executable = "/workspaces/webserv_42" + objectCGI.env.at("SCRIPT_NAME");
+			std::string executable = PATH_TO_SCRIPTS + objectCGI.env.at("SCRIPT_NAME");
+			// cout << PURPLE << executable << RESET_LINE;
+			write(2, executable.c_str(), executable.length());
 			//execute
-			execve((yes).c_str(), NULL, env);
+			execve((executable).c_str(), NULL, env);
 			// execve("../cgi-bin/put_photo_in_cat.py", NULL, env);
-			perror("Execve: ");
+			perror("\nExecve: ");
 			free(env);
 			exit(33);
 		}
-		cout << "response header get if" << endl;
+		// cout << "response header get if" << endl;
+		wait(NULL);
 		handleGet(it);
 		// executeCGI();
 	}
@@ -378,7 +401,7 @@ void	Server::	endResponse( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
-	cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
+	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
 	close((*it)->response.body_fd);		// fd to body of response
 	delete (*it);
 	connections.erase(it);
@@ -411,8 +434,7 @@ void	Server::doResponseStuff( struct epoll_event ev )
 
 		if((*it)->request.content_size - MAX_LINE <= 0)
 		{
-			if ((*it)->isCGI)
-				remove((*it)->fileCGI.c_str());
+
 			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, (*it)->request.content_size);
 			close((*it)->request.fd);
 			endResponse(ev);
@@ -432,7 +454,14 @@ void	Server::doResponseStuff( struct epoll_event ev )
 
 		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 		if(sendReturn < MAX_LINE)
+		{
+			if ((*it)->isCGI)
+			{
+				cout << PURPLE << "NEED TO REMOVE THE FILE NOW" << RESET_LINE;
+				remove((*it)->fileCGI.c_str());
+			}
 			endResponse(ev);
+		}
 	}
 }
 
@@ -511,7 +540,7 @@ void		Server::requestLoop( void )
 			}
 			else if (events[idx].events & ( EPOLLOUT ))				// check for  write() fd
 			{
-				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
+				cout << PURPLE << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
 				doResponseStuff(events[idx]);
 
 			}
