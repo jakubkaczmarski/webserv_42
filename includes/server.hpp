@@ -91,11 +91,11 @@ class server
 		void			endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
-		void			parseRequest( struct epoll_event ev );
+		bool			parseRequest( struct epoll_event ev );
 		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			create_response_and_send(std::vector<connecData*>::iterator it);
 		// void			removeFromEpoll( struct epoll_event ev );
-		void			validateRequest( struct epoll_event ev );
+		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
 
 

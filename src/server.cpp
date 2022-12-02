@@ -133,7 +133,7 @@ std::string server::makeHeader(long bodySize, std::string &path) //prolly other 
 	std::cout << "extension thingy " << extension << std::endl; 
 
 	// out.append(path);
-	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
+	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; content-length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
 	return (out);
 }
 void	server::create_response_and_send(std::vector<connecData*>::iterator it)
@@ -144,7 +144,7 @@ void	server::create_response_and_send(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append(" ");
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
-	(*it)->response.headers.append("Content-Length: ");
+	(*it)->response.headers.append("content-length: ");
 	(*it)->response.headers.append((*it)->response.content_lenght_str);
 	(*it)->response.headers.append("\n");
 	(*it)->response.headers.append("Connection: close\n");

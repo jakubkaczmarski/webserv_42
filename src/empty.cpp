@@ -35,7 +35,7 @@ void			server::stopInvaldiRequest( struct epoll_event ev )
 	close(ev.data.fd);	
 }
 
-void	server::validateRequest( struct epoll_event ev )
+bool	server::validateRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
@@ -43,51 +43,44 @@ void	server::validateRequest( struct epoll_event ev )
 	{
 		cerr << RED << "Request rejected because of Invalid Method: " << (*it)->request.method << RESET_LINE;
 		stopInvaldiRequest(ev); // stop request because illegal
-		return ;
+		return (false);
 	}
 	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
 	{
 		cerr << RED << "Request rejected because of Invalid URI: " << (*it)->request.URI << RESET_LINE;
 		stopInvaldiRequest(ev);
-		return ;
+		return (false);
 	}
-	if ((*it)->request.httpVers.compare(HTTPVERSION) != 0);
+	if ((*it)->request.httpVers.compare((std::string)HTTPVERSION) != 0)
 	{
-		cerr << (*it)->request.httpVers << "||" << endl <<  HTTPVERSION << "||"<< endl;
-		cerr << RED << "Request rejected because of Invalid HTTP Version: " << (*it)->request.httpVers << RESET_LINE;
+		cout << RED << "Request rejected because of Invalid HTTP Version: " << (*it)->request.httpVers << RESET_LINE;
 		stopInvaldiRequest(ev);
-		return ;
+		return (false);
 	}
 	try
 	{
-		(*it)->request.headers.at("Content");
-
+		if (ft_atoi((*it)->request.headers.at("content-length").c_str()) > servConfig.getClientMaxBody())
+			return (false);
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
 	}
-	
-	// if ((*it)->request.URI.compare() !=);
-	// (*it)->request.headers["Content"];
-
-	// validateRequest
-
-
+	return (true);
 }
 
-void	server::parseRequest( struct epoll_event ev )
+bool	server::parseRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
-	validateRequest(ev);
+	return (validateRequest(ev));
 }
 
 void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-	parseRequest(ev);
+	if (parseRequest(ev) == false)
+		return ;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;

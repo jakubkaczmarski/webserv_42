@@ -116,12 +116,18 @@ void			config::validatePort( void )
 
 void			config::validateCMBS( void )
 {
-	std::string		port = configMap[PORT];
-	for (size_t i = 0; i < port.size(); i++)
+	std::string		CMBS = configMap[CLIENTMAXBODY];
+
+	if (CMBS.size() == 0)
 	{
-		if (isdigit((port[i]) == 0))
+		cout << RED << "Invalid Port Format: " << RESET_LINE;
+		exit(-1);
+	}
+	for (size_t i = 0; i < CMBS.size(); i++)
+	{
+		if (isdigit((CMBS[i]) == 0))
 		{
-			cout << RED << "Invalid Port Format: " << configMap[PORT] << RESET_LINE;
+			cout << RED << "Invalid Port Format: " << configMap[CLIENTMAXBODY] << RESET_LINE;
 			exit(-1);
 		}
 	}
@@ -239,9 +245,9 @@ std::string		config::getPort( void )
 	return(configMap.at(PORT));
 }
 
-std::string		config::getClientMaxBody( void )
+int				config::getClientMaxBody( void )
 {
-	return(configMap.at(CLIENTMAXBODY));
+	return(ft_atoi(configMap.at(CLIENTMAXBODY).c_str()));
 }
 
 std::string		config::getRoot( void )
