@@ -153,6 +153,8 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
 	std::string extension = get_extension_from_request_post(it);
+	if(extension.empty())
+		endResponse(ev);
 	// if((*it)->request.URI.
 
 }
