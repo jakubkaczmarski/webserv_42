@@ -44,15 +44,15 @@ void	Server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 			continue ;
 		if (key_value[1].size() == 0 )
 			continue ;		
-		cout << "adding " << key_value[0] << " size " << key_value.size() << " val |" << key_value[1] << "|" << endl;
+		// cout << "adding " << key_value[0] << " size " << key_value.size() << " val |" << key_value[1] << "|" << endl;
 		(*it)->request.headers.insert(std::make_pair(key_value[0], key_value[1]));
 	}
 	
 	// print headers to terminal
-	for (auto i : (*it)->request.headers)
-	{
-		cout << PURPLE << i.first << ": " << i.second << RESET_LINE;
-	}
+	// for (auto i : (*it)->request.headers)
+	// {
+	// 	cout << PURPLE << i.first << ": " << i.second << RESET_LINE;
+	// }
 }
 void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 {
