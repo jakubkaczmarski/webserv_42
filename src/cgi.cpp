@@ -35,10 +35,10 @@ char **CGI::envToDoubleCharacterArray()
 	for(int i = 0; i < envSize; i++)
 	{
 		environment[i] = strdup((mapIter->first + "=" + mapIter->second).c_str());
-		cout << GREEN << environment[i] << RESET_LINE;
+		// cout << GREEN << environment[i] << RESET_LINE;
 		mapIter++;
 	}
-	cout << YELLOW << __func__ << "DO we ge here?" << RESET_LINE;
+	// cout << YELLOW << __func__ << "DO we ge here?" << RESET_LINE;
 
 	return (environment);
 	// environment[envSize + 1] = NULL;//not needed when using calloc?
