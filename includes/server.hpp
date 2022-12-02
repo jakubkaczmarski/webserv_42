@@ -3,7 +3,7 @@
 #include "webserv.hpp"
 #include <fstream>
 #include "config.hpp"
-
+ #include <sys/wait.h>
 
 
 typedef struct t_request
@@ -15,7 +15,10 @@ typedef struct t_request
 	std::map<std::string, std::string>		headers;
 	std::string								body; //for now string
 	int										already_sent = 0;
+	char*									body_in_char;
 	int										fd = 0;
+	long long								content_size;
+
 }	s_request;
 
 typedef struct t_response
@@ -65,12 +68,15 @@ class Server
 		s_response							currResponse;
 		std::map<std::string, std::string>	possible_types;
 		std::map<std::string, std::string>	possible_return_code;
+		std::map<std::string, std::string>	possible_cgi_paths;
 		config								servConfig;
 		CGI									objectCGI;	
 
-
+		std::map<std::string, std::string>	get_cgi_env(std::vector<connecData*>::iterator it);
 		std::string 	get_possible_type(std::string type, bool first);
 		void			failTest( int check, std::string message );
+		std::string		get_extension_from_request_get(std::vector<connecData*>::iterator it);
+		std::string		get_extension_from_request_post(std::vector<connecData*>::iterator it);
 		void			servAddressInit( void );
 		void			fillRequestLineItems(std::vector<connecData*>::iterator	it);
 		void			fillRequestHeaders(std::vector<connecData*>::iterator	it);
@@ -95,13 +101,13 @@ class Server
 		void			endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
-		void			parseRequest( struct epoll_event ev );
+		bool			parseRequest( struct epoll_event ev );
 		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			create_response_and_send(std::vector<connecData*>::iterator it);
+		void			handle_cgi(std::vector<connecData *>::iterator it);
 		// void			removeFromEpoll( struct epoll_event ev );
-
-		void			executeCGI(FILE *file);
-		
+		bool			validateRequest( struct epoll_event ev );
+		void			stopInvaldiRequest( struct epoll_event ev );
 
 
 	public:

@@ -24,17 +24,63 @@ std::vector<connecData*>::iterator		Server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
-void	Server::parseRequest( struct epoll_event ev )
+void			Server::stopInvaldiRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+	// close((*it)->response.body_fd);		// fd to body of response
+	delete (*it);
+	connections.erase(it);
+	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+	close(ev.data.fd);	
+}
+
+bool	Server::validateRequest( struct epoll_event ev )
+{
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
+	if (servConfig.allowedMETHOD((*it)->request.method) == false)
+	{
+		cerr << RED << "Request rejected because of Invalid Method: " << (*it)->request.method << RESET_LINE;
+		stopInvaldiRequest(ev); // stop request because illegal
+		return (false);
+	}
+	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
+	{
+		cerr << RED << "Request rejected because of Invalid URI: " << (*it)->request.URI << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return (false);
+	}
+	if ((*it)->request.httpVers.compare((std::string)HTTPVERSION) != 0)
+	{
+		cout << RED << "Request rejected because of Invalid HTTP Version: " << (*it)->request.httpVers << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return (false);
+	}
+	try
+	{
+		if (ft_atoi((*it)->request.headers.at("content-length").c_str()) > servConfig.getClientMaxBody())
+			return (false);
+	}
+	catch(const std::exception& e)
+	{
+	}
+	return (true);
+}
+
+bool	Server::parseRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
+	return (validateRequest(ev));
 }
 
 void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-	parseRequest(ev);
+	if (parseRequest(ev) == false)
+		return ;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
@@ -44,49 +90,132 @@ void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
+std::string	Server::get_extension_from_request_get(std::vector<connecData*>::iterator it)
+{
+	std::string extension;
+	int i = (*it)->request.URI.length() - 1;
+	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+	{
+		i--;
+	}
+	if((*it)->request.URI.compare("/") == 0)
+	{
+		extension = ".html";
+	}
+	else if(!(*it)->request.URI[i])
+	{
+		//Default extension if there is none 
+		extension = ".txt";
+	}
+	else{
+		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+	}
+	if(get_possible_type(extension, false).empty())
+	{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "409";
+		extension = "text/plain";
+		std::cout << "Error "<< std::endl;
+	}else{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "200";
+		extension = get_possible_type(extension, false);
+	}
+	return extension;
+}
+
+std::string	Server::get_extension_from_request_post(std::vector<connecData*>::iterator it)
+{
+	std::string extension;
+	FILE	*file_stream;
+	int i = (*it)->request.URI.length() - 1;
+ 	if((*it)->request.URI.compare(0,8, "/uploads") == 0)
+	{
+		if((*it)->request.URI.length() < 9)
+		{
+			std::cout << "Path not specified correctly " << std::endl;
+			return extension;
+		}else{
+			file_stream = fopen(("." + (*it)->request.URI).c_str(), "wb");
+			if(!file_stream)
+			{
+				std::cout << "Cannot create a file " << std::endl;
+				return extension;
+			}
+		}
+	}else{
+		return extension;
+	}
+
+	int pos = (*it)->request.raw.find("content-length: ");
+	int j;
+	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
+	{
+	}
+	(*it)->response.content_lenght_str =  (*it)->request.raw.substr(pos + 15, j - 15 - pos);
+	(*it)->request.content_size = ft_atoi(((*it)->request.raw.substr(pos + 15, j - 15 - pos)).c_str());
+	if((*it)->request.content_size  == 0)
+	{
+		(*it)->response.status_code = "204";
+		//Nothing to send 
+		return extension;
+	}
+	int body_pos = (*it)->request.raw.find("\r\n\r\n");
+	if(body_pos == (*it)->request.raw.npos)
+	{
+		(*it)->response.status_code = "204";
+		return extension;
+	}
+	(*it)->request.body = (*it)->request.raw.substr(body_pos + 4, (*it)->request.raw.length() - body_pos - 4);
+	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
+	{
+		i--;
+	}
+	extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
+	if(get_possible_type(extension, false).empty())
+	{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "409";
+		extension = "text/plain";
+		std::cout << "Error "<< std::endl;
+	}else{
+		if((*it)->response.status_code != "404")
+			(*it)->response.status_code = "201";
+		extension = get_possible_type(extension, false);
+	}
+
+	(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
+	(*it)->request.fd = fileno(file_stream);
+	(*it)->response.status_code = "201";
+
+	return extension;
+}
+
 void 	Server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
-	size_t index = (*it)->request.raw.find("Content-Type:");
-	std::string content_type;
-	int start = index + 8;
-	index = index + 8;
-	while((*it)->request.raw[index] && (*it)->request.raw[index] != '\n')
-	{
-		index++;
-	}
-
-	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
-	{
-		std::string file_name = "file";
-		std::map<std::string, std::string>::iterator iter;
-		iter = (*it)->request.headers.find("Content-Type");
-		int i;
-		FILE *f;
-		if((*iter).second.empty())
-		{
-			f = fopen( "file" , "wb");
-		}else{
-			for(i = (*iter).second.length() - 1; i > 0 && (*iter).second[i - 1] != '/'; i--)
-			{}
-			std::string full;
-		
-			if((*it)->request.URI.length() > 9)
-			{
-				full = ".";
-				full.append((*it)->request.URI);
-			}else{
-				(*it)->request.URI.append(".");
-				full = &(*it)->request.URI[1] + (*iter).second.substr(i, (*iter).second.length() - i);
-			}
-			std::cout << "Opened file " << full << std::endl;
-			f = fopen(full.c_str(), "wb");
-		}		
-		(*it)->request.fd = fileno(f);
-
-	}else{
-		std::cout << "Wrong path mate" << std::endl;
+	std::string extension = get_extension_from_request_post(it);
+	if(extension.empty())
 		endResponse(ev);
-	}
+
+	(*it)->response.content_type = extension;
+	create_response_and_send(it);
+	// if((*it)->request.URI.
+
+}
+
+std::map<std::string, std::string> Server::get_cgi_env(std::vector<connecData*>::iterator it)
+{
+	// std::map<std::string, std::string> env;
+	// std::map<std::string, std::string>::iterator iter;
+	// std::cout << "Cgi stuff" << std::endl;
+	// int pid = fork();
+	// if(!pid)
+	// {
+	// 	execve("../cgi-bin/put_photo_in_cat.py", NULL, NULL);
+	// }else{
+	// 	waitpid(pid, 0, 0 );
+	// }
+
 }
 
 void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
@@ -101,20 +230,23 @@ void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 		ret.append((*it)->request.URI);
 		if(remove(ret.c_str()) != 0)
 		{
+			(*it)->response.status_code = "417";
 			std::cout << "Cannot remove this file " << "." + (*it)->request.URI << std::endl;
 		}
 		return ;
 	}else{
 		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
+		(*it)->response.status_code = "417";
 		return ;
-	}
-	if(file_stream == nullptr)
+	}	if(file_stream == nullptr)
 	{
 		//For errors
+		(*it)->response.status_code = "404";
 		std::cout << "File not found " << std::endl;
-
 	}
-	
+	// (*it)->response.content_type = extension;
+	// (*it)->response.content_lenght_str = conv.str();
+	create_response_and_send(it);
 }
 
 void	Server::handleGet(std::vector<connecData*>::iterator it)
@@ -162,45 +294,12 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	rewind(file_stream);
 	std::string binaryString;
 	// this line is creating problems with small files
-	std::string extension;
-	int i = (*it)->request.URI.length() - 1;
-	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
-	{
-		i--;
-	}
-	if((*it)->request.URI.compare("/") == 0)
-	{
-		extension = ".html";
-	}
-	else if(!(*it)->request.URI[i])
-	{
-		//Default extension if there is none 
-		extension = ".txt";
-	}
-	else{
-		extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
-	}
-	// 
+	std::string extension = get_extension_from_request_get(it);
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
 	std::cout << extension << std::endl;
 	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
-
-
-	if(get_possible_type(extension, false).empty())
-	{
-		if((*it)->response.status_code != "404")
-			(*it)->response.status_code = "409";
-		extension = "text/plain";
-		std::cout << "Error "<< std::endl;
-	}else{
-		if((*it)->response.status_code != "404")
-			(*it)->response.status_code = "200";
-		extension = get_possible_type(extension, false);
-	}
 	//Those values are sent in the header as a response
-
-
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	create_response_and_send(it);
@@ -304,24 +403,24 @@ void	Server::doResponseStuff( struct epoll_event ev )
 	char								sendBuffer[MAX_LINE];
 	int									sendReturn;
 	int									readReturn;
-
+	
 	if ((*it)->request.fd != 0) // process request body
 	{
-		memset(sendBuffer, 0, MAX_LINE);
-		// cout << "this is do response stuff if" << endl;
-		sendReturn = write((*it)->request.fd , ((*it)->request.body.c_str()) + (*it)->request.already_sent , MAX_LINE);
+		// std::cout << (*it)->request.body << std::endl;
+		// sendReturn = write((*it)->request.fd, (*it)->request.body_in_char, (*it)->request.content_size);
 
-		// failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
-		if(sendReturn < MAX_LINE) //if already_sent == however many should have been sent maybe?
+		if((*it)->request.content_size - MAX_LINE <= 0)
 		{
 			if ((*it)->isCGI)
 				remove((*it)->fileCGI.c_str());
+			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, (*it)->request.content_size);
+			close((*it)->request.fd);
 			endResponse(ev);
 		}
-		else{
-			(*it)->request.already_sent += sendReturn;
-		}
-		/* code */
+		sendReturn = write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, MAX_LINE);
+		(*it)->request.already_sent += sendReturn;
+		(*it)->request.content_size -= sendReturn;
+	
 	}
 	else
 	{
@@ -351,7 +450,7 @@ void	Server::doRequestStuff( struct epoll_event ev )
 	std::cout << "doing some request stuff" << endl;
 	if (recReturn < MAX_LINE) 
 	{
-		std::cout << "Raw Souce " << endl << (*it)->request.raw;
+		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		
 		// std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
 		endRequest(ev, it);
@@ -434,5 +533,4 @@ void		Server::requestLoop( void )
 			}
 		}
 	}
-
 }

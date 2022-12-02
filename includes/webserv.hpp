@@ -62,10 +62,12 @@ using std::ifstream;
 #define SA					struct sockaddr
 #define SOCKET_BACKLOG		1024
 #define HTTPVERSION			"HTTP/1.1"
+#define HTTP				"HTTPVERS"
 #define MAX_EVENTS	10
 
 
-bool file_exists (const std::string& name);
+bool	file_exists (const std::string& name);
+int		ft_atoi(const char *nptr);
 
 std::vector<std::string> split(std::string &str, const char sep, const int &flag=0);
 #endif

@@ -27,6 +27,13 @@ void	Server::failTest( int check, std::string message )
 	}
 }
 
+#include <netinet/in.h>
+
+
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 void	Server::servAddressInit( void )
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);			// SOCK_STREAM == TCP
@@ -36,9 +43,13 @@ void	Server::servAddressInit( void )
 	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option));
 
 	serverAddress.sin_family		= AF_INET;							// means IPv4 / AD_INET6 =IPv6 
-	serverAddress.sin_port			= htons(PORT_NBR);					// Used port
-	serverAddress.sin_addr.s_addr	= htonl(INADDR_LOOPBACK);			// Address this socket is litening to
+	// serverAddress.sin_port			= htons(PORT_NBR);					// Used port
+	serverAddress.sin_port			= htons(ft_atoi(servConfig.getPort().c_str()));					// Used port
+	// serverAddress.sin_addr.s_addr	= htonl(INADDR_LOOPBACK);			// Address this socket is litening to
+	// serverAddress.sin_addr.s_addr	= htonl((unsigned int)ft_atoi(servConfig.getHost().c_str()));			// Address this socket is litening to
+	serverAddress.sin_addr.s_addr	= inet_addr(servConfig.getHost().c_str());			// Address this socket is litening to
 
+	cout << INADDR_LOOPBACK << endl;
 
 	failTest(serverSocket, "Server Socket");
 
@@ -57,7 +68,7 @@ int	Server::checkGetRequest(int requestSocket)
 	{
 		// sendResponse(requestSocket, servConfig.getConfigMap().at(ERROR404));
 		return (-1);
-	}
+	}	
 	return (0);
 }
 
@@ -122,7 +133,7 @@ std::string Server::makeHeader(long bodySize, std::string &path) //prolly other 
 	std::cout << "extension thingy " << extension << std::endl; 
 
 	// out.append(path);
-	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; Content-Length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
+	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; content-length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
 	return (out);
 }
 void	Server::create_response_and_send(std::vector<connecData*>::iterator it)
@@ -133,7 +144,7 @@ void	Server::create_response_and_send(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append(" ");
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
-	(*it)->response.headers.append("Content-Length: ");
+	(*it)->response.headers.append("content-length: ");
 	(*it)->response.headers.append((*it)->response.content_lenght_str);
 	(*it)->response.headers.append("\n");
 	(*it)->response.headers.append("Connection: close\n");
@@ -293,6 +304,11 @@ void			Server::fillInPossibleTypes()
 	{"508", "Loop Detected"},
 	{"510", "Not Extended"},
 	{"511", "Network Authentication Required"},
+};
+possible_cgi_paths = 
+{
+	{"py", "/usr/bin/python3"},
+	{"sh", "/bin/sh"},
 };
 }
 
