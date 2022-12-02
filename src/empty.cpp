@@ -110,9 +110,8 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
 	{
 	}
-
+	(*it)->response.content_lenght_str =  (*it)->request.raw.substr(pos + 15, j - 15 - pos);
 	(*it)->request.content_size = ft_atoi(((*it)->request.raw.substr(pos + 15, j - 15 - pos)).c_str());
-	//Alokuj kurwa
 	if((*it)->request.content_size  == 0)
 	{
 		//Nothing to send 
@@ -121,11 +120,9 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	int body_pos = (*it)->request.raw.find("\r\n\r\n");
 	if(body_pos == (*it)->request.raw.npos)
 	{
-		std::cout << "Japierdole" << std::endl;
 		return extension;
 	}
 	(*it)->request.body = (*it)->request.raw.substr(body_pos + 4, (*it)->request.raw.length() - body_pos - 4);
-	// (*it)->request.raw = 
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
 	{
 		i--;
@@ -145,8 +142,7 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 
 	(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
 	(*it)->request.fd = fileno(file_stream);
-	// std::cout << "Extension thingy \n" << std::endl;
-	// std::cout << 	(*it)->request.content_size << std::endl;
+
 	return extension;
 }
 
@@ -155,6 +151,9 @@ void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 	std::string extension = get_extension_from_request_post(it);
 	if(extension.empty())
 		endResponse(ev);
+	(*it)->response.status_code = "201";
+	(*it)->response.content_type = extension;
+	create_response_and_send(it);
 	// if((*it)->request.URI.
 
 }
