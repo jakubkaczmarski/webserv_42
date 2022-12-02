@@ -43,6 +43,7 @@
 // PATH defines
 #define DEFAULT_PATH	"./database/default_index.html"
 #define FAV_ICON_PATH	"./database/favicon.ico"
+#define CGI_FOLDER_PATH	"/cgi-bin"
 
 // ERROR CODE PATH defines
 #define ERROR_404_PATH	"./database/Error_404.png"

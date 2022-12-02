@@ -3,6 +3,7 @@
 #include "webserv.hpp"
 #include <fstream>
 #include "config.hpp"
+#include "CGI.hpp"
 
 
 typedef struct t_request
@@ -38,9 +39,10 @@ class connecData
 		int										socket;
 		s_request								request;
 		s_response								response;
+		bool									isCGI;
 };
 
-class server
+class Server
 {
 	private:
 	
@@ -62,7 +64,7 @@ class server
 		std::map<std::string, std::string>	possible_types;
 		std::map<std::string, std::string>	possible_return_code;
 		config								servConfig;
-
+		CGI									objectCGI;	
 
 
 		std::string 	get_possible_type(std::string type, bool first);
@@ -95,11 +97,13 @@ class server
 		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			create_response_and_send(std::vector<connecData*>::iterator it);
 		// void			removeFromEpoll( struct epoll_event ev );
+
+		void			executeCGI(FILE *file);
 		
 
 
 	public:
-		server(): servConfig()
+		Server(): servConfig()
 		{
 			if(servConfig.getOutcome() == false)
 			{
@@ -111,7 +115,7 @@ class server
 			servAddressInit();
 			// currConnections = 0;
 		};
-		server(char * confPath): servConfig(confPath)
+		Server(char * confPath): servConfig(confPath)
 		{
 			if(servConfig.getOutcome() == false)
 			{
@@ -123,7 +127,7 @@ class server
 			servAddressInit();
 			// currConnections = 0;
 		};
-		~server() {
+		~Server() {
 		};
 		void	handleRequest( void )
 		{

@@ -17,7 +17,7 @@ int main( int argc, char **argv )
 		
 	if(argc == 1)
 	{
-		server	servy;
+		Server	servy;
 
 		if(servy.getConfigOutcome() == false)
 			return(-1);
@@ -27,7 +27,7 @@ int main( int argc, char **argv )
 	}
 	else if (argc == 2)
 	{
-		server			servy(argv[1]);
+		Server			servy(argv[1]);
 
 
 		if(servy.getConfigOutcome() == false)

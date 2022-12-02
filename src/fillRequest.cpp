@@ -1,13 +1,13 @@
 #include "../includes/server.hpp"
 
-void	server::fillRequestStruct(std::vector<connecData*>::iterator	it)
+void	Server::fillRequestStruct(std::vector<connecData*>::iterator	it)
 {
 	fillRequestLineItems(it);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
 }
 
-void server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
+void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 {
 
 	//get request line
@@ -24,7 +24,7 @@ void server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 }
 
 
-void	server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
+void	Server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 {
 	//get headers
 	int begin	= (*it)->request.raw.find('\n') + 1;
@@ -45,7 +45,7 @@ void	server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 		cout << RED << i.first << ": " << i.second << RESET_LINE;
 	}
 }
-void server::fillRequestBody(std::vector<connecData*>::iterator	it)
+void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 {
 	//get body
 	size_t	begin;

@@ -11,7 +11,7 @@ struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
 	return (ev);
 }
 
-std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_event ev)
+std::vector<connecData*>::iterator		Server::findStructVectorIt( struct epoll_event ev)
 {
 	std::vector<connecData*>::iterator	it = connections.begin();
 	std::vector<connecData*>::iterator	it_e = connections.end();
@@ -24,14 +24,14 @@ std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
-void	server::parseRequest( struct epoll_event ev )
+void	Server::parseRequest( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
 }
 
-void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
+void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	parseRequest(ev);
@@ -44,7 +44,7 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
-void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
+void 	Server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
 	size_t index = (*it)->request.raw.find("Content-Type:");
 	std::string content_type;
@@ -89,7 +89,7 @@ void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 	}
 }
 
-void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
+void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
 	FILE	*file_stream;
 	std::cout << (*it)->request.URI << std::endl;
@@ -117,7 +117,7 @@ void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 	
 }
 
-void	server::handleGet(std::vector<connecData*>::iterator it)
+void	Server::handleGet(std::vector<connecData*>::iterator it)
 {
 	FILE	*file_stream;
 	FILE	*file_str_2;
@@ -125,19 +125,21 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	std::cout << (*it)->request.URI << std::endl;
 	cout << "hanleGET file" << endl;
 
-	if((*it)->request.URI.compare("/") == 0)
+	if ((*it)->request.URI.compare("/") == 0)
 	{
 		//Root path for welcome page
 		file_stream = fopen(DEFAULT_PATH , "rb");
 		file_str_2 = fopen(DEFAULT_PATH , "rb");
-	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
+	}
+	else if ((*it)->request.URI.compare("./favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
 		file_stream = fopen(FAV_ICON_PATH, "rb");
 		file_str_2 = fopen(FAV_ICON_PATH, "rb");
 
 	}
-	else{
+	else
+	{
 		//If there is a different file user wants to open
 		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
 		file_str_2 = fopen(("." + (*it)->request.URI).c_str(), "rb");
@@ -202,10 +204,31 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	std::cout << (*it)->response.headers << std::endl;
 	rewind(file_stream);
 }
-void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
+void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
+	if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH)) //CGI
+	{
+		(*it)->isCGI = true;
+		if ((*it)->request.method.compare("GET"))
+		{
+			objectCGI.env["QUERY_STRING"] = split((*it)->request.URI, '?', true)[1]; //gets everything after the question mark
+			objectCGI.env["REQUEST_METHOD"] = "GET";
+		}
+		if ((*it)->request.method.compare("POST"))
+		{
+			// objectCGI.env["QUERY_STRING"] = 
+			objectCGI.env["REQUEST_METHOD"] = "POST";
+			
+		}
+		objectCGI.env["SCRIPT_NAME"] = split((*it)->request.URI, '?', true)[0]; //The virtual path (e.g., /cgi-bin/program.pl) of the script being executed.
+		objectCGI.env["SERVER_NAME"] = servConfig.getServName();
+		objectCGI.env["SERVER_PORT"] = servConfig.getPort();
+		objectCGI.env["SERVER_PROTOCOL"] = HTTPVERSION;
+
+		// executeCGI();
+	}
 	if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handle_delete(it, ev);
@@ -221,7 +244,7 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	
 }
 
-void	server::	endResponse( struct epoll_event ev )
+void	Server::	endResponse( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
@@ -233,7 +256,7 @@ void	server::	endResponse( struct epoll_event ev )
 	close(ev.data.fd);					// fd for the response socket
 }
 
-void	server::confusedEpoll( struct epoll_event ev )
+void	Server::confusedEpoll( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
@@ -244,7 +267,7 @@ void	server::confusedEpoll( struct epoll_event ev )
 	cout << RED << "confusedEpoll i dont know what to do!" << RESET_LINE;	
 }
 
-void	server::doResponseStuff( struct epoll_event ev )
+void	Server::doResponseStuff( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								sendBuffer[MAX_LINE];
@@ -279,7 +302,7 @@ void	server::doResponseStuff( struct epoll_event ev )
 	}
 }
 
-void	server::doRequestStuff( struct epoll_event ev )
+void	Server::doRequestStuff( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								recBuffer[MAX_LINE];
@@ -302,7 +325,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 	// done reading close event and open new writing event
 }
 
-void	server::acceptConnection( int epollFD )
+void	Server::acceptConnection( int epollFD )
 {
 	connecData			*tmp = new connecData();
 	struct epoll_event	ev;
@@ -317,7 +340,7 @@ void	server::acceptConnection( int epollFD )
 }
 
 
-void		server::requestLoop( void )
+void		Server::requestLoop( void )
 {
 	struct epoll_event	ev;
 	struct epoll_event	events[MAX_EVENTS];
