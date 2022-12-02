@@ -68,7 +68,7 @@ int	server::checkGetRequest(int requestSocket)
 	{
 		// sendResponse(requestSocket, servConfig.getConfigMap().at(ERROR404));
 		return (-1);
-	}
+	}	
 	return (0);
 }
 

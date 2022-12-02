@@ -118,13 +118,13 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 		//Nothing to send 
 		return extension;
 	}
-	int body_pos = (*it)->request.raw.find("\r\n");
+	int body_pos = (*it)->request.raw.find("\r\n\r\n");
 	if(body_pos == (*it)->request.raw.npos)
 	{
 		std::cout << "Japierdole" << std::endl;
 		return extension;
 	}
-	(*it)->request.body = (*it)->request.raw.substr(body_pos, (*it)->request.raw.length() - body_pos);
+	(*it)->request.body = (*it)->request.raw.substr(body_pos + 4, (*it)->request.raw.length() - body_pos - 4);
 	// (*it)->request.raw = 
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
 	{
@@ -299,14 +299,19 @@ void	server::doResponseStuff( struct epoll_event ev )
 	
 	if ((*it)->request.fd != 0) // process request body
 	{
-		std::cout << (*it)->request.body << std::endl;
+		// std::cout << (*it)->request.body << std::endl;
+		// sendReturn = write((*it)->request.fd, (*it)->request.body_in_char, (*it)->request.content_size);
+
 		if((*it)->request.content_size - MAX_LINE <= 0)
 		{
-			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str(), (*it)->request.content_size);
+			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, (*it)->request.content_size);
 			close((*it)->request.fd);
 			endResponse(ev);
 		}
-		(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str(), MAX_LINE);
+		sendReturn = write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, MAX_LINE);
+		(*it)->request.already_sent += sendReturn;
+		(*it)->request.content_size -= sendReturn;
+	
 	}
 	else
 	{
