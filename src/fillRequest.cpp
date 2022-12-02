@@ -51,7 +51,7 @@ void	server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 	// print headers to terminal
 	for (auto i : (*it)->request.headers)
 	{
-		cout << RED << i.first << ": " << i.second << RESET_LINE;
+		cout << PURPLE << i.first << ": " << i.second << RESET_LINE;
 	}
 }
 void server::fillRequestBody(std::vector<connecData*>::iterator	it)
