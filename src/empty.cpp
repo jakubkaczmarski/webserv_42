@@ -86,6 +86,7 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	if((*it)->request.URI.compare(0, 8, "/cgi-bin") == 0)
 	{
 		std::cout << "CGI" << std::endl;
+		get_cgi_env(it);
 		return extension;
 	}else if((*it)->request.URI.compare(0,8, "/uploads") == 0)
 	{
@@ -114,12 +115,14 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	(*it)->request.content_size = ft_atoi(((*it)->request.raw.substr(pos + 15, j - 15 - pos)).c_str());
 	if((*it)->request.content_size  == 0)
 	{
+		(*it)->response.status_code = "204";
 		//Nothing to send 
 		return extension;
 	}
 	int body_pos = (*it)->request.raw.find("\r\n\r\n");
 	if(body_pos == (*it)->request.raw.npos)
 	{
+		(*it)->response.status_code = "204";
 		return extension;
 	}
 	(*it)->request.body = (*it)->request.raw.substr(body_pos + 4, (*it)->request.raw.length() - body_pos - 4);
@@ -136,12 +139,13 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 		std::cout << "Error "<< std::endl;
 	}else{
 		if((*it)->response.status_code != "404")
-			(*it)->response.status_code = "200";
+			(*it)->response.status_code = "201";
 		extension = get_possible_type(extension, false);
 	}
 
 	(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
 	(*it)->request.fd = fileno(file_stream);
+	(*it)->response.status_code = "201";
 
 	return extension;
 }
@@ -151,7 +155,7 @@ void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 	std::string extension = get_extension_from_request_post(it);
 	if(extension.empty())
 		endResponse(ev);
-	(*it)->response.status_code = "201";
+
 	(*it)->response.content_type = extension;
 	create_response_and_send(it);
 	// if((*it)->request.URI.
