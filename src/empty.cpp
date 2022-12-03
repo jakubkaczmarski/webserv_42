@@ -255,7 +255,6 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	FILE	*file_str_2;
 
 	cout << YELLOW << __func__ << "URI: "  << (*it)->request.URI << RESET_LINE;
-	cout << YELLOW << __func__ << "CGI: "  << (*it)->fileCGI << RESET_LINE;
 
 	if ((*it)->isCGI)
 	{
@@ -294,7 +293,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	if(file_stream == nullptr)
 	{
 		//For errors
-		cout << GREEN << "Error??\n\n\n" << RESET_LINE;
+		cout << GREEN << "No file could be opened. Opening 404 instead.\n\n\n" << RESET_LINE;
 		(*it)->response.status_code = "404";
 		file_stream = fopen(ERROR_404_PATH, "rb");
 		file_str_2 = fopen(ERROR_404_PATH, "rb");
@@ -311,7 +310,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
 	// std::cout << RED << "Extension: " << extension << std::endl;
-	std::cout << "Reponse Content-Lenght == " << (*it)->response.content_lenght << std::endl;
+	// std::cout << "Reponse Content-Lenght == " << (*it)->response.content_lenght << std::endl;
 	//Those values are sent in the header as a response
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
@@ -391,7 +390,7 @@ void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	{
 		handle_post(it, ev);
 	}else if((*it)->request.method.compare("GET") == 0){
-		cout << "response header get if" << endl;
+		// cout << "response header get if" << endl;
 		handleGet(it);
 	}
 	
@@ -457,7 +456,7 @@ void	Server::doResponseStuff( struct epoll_event ev )
 		{
 			if ((*it)->isCGI)
 			{
-				cout << PURPLE << "NEED TO REMOVE THE FILE NOW" << RESET_LINE;
+				// cout << PURPLE << "NEED TO REMOVE THE FILE NOW" << RESET_LINE;
 				remove((*it)->fileCGI.c_str());
 			}
 			endResponse(ev);
@@ -476,7 +475,7 @@ void	Server::doRequestStuff( struct epoll_event ev )
 	// fullRequest.clear();
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
-	std::cout << "doing some request stuff" << endl;
+	// std::cout << "doing some request stuff" << endl;
 	if (recReturn < MAX_LINE) 
 	{
 		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
@@ -540,13 +539,13 @@ void		Server::requestLoop( void )
 			}
 			else if (events[idx].events & ( EPOLLOUT ))				// check for  write() fd
 			{
-				cout << PURPLE << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
+				// cout << PURPLE << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
 				doResponseStuff(events[idx]);
 
 			}
 			else if (events[idx].events & ( EPOLLIN ))				// check for read() fd
 			{
-				cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
+				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 4" << endl;
 				doRequestStuff(events[idx]);
 				// closeAndRemoveFromEpoll(events[idx], epollFD);  //testing purposes
 			}
