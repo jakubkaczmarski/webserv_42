@@ -2,6 +2,7 @@
 
 void	Server::fillRequestStruct(std::vector<connecData*>::iterator	it)
 {
+	cout << PURPLE << __func__ << RESET_LINE;
 	fillRequestLineItems(it);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
@@ -9,7 +10,7 @@ void	Server::fillRequestStruct(std::vector<connecData*>::iterator	it)
 
 void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 {
-
+	cout << PURPLE << __func__ << RESET_LINE;
 	//get request line
 	std::string	requestLine = (*it)->request.raw.substr(0, (*it)->request.raw.find('\n'));
 	std::vector<string> requestLineV = split(requestLine, ' ');
@@ -28,6 +29,7 @@ void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 
 void	Server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 {
+	cout << PURPLE << __func__ << RESET_LINE;
 	//get headers
 	int begin	= (*it)->request.raw.find('\n') + 1;
 	int size	= (*it)->request.raw.find("\r\n\r\n") - begin;
@@ -56,6 +58,7 @@ void	Server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 }
 void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 {
+	cout << PURPLE << __func__ << RESET_LINE;
 	//get body
 	size_t	begin;
 	size_t	size;

@@ -26,6 +26,7 @@ std::vector<connecData*>::iterator		Server::findStructVectorIt( struct epoll_eve
 
 void			Server::stopInvaldiRequest( struct epoll_event ev )
 {
+	cout << GREEN << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	// close((*it)->response.body_fd);		// fd to body of response
@@ -37,6 +38,7 @@ void			Server::stopInvaldiRequest( struct epoll_event ev )
 
 bool	Server::validateRequest( struct epoll_event ev )
 {
+	cout << GREEN << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	if (servConfig.allowedMETHOD((*it)->request.method) == false)
@@ -70,14 +72,17 @@ bool	Server::validateRequest( struct epoll_event ev )
 
 bool	Server::parseRequest( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
-	return (validateRequest(ev));
+	return (true);
+	// return (validateRequest(ev));
 }
 
 void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
+	cout << RED << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
 		return ;
@@ -92,6 +97,8 @@ void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 std::string	Server::get_extension_from_request_get(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::string extension;
 	int i = (*it)->request.URI.length() - 1;
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
@@ -126,6 +133,8 @@ std::string	Server::get_extension_from_request_get(std::vector<connecData*>::ite
 
 std::string	Server::get_extension_from_request_post(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::string extension;
 	FILE	*file_stream;
 	int i = (*it)->request.URI.length() - 1;
@@ -193,6 +202,7 @@ std::string	Server::get_extension_from_request_post(std::vector<connecData*>::it
 
 void 	Server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
+	cout << RED << __func__ << RESET_LINE;
 	std::string extension = get_extension_from_request_post(it);
 	if(extension.empty())
 		endResponse(ev);
@@ -220,6 +230,8 @@ void 	Server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 
 void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	FILE	*file_stream;
 	std::cout << (*it)->request.URI << std::endl;
 
@@ -251,6 +263,8 @@ void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 
 void	Server::handleGet(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	FILE	*file_stream;
 	FILE	*file_str_2;
 
@@ -322,6 +336,8 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 }
 void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
 	if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
@@ -398,6 +414,8 @@ void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 
 void	Server::	endResponse( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
@@ -421,6 +439,8 @@ void	Server::confusedEpoll( struct epoll_event ev )
 
 void	Server::doResponseStuff( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								sendBuffer[MAX_LINE];
 	int									sendReturn;
@@ -466,6 +486,8 @@ void	Server::doResponseStuff( struct epoll_event ev )
 
 void	Server::doRequestStuff( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
+
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								recBuffer[MAX_LINE];
 	int									recReturn;
@@ -489,6 +511,8 @@ void	Server::doRequestStuff( struct epoll_event ev )
 
 void	Server::acceptConnection( int epollFD )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	connecData			*tmp = new connecData();
 	struct epoll_event	ev;
 
@@ -504,6 +528,8 @@ void	Server::acceptConnection( int epollFD )
 
 void		Server::requestLoop( void )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	struct epoll_event	ev;
 	struct epoll_event	events[MAX_EVENTS];
 
