@@ -44,8 +44,7 @@
 #define DEFAULT_PATH	"./database/default_index.html"
 #define FAV_ICON_PATH	"./database/favicon.ico"
 #define CGI_FOLDER_PATH	"/cgi-bin"
-// #define DEFAULT_CGI_FILE_PATH "/webserv_42/database/intraPictures/"
-#define DEFAULT_CGI_FILE_PATH "/home/kis619/webserv_42/database/intraPictures/"
+#define DEFAULT_CGI_FILE_PATH "/workspaces/webserv_42/database/intraPictures/"
 
 // ERROR CODE PATH defines
 #define ERROR_404_PATH	"./database/Error_404.png"

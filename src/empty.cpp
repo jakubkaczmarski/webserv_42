@@ -352,7 +352,6 @@ void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 
 		//create file name
 		(*it)->fileCGI = DEFAULT_CGI_FILE_PATH + std::to_string((*it)->socket) + "_fileCGI.html";
-		// (*it)->fileCGI = "/webserv_42/database/intraPictures/" + std::to_string((*it)->socket) + "_fileCGI.html";
 		
 		//create file to write to
 		FILE * fileCGI= fopen((*it)->fileCGI.c_str(), "w");
@@ -439,7 +438,7 @@ void	Server::confusedEpoll( struct epoll_event ev )
 
 void	Server::doResponseStuff( struct epoll_event ev )
 {
-	cout << RED << __func__ << RESET_LINE;
+	// cout << RED << __func__ << RESET_LINE;
 	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								sendBuffer[MAX_LINE];
