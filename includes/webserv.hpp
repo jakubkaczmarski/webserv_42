@@ -49,7 +49,7 @@
 // ERROR CODE PATH defines
 #define ERROR_404_PATH	"./database/Error_404.png"
 // #define PATH_TO_SCRIPTS	"/webserv_42"
-#define PATH_TO_SCRIPTS	"/home/kis619/webserv_42"
+#define PATH_TO_SCRIPTS	"/workspaces/webserv_42"
 
 using std::cout;
 using std::cerr;
