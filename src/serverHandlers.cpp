@@ -78,7 +78,6 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
 	cout << YELLOW << "URI: "  << (*it)->request.URI << RESET_LINE;
-
 	if ((*it)->isCGI)
 	{
 		cout << YELLOW << "IS CGI" << RESET_LINE;
@@ -104,7 +103,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 		(*it)->request.file_one  = fopen((*it)->request.URI.c_str(), "rb");
 		(*it)->request.file_two  = fopen((*it)->request.URI.c_str(), "rb");
 	}
-	else
+	else if((*it)->request.URI.compare((*it)->request.URI.length() - 1, 1, "/") != 0)
 	{
 		//If there is a different file user wants to open
 		(*it)->request.file_one  = fopen(("." + (*it)->request.URI).c_str(), "rb");
@@ -122,7 +121,6 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 
 	fseek((*it)->request.file_one , 0, SEEK_END);
 	(*it)->response.content_lenght = ftell((*it)->request.file_one);
-
 	rewind((*it)->request.file_one );
 	std::string binaryString;
 	// this line is creating problems with small files

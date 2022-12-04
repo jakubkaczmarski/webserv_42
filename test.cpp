@@ -23,6 +23,9 @@ int main(int argc, char **argv, char **env)
 	std::string name = "Siemanko ZIomeczku";
     FILE *ptr = fopen("notes.txt", "rb");
 	int pd = fileno(ptr);
+	char buff[4000];
+	memset(buff, 0, 4000);
+	
     fclose(ptr);
 	char *s = (char *)name.c_str();
 }
