@@ -138,6 +138,8 @@ std::string Server::makeHeader(long bodySize, std::string &path) //prolly other 
 }
 void	Server::create_response_and_send(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	(*it)->response.statusMessage = possible_return_code[(*it)->response.status_code];
 	(*it)->response.headers = "HTTP/1.1 ";
 	(*it)->response.headers.append((*it)->response.status_code);
