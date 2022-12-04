@@ -2,6 +2,19 @@
 
 // void handleCGI is in serverHandlers.cpp
 
+std::string getBodyPostRequestCGI(std::vector<connecData*>::iterator it)
+{
+	cout << GREEN << __func__ << RESET_LINE;
+
+	int pos = (*it)->request.raw.find("\r\n\r\n");
+	if(pos == (*it)->request.raw.npos || pos + 1 >= (*it)->request.raw.length())
+	{
+		return "empty_body=oh_no";
+	}
+	return (*it)->request.raw.substr(pos + 1, (*it)->request.raw.length() - (pos + 1));
+
+}
+
 void CGI::setEnvironment(std::vector<connecData*>::iterator it, config servConfig)
 {
 		if ((*it)->request.method.compare("GET") == 0)
@@ -11,7 +24,7 @@ void CGI::setEnvironment(std::vector<connecData*>::iterator it, config servConfi
 		}
 		if ((*it)->request.method.compare("POST") == 0)
 		{
-			env["QUERY_STRING"] = (*it)->request.cgi_data;
+			env["QUERY_STRING"] = getBodyPostRequestCGI(it);
 			env["REQUEST_METHOD"] = "POST";
 			
 		}
@@ -46,4 +59,3 @@ char **CGI::envToDoubleCharacterArray()
 }
 
 
-// class 

@@ -62,27 +62,6 @@ void		Server::requestLoop( void )
 	}
 }
 
-void cgi_data_init(std::vector<connecData*>::iterator it)
-{
-	if((*it)->request.method.compare("POST") == 0)
-	{
-		int pos = (*it)->request.raw.find("\r\n\r\n");
-		if(pos == (*it)->request.raw.npos || pos + 1 >= (*it)->request.raw.length())
-		{
-			return ;
-		}
-		(*it)->request.cgi_data = (*it)->request.URI.substr(pos + 1, (*it)->request.URI.length() - (pos + 1));
-	}else if((*it)->request.method.compare("GET") == 0)
-	{
-		int pos = (*it)->request.URI.find_first_of("?");
-		if(pos == (*it)->request.URI.npos || pos + 1 >= (*it)->request.URI.length())
-		{
-			return ;
-		}
-		(*it)->request.cgi_data = (*it)->request.URI.substr(pos + 1, (*it)->request.URI.length() - (pos + 1));
-	}
-}
-
 void	Server::readRequest( struct epoll_event ev )
 {
 	cout << SKY << __func__ << RESET_LINE;
@@ -104,14 +83,10 @@ void	Server::readRequest( struct epoll_event ev )
 		{
 			if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 			{
-				cgi_data_init(it);
-				std::cout << "CGI_DATA" << std::endl;
-				std::cout << (*it)->request.cgi_data << std::endl;
 				handleCGI(it);
 			}
 			else
 			{
-				std::cout << "Enters this" << std::endl;
 				prepareResponseHeader(it, ev); //CAN WE GET THIS IN THE SEND RESPONSE
 			}
 		}//CAN WE GET THIS BLOCK IN THE SEND RESPONSE
