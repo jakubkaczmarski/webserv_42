@@ -8,6 +8,9 @@ bool	Server::parseRequest( struct epoll_event ev )
 	fillRequestLineItems(it);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
+	cout << GREEN << (*it)->request.cgi_data << RESET_LINE;
+	if (KRISI_TESTING)
+		return(true);
 	return (validateRequest(ev));
 }
 
