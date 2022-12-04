@@ -11,7 +11,7 @@ void CGI::setEnvironment(std::vector<connecData*>::iterator it, config servConfi
 		}
 		if ((*it)->request.method.compare("POST") == 0)
 		{
-			// objectCGI.env["QUERY_STRING"] = 
+			env["QUERY_STRING"] = (*it)->request.cgi_data;
 			env["REQUEST_METHOD"] = "POST";
 			
 		}

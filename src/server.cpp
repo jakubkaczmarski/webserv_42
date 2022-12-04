@@ -28,6 +28,7 @@ void	Server::acceptConnection( int epollFD )
 
 void	Server::servAddressInit( void )
 {
+	cout << PINK << __func__ << RESET_LINE;
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);			// SOCK_STREAM == TCP
 
 	int	option = 1;
@@ -54,6 +55,7 @@ void	Server::servAddressInit( void )
 
 string	Server::getPossibleType(string type, bool first)
 {
+	cout << PINK << __func__ << RESET_LINE;
 	std::map<string, string>::iterator it = possibleTypes.find(type);
 
 	if(first && it != possibleTypes.end())
@@ -68,6 +70,8 @@ string	Server::getPossibleType(string type, bool first)
 
 void	Server::fillInPossibleTypes()
 {
+	cout << PINK << __func__ << RESET_LINE;
+
 	possibleTypes.insert(make_pair(string(".aac"), string("audio/aac\r\n")));
 	possibleTypes.insert(make_pair(string(".aac"), string("audio/aac\r\n")));
 	possibleTypes.insert(make_pair(string(".aac"), string("audio/aac\r\n")));
@@ -214,12 +218,14 @@ void	Server::fillInPossibleTypes()
 
 config	&Server::getConfig( void )
 {
+	cout << PINK << __func__ << RESET_LINE;
 	return (servConfig);
 }
 
 
 bool	Server::getConfigOutcome( void )
 {
+	cout << PINK << __func__ << RESET_LINE;
 	return(servConfig.getOutcome());
 }
 

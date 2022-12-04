@@ -87,11 +87,11 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	FILE	*file_stream;
 	FILE	*file_str_2;
 
-	cout << YELLOW << __func__ << "URI: "  << (*it)->request.URI << RESET_LINE;
+	cout << YELLOW << "URI: "  << (*it)->request.URI << RESET_LINE;
 
 	if ((*it)->isCGI)
 	{
-		cout << YELLOW << __func__ << " IS CGI" << RESET_LINE;
+		cout << YELLOW << "IS CGI" << RESET_LINE;
 		file_stream = fopen((*it)->fileNameCGI.c_str(), "rb");
 		file_str_2 = fopen((*it)->fileNameCGI.c_str(), "rb");
 	}

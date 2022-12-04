@@ -2,6 +2,7 @@
 
 bool file_exists (const std::string& name)
 {
+  cout << ON_PINK << __func__ << RESET_LINE;
   struct stat buffer;   
   return (stat(name.c_str(), &buffer) == 0); 
 }
@@ -9,6 +10,7 @@ bool file_exists (const std::string& name)
 
 std::vector<std::string> split(std::string &str, const char sep, const int &flag)
 {
+	cout << ON_PINK << __func__ << RESET_LINE;
 	std::vector<std::string>	outputArray;
 	std::stringstream			streamString(str);
 	std::string					val;
@@ -38,6 +40,7 @@ std::vector<std::string> split(std::string &str, const char sep, const int &flag
 
 int	ft_atoi(const char *nptr)
 {
+	cout << ON_PINK << __func__ << RESET_LINE;
 	int	i;
 	int	sign;
 	int	out;
