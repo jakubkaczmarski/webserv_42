@@ -5,6 +5,6 @@ import os
 
 name = os.environ["QUERY_STRING"].split("=")[1] 
 print("<html>")
-print(f"<h1> Siemanko, {name} </h1>")
+print(f"<h1> Siemanko, {name}! </h1>")
 
 print("</html>")
