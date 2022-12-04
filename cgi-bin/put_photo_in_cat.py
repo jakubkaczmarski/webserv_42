@@ -1,50 +1,21 @@
+#!/usr/bin/env python3
 
-
-
-#open file in read mode
 import os
 
-#for now setting the env manually
-# os.environ["INTRA_NAME"] = "kmilchev"
-# print(os.environ)
-#oppening the html for reading
-file = open("/home/kis619/webserv_42/database/default_index_.html", "r")
 
-#initialising an empty string, getting the intra login, prepraing the path
-replaced_content = ""
-intra = os.environ["INTRA_NAME"]
-new_path = "/home/kis619/webserv_42/database/intraPictures" + intra + '.jpg'
+file = open("/workspaces/webserv_42/database/default_index_.html", "r")			#oppening the html for reading
 
-#looping through the file
-for line in file:
 
-    #replacing the texts
-    new_line = line.replace("/database/UFF.png", new_path)
+replaced_content = ""															#initialising an empty string 
+intra = os.environ["QUERY_STRING"].split('=')[1]								#getting the intra login
+new_path = "/workspaces/webserv_42/database/intraPictures/" + intra + '.jpg'	#prepraing the path
 
-    #concatenate the new string and add an end-line break
-    replaced_content = replaced_content + new_line
 
-    
-#close the file
-file.close()
+for line in file:																#line by line reading
+    new_line = line.replace("/database/UFF.png", new_path)						#replacing the text
+    replaced_content = replaced_content	+ new_line								#adding the new line
 
-#Open file in write mode
-path = "./cgi-bin/" + intra + ".html"
-write_file = os.open(	
-						path,
-						os.O_RDWR | os.O_CREAT,
-						0o777
-					)
-write_file = open(write_file, "a+")
+file.close()																	#close the file
 
-# print(write_file)
-
-#overwriting the old file contents with the new/replaced content
-
-write_file.write(replaced_content)
-
-# print("Content-type: text/html")
-# print(replaced_content)
-#close the file
-# print(write_file.fileno())
-write_file.close()
+# print("Content-Type: text/html")
+print(replaced_content)															#print result

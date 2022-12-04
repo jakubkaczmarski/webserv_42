@@ -1,15 +1,16 @@
 #include "../includes/server.hpp"
 
-void	server::fillRequestStruct(std::vector<connecData*>::iterator	it)
+void	Server::fillRequestStruct(std::vector<connecData*>::iterator	it)
 {
+	cout << PURPLE << __func__ << RESET_LINE;
 	fillRequestLineItems(it);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
 }
 
-void server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
+void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 {
-
+	cout << PURPLE << __func__ << RESET_LINE;
 	//get request line
 	std::string	requestLine = (*it)->request.raw.substr(0, (*it)->request.raw.find('\n'));
 	std::vector<string> requestLineV = split(requestLine, ' ');
@@ -26,8 +27,9 @@ void server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 }
 
 
-void	server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
+void	Server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 {
+	cout << PURPLE << __func__ << RESET_LINE;
 	//get headers
 	int begin	= (*it)->request.raw.find('\n') + 1;
 	int size	= (*it)->request.raw.find("\r\n\r\n") - begin;
@@ -44,18 +46,19 @@ void	server::fillRequestHeaders(std::vector<connecData*>::iterator	it)
 			continue ;
 		if (key_value[1].size() == 0 )
 			continue ;		
-		cout << "adding " << key_value[0] << " size " << key_value.size() << " val |" << key_value[1] << "|" << endl;
+		// cout << "adding " << key_value[0] << " size " << key_value.size() << " val |" << key_value[1] << "|" << endl;
 		(*it)->request.headers.insert(std::make_pair(key_value[0], key_value[1]));
 	}
 	
 	// print headers to terminal
-	for (auto i : (*it)->request.headers)
-	{
-		cout << PURPLE << i.first << ": " << i.second << RESET_LINE;
-	}
+	// for (auto i : (*it)->request.headers)
+	// {
+	// 	cout << PURPLE << i.first << ": " << i.second << RESET_LINE;
+	// }
 }
-void server::fillRequestBody(std::vector<connecData*>::iterator	it)
+void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 {
+	cout << PURPLE << __func__ << RESET_LINE;
 	//get body
 	size_t	begin;
 	size_t	size;

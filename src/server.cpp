@@ -17,7 +17,7 @@ static void epoll_ctl_add(int epfd, int fd, uint32_t events)
 	}
 }
 
-void	server::failTest( int check, std::string message )
+void	Server::failTest( int check, std::string message )
 {
 	if (check < 0)
 	{
@@ -34,7 +34,7 @@ void	server::failTest( int check, std::string message )
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-void	server::servAddressInit( void )
+void	Server::servAddressInit( void )
 {
 	serverSocket = socket(AF_INET, SOCK_STREAM, 0);			// SOCK_STREAM == TCP
 
@@ -62,7 +62,7 @@ void	server::servAddressInit( void )
 
 
 
-int	server::checkGetRequest(int requestSocket)
+int	Server::checkGetRequest(int requestSocket)
 {
 	if(file_exists( currRequest.URI) == false)
 	{
@@ -72,7 +72,7 @@ int	server::checkGetRequest(int requestSocket)
 	return (0);
 }
 
-std::string		server::getBinary(std::string &path, long *size, int request_soc)
+std::string		Server::getBinary(std::string &path, long *size, int request_soc)
 {
 
 	FILE	*file_stream;
@@ -112,7 +112,7 @@ std::string		server::getBinary(std::string &path, long *size, int request_soc)
 	return binaryString;
 }
 
-std::string server::makeHeader(long bodySize, std::string &path) //prolly other stuff too
+std::string Server::makeHeader(long bodySize, std::string &path) //prolly other stuff too
 {
 	std::string		out;
 	std::string extension;
@@ -136,8 +136,10 @@ std::string server::makeHeader(long bodySize, std::string &path) //prolly other 
 	out = "Content-Type: " + extension + " ; Content-Transfer-Encoding: binary; content-length: " + std::to_string(bodySize) + ";charset=ISO-8859-4 ";
 	return (out);
 }
-void	server::create_response_and_send(std::vector<connecData*>::iterator it)
+void	Server::create_response_and_send(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	(*it)->response.statusMessage = possible_return_code[(*it)->response.status_code];
 	(*it)->response.headers = "HTTP/1.1 ";
 	(*it)->response.headers.append((*it)->response.status_code);
@@ -153,7 +155,7 @@ void	server::create_response_and_send(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append("\n");
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
 }
-std::string server::get_possible_type(std::string type, bool first)
+std::string Server::get_possible_type(std::string type, bool first)
 {
 	std::map<std::string, std::string>::iterator it = possible_types.find(type);
 
@@ -167,7 +169,7 @@ std::string server::get_possible_type(std::string type, bool first)
 	return n;
 }
 
-void			server::fillInPossibleTypes()
+void			Server::fillInPossibleTypes()
 {
 	std::string s = ".aac";
 	possible_types.insert(std::make_pair(std::string(".aac"), std::string("audio/aac\r\n")));
@@ -313,13 +315,13 @@ possible_cgi_paths =
 }
 
 
-config	&server::getConfig( void )
+config	&Server::getConfig( void )
 {
 	return (servConfig);
 }
 
 
-bool	server::getConfigOutcome( void )
+bool	Server::getConfigOutcome( void )
 {
 	return(servConfig.getOutcome());
 }

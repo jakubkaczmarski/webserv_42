@@ -5,6 +5,7 @@
 #include "config.hpp"
  #include <sys/wait.h>
 
+
 typedef struct t_request
 {
 	std::string								raw;
@@ -41,9 +42,12 @@ class connecData
 		int										socket;
 		s_request								request;
 		s_response								response;
+		bool									isCGI = false;
+		string									fileCGI;
 };
 
-class server
+#include "CGI.hpp"
+class Server
 {
 	private:
 	
@@ -66,7 +70,7 @@ class server
 		std::map<std::string, std::string>	possible_return_code;
 		std::map<std::string, std::string>	possible_cgi_paths;
 		config								servConfig;
-
+		CGI									objectCGI;	
 
 		std::map<std::string, std::string>	get_cgi_env(std::vector<connecData*>::iterator it);
 		std::string 	get_possible_type(std::string type, bool first);
@@ -107,7 +111,7 @@ class server
 
 
 	public:
-		server(): servConfig()
+		Server(): servConfig()
 		{
 			if(servConfig.getOutcome() == false)
 			{
@@ -119,7 +123,7 @@ class server
 			servAddressInit();
 			// currConnections = 0;
 		};
-		server(char * confPath): servConfig(confPath)
+		Server(char * confPath): servConfig(confPath)
 		{
 			if(servConfig.getOutcome() == false)
 			{
@@ -131,7 +135,7 @@ class server
 			servAddressInit();
 			// currConnections = 0;
 		};
-		~server() {
+		~Server() {
 		};
 		void	handleRequest( void )
 		{

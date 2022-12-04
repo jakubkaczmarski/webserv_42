@@ -1,6 +1,6 @@
 #include "../includes/server.hpp"
 
-
+#include <filesystem>
 struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
 {
 	struct	epoll_event	ev;
@@ -11,7 +11,7 @@ struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
 	return (ev);
 }
 
-std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_event ev)
+std::vector<connecData*>::iterator		Server::findStructVectorIt( struct epoll_event ev)
 {
 	std::vector<connecData*>::iterator	it = connections.begin();
 	std::vector<connecData*>::iterator	it_e = connections.end();
@@ -24,8 +24,9 @@ std::vector<connecData*>::iterator		server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
-void			server::stopInvaldiRequest( struct epoll_event ev )
+void			Server::stopInvaldiRequest( struct epoll_event ev )
 {
+	cout << GREEN << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	// close((*it)->response.body_fd);		// fd to body of response
@@ -35,8 +36,9 @@ void			server::stopInvaldiRequest( struct epoll_event ev )
 	close(ev.data.fd);	
 }
 
-bool	server::validateRequest( struct epoll_event ev )
+bool	Server::validateRequest( struct epoll_event ev )
 {
+	cout << GREEN << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	if (servConfig.allowedMETHOD((*it)->request.method) == false)
@@ -59,7 +61,7 @@ bool	server::validateRequest( struct epoll_event ev )
 	}
 	try
 	{
-		if (ft_atoi((*it)->request.headers.at("content-length").c_str()) > servConfig.getClientMaxBody())
+		if (ft_atoi((*it)->request.headers.at("Content-Length").c_str()) > servConfig.getClientMaxBody())
 			return (false);
 	}
 	catch(const std::exception& e)
@@ -68,16 +70,18 @@ bool	server::validateRequest( struct epoll_event ev )
 	return (true);
 }
 
-bool	server::parseRequest( struct epoll_event ev )
+bool	Server::parseRequest( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
 	return (validateRequest(ev));
 }
 
-void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
+void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
+	cout << RED << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
 		return ;
@@ -90,8 +94,10 @@ void	server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterat
 
 }
 
-std::string	server::get_extension_from_request_get(std::vector<connecData*>::iterator it)
+std::string	Server::get_extension_from_request_get(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::string extension;
 	int i = (*it)->request.URI.length() - 1;
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
@@ -124,8 +130,10 @@ std::string	server::get_extension_from_request_get(std::vector<connecData*>::ite
 	return extension;
 }
 
-std::string	server::get_extension_from_request_post(std::vector<connecData*>::iterator it)
+std::string	Server::get_extension_from_request_post(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::string extension;
 	FILE	*file_stream;
 	int i = (*it)->request.URI.length() - 1;
@@ -147,7 +155,7 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 		return extension;
 	}
 
-	int pos = (*it)->request.raw.find("content-length: ");
+	int pos = (*it)->request.raw.find("Content-Length: ");
 	int j;
 	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
 	{
@@ -191,8 +199,9 @@ std::string	server::get_extension_from_request_post(std::vector<connecData*>::it
 	return extension;
 }
 
-void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
+void 	Server::handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
+	cout << RED << __func__ << RESET_LINE;
 	std::string extension = get_extension_from_request_post(it);
 	if(extension.empty())
 		endResponse(ev);
@@ -203,8 +212,8 @@ void 	server::handle_post( std::vector<connecData*>::iterator it, struct epoll_e
 
 }
 
-std::map<std::string, std::string> server::get_cgi_env(std::vector<connecData*>::iterator it)
-{
+// std::map<std::string, std::string> Server::get_cgi_env(std::vector<connecData*>::iterator it)
+// {
 	// std::map<std::string, std::string> env;
 	// std::map<std::string, std::string>::iterator iter;
 	// std::cout << "Cgi stuff" << std::endl;
@@ -216,10 +225,12 @@ std::map<std::string, std::string> server::get_cgi_env(std::vector<connecData*>:
 	// 	waitpid(pid, 0, 0 );
 	// }
 
-}
+// }
 
-void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
+void	Server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	FILE	*file_stream;
 	std::cout << (*it)->request.URI << std::endl;
 
@@ -249,27 +260,42 @@ void	server::handle_delete(std::vector<connecData*>::iterator it, struct epoll_e
 	create_response_and_send(it);
 }
 
-void	server::handleGet(std::vector<connecData*>::iterator it)
+void	Server::handleGet(std::vector<connecData*>::iterator it)
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	FILE	*file_stream;
 	FILE	*file_str_2;
 
-	std::cout << (*it)->request.URI << std::endl;
-	cout << "hanleGET file" << endl;
+	cout << YELLOW << __func__ << "URI: "  << (*it)->request.URI << RESET_LINE;
 
-	if((*it)->request.URI.compare("/") == 0)
+	if ((*it)->isCGI)
+	{
+		cout << YELLOW << __func__ << " IS CGI" << RESET_LINE;
+		file_stream = fopen((*it)->fileCGI.c_str(), "rb");
+		file_str_2 = fopen((*it)->fileCGI.c_str(), "rb");
+	}
+	else if ((*it)->request.URI.compare("/") == 0)
 	{
 		//Root path for welcome page
 		file_stream = fopen(DEFAULT_PATH , "rb");
 		file_str_2 = fopen(DEFAULT_PATH , "rb");
-	}else if((*it)->request.URI.compare("./favicon.ico") == 0)
+	}
+	else if ((*it)->request.URI.compare("/favicon.ico") == 0)
+	// else if ((*it)->request.URI.compare("./favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
 		file_stream = fopen(FAV_ICON_PATH, "rb");
 		file_str_2 = fopen(FAV_ICON_PATH, "rb");
 
 	}
-	else{
+	else if ((*it)->request.URI.compare(0, 46, DEFAULT_CGI_FILE_PATH) == 0)
+	{
+		file_stream = fopen((*it)->request.URI.c_str(), "rb");
+		file_str_2 = fopen((*it)->request.URI.c_str(), "rb");
+	}
+	else
+	{
 		//If there is a different file user wants to open
 		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
 		file_str_2 = fopen(("." + (*it)->request.URI).c_str(), "rb");
@@ -277,73 +303,96 @@ void	server::handleGet(std::vector<connecData*>::iterator it)
 	if(file_stream == nullptr)
 	{
 		//For errors
+		cout << GREEN << "No file could be opened. Opening 404 instead.\n\n\n" << RESET_LINE;
 		(*it)->response.status_code = "404";
 		file_stream = fopen(ERROR_404_PATH, "rb");
 		file_str_2 = fopen(ERROR_404_PATH, "rb");
 		(*it)->request.URI = "/database/Error_404.png";
 	}
+
 	fseek(file_stream, 0, SEEK_END);
 	(*it)->response.content_lenght = ftell(file_stream);
+
 	rewind(file_stream);
 	std::string binaryString;
 	// this line is creating problems with small files
 	std::string extension = get_extension_from_request_get(it);
 	std::stringstream conv;
 	conv << (*it)->response.content_lenght;
-	std::cout << extension << std::endl;
-	std::cout << "Reponse content-lenght == " << (*it)->response.content_lenght << std::endl;
+	// std::cout << RED << "Extension: " << extension << std::endl;
+	// std::cout << "Reponse Content-Lenght == " << (*it)->response.content_lenght << std::endl;
 	//Those values are sent in the header as a response
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	create_response_and_send(it);
 	(*it)->response.body_fd = fileno(file_str_2);
 
-	std::cout << (*it)->response.headers << std::endl;
+	// std::cout << (*it)->response.headers << std::endl;
 	rewind(file_stream);
 }
-void	server::handle_cgi(std::vector<connecData *>::iterator it)
+void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
-
-	if((*it)->request.URI.compare((*it)->request.URI.length() - 3, 3 ,".py") == 0)
-	{
-		std::cout << "It's a python script yeey" << std::endl;
-		int pid = fork();
-		if(pid == 0)
-		{
-			FILE *f = fopen("out.txt", "w");
-			int fd = fileno(f);
-			dup2(fd, 1);
-			dup2(fd, 2);
-			close(fd);
-			char *arr[3];
-			arr[0] = (char *)possible_cgi_paths["py"].c_str();
-			int location = (*it)->request.URI.find(".py");
-			int i;
-			for(i = location; (*it)->request.URI[i] != '/'; i--)
-			{
-
-			}
-			arr[1] = (char *)(*it)->request.URI.substr(i, location + 3).c_str();
-			arr[2] = NULL;
-			execve(arr[0], arr, NULL);
-		}
-		std::cout << "Done " << std::endl;
-		
-	}
-
-	// possible_cgi_paths[i]
-}
-
-void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
-{
+	cout << RED << __func__ << RESET_LINE;
+	
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
-	if((*it)->request.URI.compare(0, 9, "/cgi-bin/") == 0)
+	if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 	{
-		std::cout << "CGI" << std::endl;
-		handle_cgi(it);
-		endResponse(ev);
-	}else if((*it)->request.method.compare("DELETE") == 0)
+		//check if path to script is legit maybe?
+		cout << RED << __func__ << ": isCGI!" << RESET_LINE;
+		//mark as CGI
+		(*it)->isCGI = true;
+
+		//prepare environment
+		objectCGI.setEnvironment(it, servConfig);
+
+		//create file name
+		(*it)->fileCGI = DEFAULT_CGI_FILE_PATH + std::to_string((*it)->socket) + "_fileCGI.html";
+		
+		//create file to write to
+		FILE * fileCGI= fopen((*it)->fileCGI.c_str(), "w");
+		if (!file_exists((*it)->fileCGI))
+		{
+			cout << RED << __func__ << (*it)->fileCGI.c_str() << ": could not create file" << endl;
+			exit(77);
+		}
+
+		//get file descriptor for dup
+		int fdFileCGI = fileno(fileCGI);
+
+		//give new file URI to the request struct
+		(*it)->request.URI = (*it)->fileCGI;
+		//fork
+		pid_t pid = fork();
+
+		//CHILD
+		if (pid == 0)
+		{
+			// change output stream to the CGI file;
+			dup2(fdFileCGI, 1);
+
+			//make data doble array
+			char **env = objectCGI.envToDoubleCharacterArray();
+			
+			//create path to executable
+
+			// std::string executable = "/workspaces/webserv_42" + objectCGI.env.at("SCRIPT_NAME");
+			std::string executable = PATH_TO_SCRIPTS + objectCGI.env.at("SCRIPT_NAME");
+			// cout << PURPLE << executable << RESET_LINE;
+			write(2, executable.c_str(), executable.length());
+			//execute
+			execve((executable).c_str(), NULL, env);
+			// execve("../cgi-bin/put_photo_in_cat.py", NULL, env);
+			perror("\nExecve: ");
+			free(env);
+			exit(33);
+		}
+		// cout << "response header get if" << endl;
+		wait(NULL);
+		handleGet(it);
+		// executeCGI();
+	}
+	else if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handle_delete(it, ev);
 		endResponse(ev);
@@ -352,17 +401,19 @@ void	server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	{
 		handle_post(it, ev);
 	}else if((*it)->request.method.compare("GET") == 0){
-		cout << "response header get if" << endl;
+		// cout << "response header get if" << endl;
 		handleGet(it);
 	}
 	
 }
 
-void	server::	endResponse( struct epoll_event ev )
+void	Server::	endResponse( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
-	cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
+	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
 	close((*it)->response.body_fd);		// fd to body of response
 	delete (*it);
 	connections.erase(it);
@@ -370,7 +421,7 @@ void	server::	endResponse( struct epoll_event ev )
 	close(ev.data.fd);					// fd for the response socket
 }
 
-void	server::confusedEpoll( struct epoll_event ev )
+void	Server::confusedEpoll( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
@@ -381,8 +432,10 @@ void	server::confusedEpoll( struct epoll_event ev )
 	cout << RED << "confusedEpoll i dont know what to do!" << RESET_LINE;	
 }
 
-void	server::doResponseStuff( struct epoll_event ev )
+void	Server::doResponseStuff( struct epoll_event ev )
 {
+	// cout << RED << __func__ << RESET_LINE;
+	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								sendBuffer[MAX_LINE];
 	int									sendReturn;
@@ -395,6 +448,7 @@ void	server::doResponseStuff( struct epoll_event ev )
 
 		if((*it)->request.content_size - MAX_LINE <= 0)
 		{
+
 			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, (*it)->request.content_size);
 			close((*it)->request.fd);
 			endResponse(ev);
@@ -414,12 +468,21 @@ void	server::doResponseStuff( struct epoll_event ev )
 
 		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 		if(sendReturn < MAX_LINE)
+		{
+			if ((*it)->isCGI)
+			{
+				// cout << PURPLE << "NEED TO REMOVE THE FILE NOW" << RESET_LINE;
+				remove((*it)->fileCGI.c_str());
+			}
 			endResponse(ev);
+		}
 	}
 }
 
-void	server::doRequestStuff( struct epoll_event ev )
+void	Server::doRequestStuff( struct epoll_event ev )
 {
+	cout << RED << __func__ << RESET_LINE;
+
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								recBuffer[MAX_LINE];
 	int									recReturn;
@@ -429,7 +492,7 @@ void	server::doRequestStuff( struct epoll_event ev )
 	// fullRequest.clear();
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
 	(*it)->request.raw.append(recBuffer, recReturn);
-	std::cout << "doing some request stuff" << endl;
+	// std::cout << "doing some request stuff" << endl;
 	if (recReturn < MAX_LINE) 
 	{
 		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
@@ -441,8 +504,10 @@ void	server::doRequestStuff( struct epoll_event ev )
 	// done reading close event and open new writing event
 }
 
-void	server::acceptConnection( int epollFD )
+void	Server::acceptConnection( int epollFD )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	connecData			*tmp = new connecData();
 	struct epoll_event	ev;
 
@@ -456,8 +521,10 @@ void	server::acceptConnection( int epollFD )
 }
 
 
-void		server::requestLoop( void )
+void		Server::requestLoop( void )
 {
+	cout << RED << __func__ << RESET_LINE;
+	
 	struct epoll_event	ev;
 	struct epoll_event	events[MAX_EVENTS];
 
@@ -493,7 +560,7 @@ void		server::requestLoop( void )
 			}
 			else if (events[idx].events & ( EPOLLOUT ))				// check for  write() fd
 			{
-				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
+				// cout << PURPLE << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 3" << endl;
 				doResponseStuff(events[idx]);
 
 			}

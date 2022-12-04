@@ -201,7 +201,7 @@ void	config::initDefaultConfig( void )
 {
 	configMap[SERVNAME] = "defaultServerName";
 	configMap[HOST] = "0.0.0.0";
-	configMap[PORT] = "1999";
+	configMap[PORT] = "3332";
 	configMap[CLIENTMAXBODY] = "1000000";
 	configMap[ERROR404] = "/database/Error_404.png";
 	configMap[METHODS] = "GET";
@@ -209,9 +209,9 @@ void	config::initDefaultConfig( void )
 	configMap[DIR] = "/";
 	configMap[UPLOADDIR] = "/database/uploads"; 
 	configMap[HTTP] = HTTPVERSION;
-	methods["GET"] = false;
-	methods["POST"] = false;
-	methods["DELETE"] = false;
+	methods["GET"] = true;
+	methods["POST"] = true;
+	methods["DELETE"] = true;
 }
 
 
