@@ -76,8 +76,7 @@ bool	Server::parseRequest( struct epoll_event ev )
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	fillRequestStruct(it);
-	return (true);
-	// return (validateRequest(ev));
+	return (validateRequest(ev));
 }
 
 void	Server::endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
@@ -290,11 +289,8 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 		file_str_2 = fopen(FAV_ICON_PATH, "rb");
 
 	}
-	/*THIS IS TEMPORARY BECAUSE I CANNOT TEST IN THE CONTAINER*/
-	else if ((*it)->request.URI.compare(0, 5, "/home") == 0) 
-	// else if ((*it)->request.URI.compare(0, 11, "/webserv_42") == 0) 
+	else if ((*it)->request.URI.compare(0, 46, DEFAULT_CGI_FILE_PATH) == 0)
 	{
-		cout << RED << "home" << RESET_LINE;
 		file_stream = fopen((*it)->request.URI.c_str(), "rb");
 		file_str_2 = fopen((*it)->request.URI.c_str(), "rb");
 	}
@@ -343,7 +339,7 @@ void	Server::responseHeader( std::vector<connecData*>::iterator it ,struct epoll
 	if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 	{
 		//check if path to script is legit maybe?
-
+		cout << RED << __func__ << ": isCGI!" << RESET_LINE;
 		//mark as CGI
 		(*it)->isCGI = true;
 
