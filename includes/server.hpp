@@ -77,7 +77,8 @@ class Server
 		std::map<std::string, std::string>	possibleReturnCode;
 		std::map<std::string, std::string>	possibleCGIPaths;
 		config								servConfig;
-		CGI									objectCGI;	
+		CGI									objectCGI;
+		std::vector<std::string>			scriptsCGI;
 
 		///serverFillRequest.cpp
 		bool			parseRequest( struct epoll_event ev );
@@ -89,7 +90,10 @@ class Server
 		void 			handlePost( std::vector<connecData*>::iterator it, struct epoll_event ev);
 		void			handleDelete(std::vector<connecData*>::iterator it ,struct epoll_event	ev);
 		void 			handleGet( std::vector<connecData*>::iterator it);
+		void			handleCGI(std::vector<connecData*>::iterator it);
 
+		bool			checkCGIPaths(std::string path, std::string &method);
+		void			fillScriptsCGI(void);
 		std::string 	getPossibleType(std::string type, bool first);
 		void			failTest( int check, std::string message );
 		std::string		getExtensionFromRequestGet(std::vector<connecData*>::iterator it);
@@ -115,7 +119,6 @@ class Server
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
 
-		void			handleCGI(std::vector<connecData*>::iterator it);
 
 
 	public:
@@ -127,6 +130,7 @@ class Server
 				return ;
 			}
 			
+			fillScriptsCGI();
 			fillInPossibleTypes();
 			servAddressInit();
 			// currConnections = 0;
@@ -139,6 +143,7 @@ class Server
 				cout << "returning " << endl;
 				return ;
 			}
+			fillScriptsCGI();
 			fillInPossibleTypes();
 			servAddressInit();
 			// currConnections = 0;

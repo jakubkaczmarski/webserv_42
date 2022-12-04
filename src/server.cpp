@@ -215,6 +215,15 @@ void	Server::fillInPossibleTypes()
 	};
 }
 
+void Server::fillScriptsCGI(void)
+{
+	cout << PINK << __func__ << RESET_LINE;
+	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/i_stole_your_password.py");
+	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/magic.py");
+	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/perl.pl");
+	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/print_env_variables.py");
+	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/put_photo_in_cat.py");
+}
 
 config	&Server::getConfig( void )
 {

@@ -17,21 +17,22 @@ std::string getBodyPostRequestCGI(std::vector<connecData*>::iterator it)
 
 void CGI::setEnvironment(std::vector<connecData*>::iterator it, config servConfig)
 {
-		if ((*it)->request.method.compare("GET") == 0)
-		{
-			env["QUERY_STRING"] = split((*it)->request.URI, '?')[1]; //gets everything after the question mark
-			env["REQUEST_METHOD"] = "GET";
-		}
-		if ((*it)->request.method.compare("POST") == 0)
-		{
-			env["QUERY_STRING"] = getBodyPostRequestCGI(it);
-			env["REQUEST_METHOD"] = "POST";
-			
-		}
-		env["SCRIPT_NAME"] = split((*it)->request.URI, '?')[0]; //The virtual path (e.g., /cgi-bin/program.pl) of the script being executed.
-		env["SERVER_NAME"] = servConfig.getServName();
-		env["SERVER_PORT"] = servConfig.getPort();
-		env["SERVER_PROTOCOL"] = HTTPVERSION;
+	cout << GREEN << __func__ << RESET_LINE;
+	if ((*it)->request.method.compare("GET") == 0)
+	{
+		env["QUERY_STRING"] = split((*it)->request.URI, '?')[1]; //gets everything after the question mark
+		env["REQUEST_METHOD"] = "GET";
+	}
+	if ((*it)->request.method.compare("POST") == 0)
+	{
+		env["QUERY_STRING"] = getBodyPostRequestCGI(it);
+		env["REQUEST_METHOD"] = "POST";
+		
+	}
+	env["SCRIPT_NAME"] = split((*it)->request.URI, '?')[0]; //The virtual path (e.g., /cgi-bin/program.pl) of the script being executed.
+	env["SERVER_NAME"] = servConfig.getServName();
+	env["SERVER_PORT"] = servConfig.getPort();
+	env["SERVER_PROTOCOL"] = HTTPVERSION;
 }
 
 char **CGI::envToDoubleCharacterArray()
