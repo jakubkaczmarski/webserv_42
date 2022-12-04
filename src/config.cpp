@@ -139,28 +139,64 @@ void			config::validateCMBS( void )
 
 void			config::validateMethods( void )
 {
-	std::vector<std::string>	list = split(configMap[METHODS], '/');
-
-	if (list.size() > 3 || list.size() < 1)
+	try
 	{
-		cout << RED << "Not enough Methods: " << configMap[METHODS] << endl << "Allowed Methods are \"GET\", \"POST\" and \"DELETE\" "<< RESET_LINE;
-		exit(-1);
-	}
-	std::vector<std::string>::iterator	it = list.begin();
-	std::vector<std::string>::iterator	it_e = list.end();
-	for (; it != it_e; it++)
-	{
-		if (it->compare("GET") != 0 && it->compare("POST") != 0 && it->compare("DELETE") != 0)
+		if (configMap.at("GET").compare("yes") == 0)
 		{
-			cout << RED << "Invalid Methods: " << configMap[METHODS] << endl << "Allowed Methods are only \"GET\", \"POST\" and \"DELETE\" "<< RESET_LINE;
+			methods["GET"] = true;
+		}
+		else if (configMap.at("GET").compare("no") == 0)
+			methods["GET"] = false;
+		else
+		{
+			cerr << RED << "Invalid Method Format" << configMap.at("GET") << endl;
 			exit(-1);
 		}
-		if (it->compare("GET") == 0 )
-			methods["GET"] = true;
-		else if (it->compare("POST") == 0 )
+	}
+	catch(const std::exception& e)
+	{
+		cerr << "Missing config for Method: GET" << endl;
+		exit(-1);
+	}
+	
+	try
+	{
+		if (configMap.at("POST").compare("yes") == 0)
+		{
 			methods["POST"] = true;
-		else if (it->compare("DELETE") == 0 )
+		}
+		else if (configMap.at("POST").compare("no") == 0)
+			methods["POST"] = false;
+		else
+		{
+			cerr << RED << "Invalid Method Format" << configMap.at("POST") << endl;
+			exit(-1);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		cerr << "Missing config for Method: POST" << endl;
+		exit(-1);
+	}
+	
+	try
+	{
+		if (configMap.at("DELETE").compare("yes") == 0)
+		{
 			methods["DELETE"] = true;
+		}
+		else if (configMap.at("GET").compare("no") == 0)
+			methods["DELETE"] = false;
+		else
+		{
+			cerr << RED << "Invalid Method Format" << configMap.at("DELETE") << endl;
+			exit(-1);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		cerr << "Missing config for Method: DELETE" << endl;
+		exit(-1);
 	}
 }
 
