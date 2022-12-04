@@ -26,6 +26,7 @@ bool	Server::validateRequest( struct epoll_event ev )
 	try
 	{
 		if (ft_atoi((*it)->request.headers.at("Content-Length").c_str()) > servConfig.getClientMaxBody())
+			stopInvaldiRequest(ev);
 			return (false);
 	}
 	catch(const std::exception& e)

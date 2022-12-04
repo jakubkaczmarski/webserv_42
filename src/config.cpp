@@ -43,8 +43,7 @@ config::config(char *confPath): configOutcome(true)
 		if (vec_.size() != 2)
 		{
 			cerr << RED << "This line in the config File is not according to our standards! Please fix!" << RESET_LINE << workingLine << endl;
-			configOutcome = false;
-			return ;
+			exit(-1);
 		}
 		// configMap.insert(std::make_pair(tmp, vec_.at(1))); // doesnt work if key already exists
 		configMap[tmp] = vec_.at(1);
