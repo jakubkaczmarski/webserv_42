@@ -60,3 +60,5 @@ then any characters after the question mark will be passed
 to your script in the environment variable called QUERY_STRING. 
 
 CHECK FOR MORE THAN ONE ? IN QUERY STRING
+
+Pass things as reference whenever possible

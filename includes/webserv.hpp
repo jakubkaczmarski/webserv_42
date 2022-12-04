@@ -58,6 +58,7 @@ using std::strerror;
 using std::string;
 using std::stringstream;
 using std::ifstream;
+using std::make_pair;
 
 #define PORT_NBR			3332
 #define MAX_LINE			4096
@@ -68,8 +69,10 @@ using std::ifstream;
 #define MAX_EVENTS	10
 
 
-bool	file_exists (const std::string& name);
-int		ft_atoi(const char *nptr);
+///misc.cpp
+bool						file_exists (const std::string& name);
+std::vector<std::string>	split(std::string &str, const char sep, const int &flag=0);
+int							ft_atoi(const char *nptr);
+struct epoll_event			createEpollStruct(int fdSocket, uint32_t flags);
 
-std::vector<std::string> split(std::string &str, const char sep, const int &flag=0);
-#endif
+#endif //WERBSERV_HPP

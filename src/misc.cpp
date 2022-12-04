@@ -53,3 +53,16 @@ int	ft_atoi(const char *nptr)
 		out = (out * 10) + (nptr[i++] - '0');
 	return (out * sign);
 }
+
+
+struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
+{
+	cout << RED << __func__ << RESET_LINE;
+	
+	struct	epoll_event	ev;
+
+	ev.events = flags;
+	ev.data.fd = fdSocket;
+
+	return (ev);
+}

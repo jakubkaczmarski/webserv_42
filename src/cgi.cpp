@@ -1,5 +1,6 @@
 #include "../includes/server.hpp"
 
+// void handleCGI is in serverHandlers.cpp
 
 void CGI::setEnvironment(std::vector<connecData*>::iterator it, config servConfig)
 {

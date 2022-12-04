@@ -1,5 +1,15 @@
-SRC = main.cpp split.cpp src/config.cpp src/misc.cpp src/server.cpp src/fillRequest.cpp src/empty.cpp src/cgi.cpp
-EXEC_NAME = exec
+SRC			=	main.cpp \
+				src/config.cpp \
+				src/misc.cpp \
+				src/server.cpp \
+				src/serverFillRequest.cpp \
+				src/serverHandlers.cpp \
+				src/serverLoop.cpp \
+				src/serverValidations.cpp\
+				src/empty.cpp \
+				src/cgi.cpp
+				
+EXEC_NAME	=	exec
 
 PINK    := \033[0;35m
 PURPLE    := \033[0;34m

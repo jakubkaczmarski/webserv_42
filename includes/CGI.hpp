@@ -16,6 +16,7 @@ class CGI
 		void setEnvironment(std::vector<connecData*>::iterator it, config servConfig);
 		// void executeCGI();
 		char **envToDoubleCharacterArray();
+		// void executeCGI(std::vector<connecData*>::iterator it, Server server);
 	
 	// CGI(){};
 };

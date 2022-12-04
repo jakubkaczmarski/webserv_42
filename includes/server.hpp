@@ -3,7 +3,11 @@
 #include "webserv.hpp"
 #include <fstream>
 #include "config.hpp"
- #include <sys/wait.h>
+#include <sys/wait.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 
 typedef struct t_request
@@ -43,18 +47,18 @@ class connecData
 		s_request								request;
 		s_response								response;
 		bool									isCGI = false;
-		string									fileCGI;
+		string									fileNameCGI;
 };
 
 #include "CGI.hpp"
 class Server
 {
+	friend class CGI;
 	private:
 	
 		int								serverSocket;
 		std::vector<connecData*>		connections;
 		int								epollFD;
-		// size_t							currConnections;  // no need because connecctions is a vector now
 
 		// do we need this shit?
 		struct sockaddr_in	serverAddress;
@@ -66,48 +70,49 @@ class Server
 		std::string							fullRequest;
 		s_request							currRequest;
 		s_response							currResponse;
-		std::map<std::string, std::string>	possible_types;
-		std::map<std::string, std::string>	possible_return_code;
-		std::map<std::string, std::string>	possible_cgi_paths;
+		std::map<std::string, std::string>	possibleTypes;
+		std::map<std::string, std::string>	possibleReturnCode;
+		std::map<std::string, std::string>	possibleCGIPaths;
 		config								servConfig;
 		CGI									objectCGI;	
 
-		std::map<std::string, std::string>	get_cgi_env(std::vector<connecData*>::iterator it);
-		std::string 	get_possible_type(std::string type, bool first);
-		void			failTest( int check, std::string message );
-		std::string		get_extension_from_request_get(std::vector<connecData*>::iterator it);
-		std::string		get_extension_from_request_post(std::vector<connecData*>::iterator it);
-		void			servAddressInit( void );
+		///serverFillRequest.cpp
+		bool			parseRequest( struct epoll_event ev );
 		void			fillRequestLineItems(std::vector<connecData*>::iterator	it);
 		void			fillRequestHeaders(std::vector<connecData*>::iterator	it);
 		void			fillRequestBody(std::vector<connecData*>::iterator	it);
-		void			fillRequestStruct(std::vector<connecData*>::iterator it);
-		int				checkGetRequest(int requestSocket);
+
+		///serverHandlers.cpp
+		void 			handlePost( std::vector<connecData*>::iterator it, struct epoll_event ev);
+		void			handleDelete(std::vector<connecData*>::iterator it ,struct epoll_event	ev);
+		void 			handleGet( std::vector<connecData*>::iterator it);
+
+		std::string 	getPossibleType(std::string type, bool first);
+		void			failTest( int check, std::string message );
+		std::string		getExtensionFromRequestGet(std::vector<connecData*>::iterator it);
+		std::string		getExtensionFromRequestPost(std::vector<connecData*>::iterator it);
+		void			servAddressInit( void );
 		int				checkRequestErrors(int requestSocket);
-		void			handleRequest(int requestSocket, std::string &fullRequest);
 		std::string		getBinary(std::string &path, long *size, int request_soc);
 		std::string		makeHeader(long bodySize, std::string &path);									//prolly other stuff too
 		void			fillResponseStructBinary(std::string &path, int request_soc);
 		void			sendResponse(int requestSocket, std::string &path);			// im writing this with a get request in mind
 		void			fillInPossibleTypes();
-		void 			handle_post( std::vector<connecData*>::iterator it, struct epoll_event ev);
-		void 			handleGet( std::vector<connecData*>::iterator it);
-		void			handle_delete(std::vector<connecData*>::iterator it ,struct epoll_event	ev);
 		void			acceptConnection( int epollFD );
 		void			closeAndRemoveFromEpoll( struct epoll_event ev );
-		void			doRequestStuff( struct epoll_event ev );
-		void			doResponseStuff( struct epoll_event ev );
+		void			readRequest( struct epoll_event ev );
+		void			sendResponse( struct epoll_event ev );
 		std::vector<connecData*>::iterator				findStructVectorIt( struct epoll_event ev);
-		void			endRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
+		void			doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
-		bool			parseRequest( struct epoll_event ev );
-		void			responseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
-		void			create_response_and_send(std::vector<connecData*>::iterator it);
+		void			prepareResponseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
+		void			createAndSendResponseHeaders(std::vector<connecData*>::iterator it);
 		void			handle_cgi(std::vector<connecData *>::iterator it);
-		// void			removeFromEpoll( struct epoll_event ev );
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
+
+		void			handleCGI(std::vector<connecData*>::iterator it);
 
 
 	public:

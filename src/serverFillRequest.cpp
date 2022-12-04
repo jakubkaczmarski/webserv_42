@@ -1,17 +1,20 @@
 #include "../includes/server.hpp"
 
-void	Server::fillRequestStruct(std::vector<connecData*>::iterator	it)
+bool	Server::parseRequest( struct epoll_event ev )
 {
-	cout << PURPLE << __func__ << RESET_LINE;
+	cout << RED << __func__ << RESET_LINE;
+	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+
 	fillRequestLineItems(it);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
+	return (validateRequest(ev));
 }
 
 void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 {
 	cout << PURPLE << __func__ << RESET_LINE;
-	//get request line
+
 	std::string	requestLine = (*it)->request.raw.substr(0, (*it)->request.raw.find('\n'));
 	std::vector<string> requestLineV = split(requestLine, ' ');
 	(*it)->request.method		= requestLineV[0];
