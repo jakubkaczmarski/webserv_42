@@ -66,8 +66,8 @@ using std::make_pair;
 #define SOCKET_BACKLOG		1024
 #define HTTPVERSION			"HTTP/1.1"
 #define HTTP				"HTTPVERS"
-#define MAX_EVENTS	10
-
+#define MAX_EVENTS			10
+#define KRISI_TESTING		1
 
 ///misc.cpp
 bool						file_exists (const std::string& name);
