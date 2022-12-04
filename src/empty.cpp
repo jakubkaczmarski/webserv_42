@@ -40,6 +40,7 @@ void	Server::endResponse( struct epoll_event ev )
 	connections.erase(it);
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	close(ev.data.fd);					// fd for the response socket
+	fclose((*it)->request.file_two);
 }
 
 void	Server::confusedEpoll( struct epoll_event ev )

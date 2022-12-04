@@ -23,6 +23,8 @@ typedef struct t_request
 	int										fd = 0;
 	long long								content_size;
 	std::string								cgi_data;
+	FILE	*								file_one;
+	FILE	*								file_two;
 
 }	s_request;
 

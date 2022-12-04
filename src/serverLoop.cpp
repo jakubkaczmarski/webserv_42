@@ -169,7 +169,6 @@ void	Server::sendResponse( struct epoll_event ev )
 		{
 
 			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, (*it)->request.content_size);
-			close((*it)->request.fd);
 			endResponse(ev);
 		}
 		sendReturn = write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, MAX_LINE);

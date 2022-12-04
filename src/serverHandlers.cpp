@@ -51,7 +51,6 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 {
 	cout << SKY << __func__ << RESET_LINE;
 	
-	FILE	*file_stream;
 	std::cout << (*it)->request.URI << std::endl;
 
 	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
@@ -69,11 +68,6 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
 		(*it)->response.status_code = "417";
 		return ;
-	}	if(file_stream == nullptr)
-	{
-		//For errors
-		(*it)->response.status_code = "404";
-		std::cout << "File not found " << std::endl;
 	}
 	// (*it)->response.content_type = extension;
 	// (*it)->response.content_lenght_str = conv.str();
@@ -83,57 +77,53 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 void	Server::handleGet(std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
-	
-	FILE	*file_stream;
-	FILE	*file_str_2;
-
 	cout << YELLOW << "URI: "  << (*it)->request.URI << RESET_LINE;
 
 	if ((*it)->isCGI)
 	{
 		cout << YELLOW << "IS CGI" << RESET_LINE;
-		file_stream = fopen((*it)->fileNameCGI.c_str(), "rb");
-		file_str_2 = fopen((*it)->fileNameCGI.c_str(), "rb");
+		(*it)->request.file_one = fopen((*it)->fileNameCGI.c_str(), "rb");
+		(*it)->request.file_two = fopen((*it)->fileNameCGI.c_str(), "rb");
 	}
 	else if ((*it)->request.URI.compare("/") == 0)
 	{
 		//Root path for welcome page
-		file_stream = fopen(DEFAULT_PATH , "rb");
-		file_str_2 = fopen(DEFAULT_PATH , "rb");
+		(*it)->request.file_one = fopen(DEFAULT_PATH , "rb");
+		(*it)->request.file_two  = fopen(DEFAULT_PATH , "rb");
 	}
 	else if ((*it)->request.URI.compare("/favicon.ico") == 0)
 	// else if ((*it)->request.URI.compare("./favicon.ico") == 0)
 	{
 		//Favicon for now streamlined
-		file_stream = fopen(FAV_ICON_PATH, "rb");
-		file_str_2 = fopen(FAV_ICON_PATH, "rb");
+		(*it)->request.file_one  = fopen(FAV_ICON_PATH, "rb");
+		(*it)->request.file_two  = fopen(FAV_ICON_PATH, "rb");
 
 	}
 	else if ((*it)->request.URI.compare(0, 46, DEFAULT_CGI_FILE_PATH) == 0)
 	{
-		file_stream = fopen((*it)->request.URI.c_str(), "rb");
-		file_str_2 = fopen((*it)->request.URI.c_str(), "rb");
+		(*it)->request.file_one  = fopen((*it)->request.URI.c_str(), "rb");
+		(*it)->request.file_two  = fopen((*it)->request.URI.c_str(), "rb");
 	}
 	else
 	{
 		//If there is a different file user wants to open
-		file_stream = fopen(("." + (*it)->request.URI).c_str(), "rb");
-		file_str_2 = fopen(("." + (*it)->request.URI).c_str(), "rb");
+		(*it)->request.file_one  = fopen(("." + (*it)->request.URI).c_str(), "rb");
+		(*it)->request.file_two  = fopen(("." + (*it)->request.URI).c_str(), "rb");
 	}
-	if(file_stream == nullptr)
+	if((*it)->request.file_one  == nullptr)
 	{
 		//For errors
 		cout << GREEN << "No file could be opened. Opening 404 instead.\n\n\n" << RESET_LINE;
 		(*it)->response.status_code = "404";
-		file_stream = fopen(ERROR_404_PATH, "rb");
-		file_str_2 = fopen(ERROR_404_PATH, "rb");
+		(*it)->request.file_one  = fopen(ERROR_404_PATH, "rb");
+		(*it)->request.file_two  = fopen(ERROR_404_PATH, "rb");
 		(*it)->request.URI = "/database/Error_404.png";
 	}
 
-	fseek(file_stream, 0, SEEK_END);
-	(*it)->response.content_lenght = ftell(file_stream);
+	fseek((*it)->request.file_one , 0, SEEK_END);
+	(*it)->response.content_lenght = ftell((*it)->request.file_one);
 
-	rewind(file_stream);
+	rewind((*it)->request.file_one );
 	std::string binaryString;
 	// this line is creating problems with small files
 	std::string extension = getExtensionFromRequestGet(it);
@@ -145,10 +135,11 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	createAndSendResponseHeaders(it);
-	(*it)->response.body_fd = fileno(file_str_2);
+	(*it)->response.body_fd = fileno((*it)->request.file_two);
 
 	// std::cout << (*it)->response.headers << std::endl;
-	rewind(file_stream);
+	rewind((*it)->request.file_one);
+	fclose((*it)->request.file_one);
 }
 
 std::string	Server::getExtensionFromRequestGet(std::vector<connecData*>::iterator it)
@@ -192,7 +183,6 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 	cout << SKY << __func__ << RESET_LINE;
 	
 	std::string extension;
-	FILE	*file_stream;
 	int i = (*it)->request.URI.length() - 1;
  	if((*it)->request.URI.compare(0,8, "/uploads") == 0)
 	{
@@ -201,8 +191,8 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 			std::cout << "Path not specified correctly " << std::endl;
 			return extension;
 		}else{
-			file_stream = fopen(("." + (*it)->request.URI).c_str(), "wb");
-			if(!file_stream)
+			(*it)->request.file_two = fopen(("." + (*it)->request.URI).c_str(), "wb");
+			if(!(*it)->request.file_two)
 			{
 				std::cout << "Cannot create a file " << std::endl;
 				return extension;
@@ -259,7 +249,7 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 	}
 
 	(*it)->request.body_in_char = (char *)(*it)->request.body.c_str();
-	(*it)->request.fd = fileno(file_stream);
+	(*it)->request.fd = fileno((*it)->request.file_two);
 	(*it)->response.status_code = "201";
 
 	return extension;
