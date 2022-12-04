@@ -2,7 +2,7 @@
 
 void	Server::handleCGI(std::vector<connecData*>::iterator it)
 {
-	cout << RED << __func__ << ": isCGI!" << RESET_LINE;
+	cout << SKY << __func__ << ": isCGI!" << RESET_LINE;
 
 	//check if path to script is legit maybe?
 	(*it)->isCGI = true;
@@ -12,7 +12,7 @@ void	Server::handleCGI(std::vector<connecData*>::iterator it)
 	FILE * fileCGI= fopen((*it)->fileNameCGI.c_str(), "w");				//create file to write to
 	if (!file_exists((*it)->fileNameCGI))
 	{
-		cout << RED << __func__ << (*it)->fileNameCGI.c_str() \
+		cout << SKY << __func__ << (*it)->fileNameCGI.c_str() \
 				<< ": could not create file" << endl;
 		exit(77); //THIS SHOULD NOT BE EXIT
 	}
@@ -37,7 +37,7 @@ void	Server::handleCGI(std::vector<connecData*>::iterator it)
 
 void 	Server::handlePost( std::vector<connecData*>::iterator it, struct epoll_event ev)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	std::string extension = getExtensionFromRequestPost(it);
 	if(extension.empty())
 		endResponse(ev);
@@ -49,7 +49,7 @@ void 	Server::handlePost( std::vector<connecData*>::iterator it, struct epoll_ev
 
 void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	FILE	*file_stream;
 	std::cout << (*it)->request.URI << std::endl;
@@ -82,7 +82,7 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 
 void	Server::handleGet(std::vector<connecData*>::iterator it)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	FILE	*file_stream;
 	FILE	*file_str_2;
@@ -153,7 +153,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 
 std::string	Server::getExtensionFromRequestGet(std::vector<connecData*>::iterator it)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	std::string extension;
 	int i = (*it)->request.URI.length() - 1;
@@ -189,7 +189,7 @@ std::string	Server::getExtensionFromRequestGet(std::vector<connecData*>::iterato
 
 std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterator it)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	std::string extension;
 	FILE	*file_stream;

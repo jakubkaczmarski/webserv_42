@@ -2,7 +2,7 @@
 
 void		Server::requestLoop( void )
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	struct epoll_event	ev;
 	struct epoll_event	events[MAX_EVENTS];
@@ -15,6 +15,7 @@ void		Server::requestLoop( void )
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 
 	// cout << "epollFD: " << epollFD << endl << "serverSocket: " << serverSocket << endl;
+	int lel[2];
 	while(1)
 	{
 		// cout << "calling epoll_wait" << endl;
@@ -53,17 +54,17 @@ void		Server::requestLoop( void )
 				cout << RED << "Why did we get here. FD: " << events[idx].data.fd << RESET_LINE;
 			}
 			// cout << "currConnections: " << connections.size() << endl;
-			for (size_t i = 0; i < connections.size(); i++)
-			{
-				// cout << "ind: " << i << " socket: " << connections[i]->socket << endl;
-			}
+			// for (size_t i = 0; i < connections.size(); i++)
+			// {
+			// 	cout << "ind: " << i << " socket: " << connections[i]->socket << endl;
+			// }
 		}
 	}
 }
 
 void	Server::readRequest( struct epoll_event ev )
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								recBuffer[MAX_LINE];
@@ -93,7 +94,7 @@ void	Server::readRequest( struct epoll_event ev )
 
 void	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
 		return ;
@@ -107,7 +108,7 @@ void	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>
 
 void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
@@ -128,7 +129,7 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 
 void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	(*it)->response.statusMessage = possibleReturnCode[(*it)->response.status_code];
 	(*it)->response.headers = "HTTP/1.1 ";
@@ -148,7 +149,7 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 
 void	Server::sendResponse( struct epoll_event ev )
 {
-	// cout << RED << __func__ << RESET_LINE;
+	// cout << SKY << __func__ << RESET_LINE;
 	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								sendBuffer[MAX_LINE];

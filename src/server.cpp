@@ -12,7 +12,7 @@ void	Server::failTest( int check, string message )
 
 void	Server::acceptConnection( int epollFD )
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	connecData			*tmp = new connecData();
 	struct epoll_event	ev;

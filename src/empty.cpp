@@ -30,7 +30,7 @@ void	Server::stopInvaldiRequest( struct epoll_event ev )
 
 void	Server::endResponse( struct epoll_event ev )
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 

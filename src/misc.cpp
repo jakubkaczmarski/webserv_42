@@ -57,7 +57,7 @@ int	ft_atoi(const char *nptr)
 
 struct epoll_event	createEpollStruct(int fdSocket, uint32_t flags)
 {
-	cout << RED << __func__ << RESET_LINE;
+	cout << SKY << __func__ << RESET_LINE;
 	
 	struct	epoll_event	ev;
 
