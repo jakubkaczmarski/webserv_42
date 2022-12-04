@@ -22,6 +22,7 @@ typedef struct t_request
 	char*									body_in_char;
 	int										fd = 0;
 	long long								content_size;
+	std::string								cgi_data;
 
 }	s_request;
 

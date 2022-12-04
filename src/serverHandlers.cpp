@@ -39,8 +39,8 @@ void 	Server::handlePost( std::vector<connecData*>::iterator it, struct epoll_ev
 {
 	cout << SKY << __func__ << RESET_LINE;
 	std::string extension = getExtensionFromRequestPost(it);
-	if(extension.empty())
-		endResponse(ev);
+	// if(extension.empty())
+	// 	endResponse(ev);
 
 	(*it)->response.content_type = extension;
 	createAndSendResponseHeaders(it);
