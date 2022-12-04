@@ -212,7 +212,16 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 		return extension;
 	}
 
-	int pos = (*it)->request.raw.find("Content-Length: ");
+	int pos = (*it)->request.raw.find("content-length: ");
+	if(pos == (*it)->request.raw.npos)
+	{
+		pos = (*it)->request.raw.find("Content-Length: ");
+		if(pos == (*it)->request.raw.npos)
+		{
+			std::cout << "Content-length not specified correctly " << std::endl;
+			return extension;
+		}
+	}
 	int j;
 	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
 	{
