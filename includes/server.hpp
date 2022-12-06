@@ -118,6 +118,10 @@ class Server
 		void			handle_cgi(std::vector<connecData *>::iterator it);
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
+		// void    		shutdownServer( int signal );
+		void			signals( void );
+
+
 
 
 
