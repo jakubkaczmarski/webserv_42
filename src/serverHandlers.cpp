@@ -156,7 +156,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	if((*it)->request.file_one  == nullptr)
 	{
 		//For errors
-		cout << GREEN << "No file could be opened. Opening 404 instead.\n\n\n" << RESET_LINE;
+		cout << RED << "No file could be opened. Opening 404 instead.\n" << RESET_LINE;
 		(*it)->response.status_code = "404";
 		(*it)->request.file_one  = fopen(ERROR_404_PATH, "rb");
 		(*it)->request.file_two  = fopen(ERROR_404_PATH, "rb");
