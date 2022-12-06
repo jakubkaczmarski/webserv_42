@@ -36,6 +36,7 @@
 #define ROOT			"root"
 #define DIR				"dir"
 #define UPLOADDIR		"uploadDir"
+#define DIR_LISTING		"directoryListing"
 
 
 
@@ -45,7 +46,7 @@
 #define FAV_ICON_PATH	"./database/favicon.ico"
 #define CGI_FOLDER_PATH	"/cgi-bin"
 #define DEFAULT_CGI_FILE_PATH "/workspaces/webserv_42/database/intraPictures/"
-
+#define DIR_LISTING_SCRIPT "/cgi-bin/directory_listing.sh"
 // ERROR CODE PATH defines
 #define ERROR_404_PATH	"./database/Error_404.png"
 // #define PATH_TO_SCRIPTS	"/webserv_42"

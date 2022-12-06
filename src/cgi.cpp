@@ -18,9 +18,11 @@ std::string getBodyPostRequestCGI(std::vector<connecData*>::iterator it)
 void CGI::setEnvironment(std::vector<connecData*>::iterator it, config servConfig)
 {
 	cout << GREEN << __func__ << RESET_LINE;
+	std::vector<string> URI_queryString = split((*it)->request.URI, '?');
 	if ((*it)->request.method.compare("GET") == 0)
 	{
-		env["QUERY_STRING"] = split((*it)->request.URI, '?')[1]; //gets everything after the question mark
+		if (URI_queryString.size() > 1)
+			env["QUERY_STRING"] = split((*it)->request.URI, '?')[1]; //gets everything after the question mark
 		env["REQUEST_METHOD"] = "GET";
 	}
 	if ((*it)->request.method.compare("POST") == 0)

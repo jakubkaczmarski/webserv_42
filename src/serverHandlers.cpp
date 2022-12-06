@@ -1,6 +1,5 @@
 #include "../includes/server.hpp"
 
-
 bool Server::checkCGIPaths(std::string path, std::string &method)
 {	
 	cout << YELLOW << __func__ << RESET_LINE;
@@ -10,6 +9,8 @@ bool Server::checkCGIPaths(std::string path, std::string &method)
 		// cout << "IT IS GET: " << pathAndQuary.size() << endl << "Path is; " << pathAndQuary[0] << endl << "Quary is: " << pathAndQuary[1] << endl;
 		if (pathAndQuary.size() != 2)
 		{
+			if (path.compare(DIR_LISTING_SCRIPT) == 0)
+				return (true);
 			cout << RED << "CGI GET NO QUERY_STRING" << RESET_LINE;
 			return (false);
 		}
@@ -122,6 +123,13 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	}
 	else if ((*it)->request.URI.compare("/") == 0)
 	{
+		//if list directory is enabled return this page
+		if (servConfig.getDirectoryListing().compare("yes") == 0 )
+		{
+			(*it)->request.URI = DIR_LISTING_SCRIPT;
+			handleCGI(it);
+			return ;
+		}
 		//Root path for welcome page
 		(*it)->request.file_one = fopen(DEFAULT_PATH , "rb");
 		(*it)->request.file_two  = fopen(DEFAULT_PATH , "rb");
