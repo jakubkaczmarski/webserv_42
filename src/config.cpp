@@ -244,6 +244,7 @@ void	config::initDefaultConfig( void )
 	configMap[DIR] = "/";
 	configMap[UPLOADDIR] = "/database/uploads"; 
 	configMap[HTTP] = HTTPVERSION;
+	configMap[DIR_LISTING] = "no";
 	methods["GET"] = true;
 	methods["POST"] = true;
 	methods["DELETE"] = true;
@@ -305,6 +306,11 @@ std::string		config::getMethods( void )
 	return(configMap.at(METHODS));
 }
 
+std::string		&config::getDirectoryListing( void )
+{
+	return(configMap.at(DIR_LISTING));
+}
+
 bool			config::allowedMETHOD( std::string meth )
 {
 	if (meth.compare("GET") != 0 && meth.compare("POST") != 0 && meth.compare("DELETE") != 0)
@@ -321,5 +327,14 @@ bool			config::allowedURI( std::string URI, std::string method )
 		return (true);
 	if (configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
 		return (true);
+	return (false);
+}
+
+bool			config::validateDirectoryListing(std::string &str)
+{
+	if ((configMap.at(DIR_LISTING).compare("yes") == 0)
+		|| (configMap.at(DIR_LISTING).compare("no") == 0))
+		return (true) ;
+
 	return (false);
 }

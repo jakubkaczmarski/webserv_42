@@ -35,8 +35,10 @@ class config
 		std::string		getDir( void );
 		std::string		getUploadDir( void );
 		std::string		getMethods( void );
+		std::string		&getDirectoryListing( void );
 		bool			allowedMETHOD( std::string );
 		bool			allowedURI( std::string, std::string );
+		bool			validateDirectoryListing( std::string &);
 		// bool			allowedGET(  );
 		// bool			allowedPOST( void );
 		// bool			allowedDELETE( void );

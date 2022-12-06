@@ -43,6 +43,12 @@ bool	Server::validateRequest( struct epoll_event ev )
 		stopInvaldiRequest(ev);
 		return (false);
 	}
+	if (servConfig.validateDirectoryListing(servConfig.getDirectoryListing()) == false)
+	{
+		cout << RED << "Request rejected because of wrong DirectoryListing Option: " << (*it)->request.httpVers << RESET_LINE;
+		stopInvaldiRequest(ev);
+		return (false);
+	}
 	try
 	{
 		if (ft_atoi((*it)->request.headers.at("Content-Length").c_str()) > servConfig.getClientMaxBody())
