@@ -1,6 +1,6 @@
 #include "../includes/server.hpp"
 
-void	Server::URIisDirectory(s_request &req, std::vector<connecData*>::iterator it)
+void	Server::URIisDirectory( s_request &req )
 {
 	std::vector<std::string>			dirs;
 
@@ -52,6 +52,6 @@ bool	Server::validateRequest( struct epoll_event ev )
 	catch(const std::exception& e)
 	{
 	}
-	URIisDirectory((*it)->request, it);
+	URIisDirectory((*it)->request);
 	return (true);
 }
