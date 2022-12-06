@@ -1,5 +1,25 @@
 #include "../includes/server.hpp"
 
+void	Server::URIisDirectory(s_request &req, std::vector<connecData*>::iterator it)
+{
+	std::vector<std::string>			dirs;
+
+	dirs.push_back("/database/intraPictures");
+	dirs.push_back("/database/forms");
+	dirs.push_back("/uploads");
+	dirs.push_back("/database");
+	std::vector<std::string>::iterator	DirIt = dirs.begin();
+	std::vector<std::string>::iterator	DirIt_e = dirs.end();
+	for (; DirIt != DirIt_e; DirIt++)
+	{
+		if(req.URI.compare(*DirIt) == 0)
+		{
+			req.method = "GET";
+			req.URI = "/database/DirRequestError.png";
+		}
+	}
+}
+
 bool	Server::validateRequest( struct epoll_event ev )
 {
 	cout << GREEN << __func__ << RESET_LINE;
@@ -32,5 +52,6 @@ bool	Server::validateRequest( struct epoll_event ev )
 	catch(const std::exception& e)
 	{
 	}
+	URIisDirectory((*it)->request, it);
 	return (true);
 }

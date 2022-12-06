@@ -118,6 +118,7 @@ class Server
 		void			handle_cgi(std::vector<connecData *>::iterator it);
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
+		void			URIisDirectory(s_request &req, std::vector<connecData*>::iterator it);
 
 
 

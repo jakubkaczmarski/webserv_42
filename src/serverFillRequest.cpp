@@ -4,14 +4,17 @@ bool	Server::parseRequest( struct epoll_event ev )
 {
 	cout << SKY << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+// validateRequest(ev);
 
 	fillRequestLineItems(it);
+	if (validateRequest(ev) == false)
+		return (false);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
 	cout << GREEN << (*it)->request.cgi_data << RESET_LINE;
-	if (KRISI_TESTING)
-		return(true);
-	return (validateRequest(ev));
+	// if (KRISI_TESTING)
+	// 	return(true);
+	return (true);
 }
 
 void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
