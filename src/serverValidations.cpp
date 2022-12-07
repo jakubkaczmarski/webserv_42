@@ -25,6 +25,15 @@ bool	Server::validateRequest( struct epoll_event ev )
 	cout << GREEN << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
+	// print headers to terminal
+
+	std::map<string, string>::iterator	itt = (*it)->request.headers.begin();
+	std::map<string, string>::iterator	it_e = (*it)->request.headers.end();
+	cout << (*it)->request.URI << " " <<  (*it)->request.method << endl;
+	for (; itt != it_e; itt++)
+	{
+		cout << PURPLE << itt->first << ": " << itt->second << RESET_LINE;
+	}
 	if (servConfig.allowedMETHOD((*it)->request.method) == false)
 	{
 		cerr << RED << "Request rejected because of Invalid Method: " << (*it)->request.method << RESET_LINE;
@@ -52,6 +61,5 @@ bool	Server::validateRequest( struct epoll_event ev )
 	catch(const std::exception& e)
 	{
 	}
-	URIisDirectory((*it)->request);
 	return (true);
 }

@@ -35,6 +35,7 @@
 #define METHODS			"methods"
 #define ROOT			"root"
 #define DIR				"dir"
+#define CGIDIR			"CGIDIR"
 #define UPLOADDIR		"uploadDir"
 
 

@@ -7,14 +7,13 @@ bool	Server::parseRequest( struct epoll_event ev )
 // validateRequest(ev);
 
 	fillRequestLineItems(it);
-	if (validateRequest(ev) == false)
-		return (false);
+	URIisDirectory((*it)->request);
 	fillRequestHeaders(it);
 	fillRequestBody(it);
 	cout << GREEN << (*it)->request.cgi_data << RESET_LINE;
 	// if (KRISI_TESTING)
 	// 	return(true);
-	return (true);
+	return (validateRequest(ev));
 }
 
 void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
