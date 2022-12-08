@@ -88,9 +88,8 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 {
 	cout << SKY << __func__ << RESET_LINE;
 	
-	std::cout << (*it)->request.URI << std::endl;
 
-	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
+	if((*it)->request.URI.compare(0, 10,"/uploads/") == 0)
 	{
 		//Root path for welcome page
 		std::string ret = ".";
@@ -99,12 +98,12 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 		{
 			(*it)->response.status_code = "417";
 			std::cout << "Cannot remove this file " << "." + (*it)->request.URI << std::endl;
+		}else{
+			(*it)->response.status_code = "200";
 		}
-		return ;
 	}else{
-		std::cout << "Cannot delete from diffrent directiory than uploads" << std::endl;
+		std::cout << "Cannot delete from different directiory than uploads" << std::endl;
 		(*it)->response.status_code = "417";
-		return ;
 	}
 	// (*it)->response.content_type = extension;
 	// (*it)->response.content_lenght_str = conv.str();
