@@ -2,6 +2,59 @@
 
 // void handleCGI is in serverHandlers.cpp
 
+bool Server::checkCGIPaths(std::string path, std::string &method)
+{	
+	cout << YELLOW << __func__ << RESET_LINE;
+	if (method.compare("GET") == 0)
+	{
+		std::vector<string> pathAndQuary = split(path, '?');
+		// cout << "IT IS GET: " << pathAndQuary.size() << endl << "Path is; " << pathAndQuary[0] << endl << "Quary is: " << pathAndQuary[1] << endl;
+		if (pathAndQuary.size() != 2)
+		{
+			if (path.compare(DIR_LISTING_SCRIPT) == 0)
+				return (true);
+			cout << RED << "CGI GET NO QUERY_STRING" << RESET_LINE;
+			return (false);
+		}
+		path = pathAndQuary[0];
+	}
+
+	std::ifstream file(PATH_TO_SCRIPTS + path);
+	if (file.good())
+	{
+		cout << "FOUND A MATCH" << endl;
+		std::vector<string> pathSplit = split(path, '.');
+		if (pathSplit.size() != 2)
+		{
+			return (false);
+		}
+		string extension = pathSplit[1];
+		try
+		{
+			possibleCGIPaths.at(extension);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << "The server does not recognise the script type\n";
+			return (false);
+		}
+		
+		file.close();
+		return (true);
+	}
+	// for(int i = 0; i < scriptsCGI.size(); i++)
+	// {
+	// 	if (path.compare(scriptsCGI[i]) == 0)
+	// 	{
+	// 		cout << "Found a match: " << path << "==" << scriptsCGI[i] << endl;
+	// 		return (true);
+	// 	}
+	// }
+	file.close();
+	cout << "DIDN'T FIND A MATCH" << endl;
+	return (false);
+}
+
 std::string getBodyPostRequestCGI(std::vector<connecData*>::iterator it)
 {
 	cout << GREEN << __func__ << RESET_LINE;

@@ -1,32 +1,5 @@
 #include "../includes/server.hpp"
 
-bool Server::checkCGIPaths(std::string path, std::string &method)
-{	
-	cout << YELLOW << __func__ << RESET_LINE;
-	if (method.compare("GET") == 0)
-	{
-		std::vector<string> pathAndQuary = split(path, '?');
-		// cout << "IT IS GET: " << pathAndQuary.size() << endl << "Path is; " << pathAndQuary[0] << endl << "Quary is: " << pathAndQuary[1] << endl;
-		if (pathAndQuary.size() != 2)
-		{
-			if (path.compare(DIR_LISTING_SCRIPT) == 0)
-				return (true);
-			cout << RED << "CGI GET NO QUERY_STRING" << RESET_LINE;
-			return (false);
-		}
-		path = pathAndQuary[0];
-	}
-
-	for(int i = 0; i < scriptsCGI.size(); i++)
-	{
-		if (path.compare(scriptsCGI[i]) == 0)
-		{
-			cout << "FOund a match: " << path << "==" << scriptsCGI[i] << endl;
-			return (true);
-		}
-	}
-	return (false);
-}
 
 void	Server::handleCGI(std::vector<connecData*>::iterator it)
 {

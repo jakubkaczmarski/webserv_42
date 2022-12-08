@@ -4,7 +4,7 @@ bool	Server::parseRequest( struct epoll_event ev )
 {
 	cout << SKY << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
-// validateRequest(ev);
+	// validateRequest(ev);
 
 	fillRequestLineItems(it);
 	if (validateRequest(ev) == false)
