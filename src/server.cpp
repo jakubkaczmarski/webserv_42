@@ -212,6 +212,7 @@ void	Server::fillInPossibleTypes()
 	{
 		{"py", "/usr/bin/python3"},
 		{"sh", "/bin/sh"},
+		{"pl", "/usr/bin/perl"}
 	};
 }
 
@@ -223,6 +224,7 @@ void Server::fillScriptsCGI(void)
 	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/perl.pl");
 	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/print_env_variables.py");
 	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/put_photo_in_cat.py");
+	scriptsCGI.insert(scriptsCGI.end(), "/cgi-bin/directory_listing.sh");
 }
 
 config	&Server::getConfig( void )
