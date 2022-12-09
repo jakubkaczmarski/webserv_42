@@ -22,9 +22,7 @@
 #include <sys/epoll.h> //epoll
 #include <unistd.h>
 
-
 #include "colours.h"
-
 
 // Map-key define
 #define SERVNAME		"serverName"
@@ -35,11 +33,12 @@
 #define METHODS			"methods"
 #define ROOT			"root"
 #define DIR				"dir"
+#define CGIDIR			"CGIDIR"
 #define UPLOADDIR		"uploadDir"
 #define DIR_LISTING		"directoryListing"
 
-
-
+#define DIRERRORPATH    "/database/DirRequestError.jpeg"
+#define DEFAULTPAGE     "/database/default_index.html"
 
 // PATH defines
 #define DEFAULT_PATH	"./database/default_index.html"

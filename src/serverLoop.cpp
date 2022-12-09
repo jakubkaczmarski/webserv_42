@@ -106,6 +106,7 @@ bool	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
 
+	return true;
 	// cout << RED << "doneReadingRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
 	return true;
@@ -137,6 +138,8 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
 	
+	cout << (*it)->request.URI << endl;
+
 	(*it)->response.statusMessage = possibleReturnCode[(*it)->response.status_code];
 	(*it)->response.headers = "HTTP/1.1 ";
 	(*it)->response.headers.append((*it)->response.status_code);

@@ -204,7 +204,7 @@ void			config::validatePath( std::string path, std::string target , int flags)
 {
 	std::string		tmp = path;
 	if (path.compare(configMap[ROOT]) != 0)
-		tmp = configMap[ROOT] + path;
+		tmp = "." + path;
 	if (access(tmp.c_str(), flags) != 0)
 	{
 		cout << RED << "Invalid Path for " << target << ": " << tmp << endl;
@@ -212,7 +212,8 @@ void			config::validatePath( std::string path, std::string target , int flags)
 		cout << RESET;
 		exit(-1);
 	}
-	configMap[target] = tmp;
+	if (target != DIR)
+		configMap[target] = tmp;
 }
 
 void			config::validateConfig( void )
@@ -223,7 +224,9 @@ void			config::validateConfig( void )
 	validateMethods();
 	validatePath(configMap[ROOT], ROOT, X_OK);
 	validatePath(configMap[ERROR404], ERROR404, W_OK | R_OK);		// this doesnt work for some reason
+	// cout << "this is valdiate config dir :" << configMap[DIR] << endl;
 	validatePath(configMap[DIR], DIR, X_OK);
+	// cout << "this is valdiate config dir :" << configMap[DIR] << endl;
 	validatePath(configMap[UPLOADDIR], UPLOADDIR, X_OK);
 }
 
@@ -315,7 +318,8 @@ bool			config::allowedMETHOD( std::string meth )
 {
 	if (meth.compare("GET") != 0 && meth.compare("POST") != 0 && meth.compare("DELETE") != 0)
 	{
-		cout << "return in if" << endl;
+		if (DEBUG)
+			cout << "return in if" << endl;
 		return (false);
 	}
 	return (methods[meth]);
@@ -323,10 +327,33 @@ bool			config::allowedMETHOD( std::string meth )
 
 bool			config::allowedURI( std::string URI, std::string method )
 {
+	if (DEBUG)
+		cout << " this is " << URI << endl;
+
+	if (DEBUG)
+		cout << " this is dir" << configMap[DIR] << endl;
 	if (method.compare("GET") == 0)
-		return (true);
-	if (configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
-		return (true);
+	{
+		// cout << configMap[DIR] << " " << URI.substr(0, configMap[DIR].size())<< endl;
+		if (configMap[DIR].compare(URI.substr(0, configMap[DIR].size())) == 0 
+			|| configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size())) == 0)
+			return (true);
+		if (DEBUG)
+			cout << "return false 1" << endl;
+		return (false);
+	}
+	else if (method.compare("POST") == 0 || method.compare("DELETE") == 0)
+	{
+		if(configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
+			return (true);
+	}
+	if (method.compare("POST") == 0)
+	{
+		if (configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size()))== 0)
+			return (true);
+	}
+	if (DEBUG)
+		cout << "return false 2" << endl;
 	return (false);
 }
 
