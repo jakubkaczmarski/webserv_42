@@ -327,6 +327,7 @@ bool			config::allowedMETHOD( std::string meth )
 
 bool			config::allowedURI( std::string URI, std::string method )
 {
+	cout << ON_PURPLE << __func__ << RESET_LINE;
 	if (DEBUG)
 		cout << " this is " << URI << endl;
 

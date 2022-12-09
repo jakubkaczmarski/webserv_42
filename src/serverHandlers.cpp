@@ -14,7 +14,8 @@ void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator
 		cout << RED << "WRONG CGI PATH" << RESET_LINE;
 		// handleGet(it);
 
-		createAndSendResponseHeaders(ev ,it, "404");
+		setErrorStatusCodeAndRespond(ev, it, "404");
+		// createAndSendResponseHeaders(ev ,it, "404");
 		// endResponse();
 		return ;
 	}
