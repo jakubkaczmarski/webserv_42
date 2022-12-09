@@ -143,7 +143,7 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 void	Server::setErrorStatusCodeAndRespond(std::vector<connecData*>::iterator it, std::string err)
 {
 	(*it)->response.status_code = err;
-	createAndSendResponseHeaders(it);
+	createAndSendResponseHeaders(*(*it)->ev_p, it, err);
 	stopInvaldiRequest(*(*it)->ev_p);
 }
 //The function expectecs (*it)->response.status_code 
