@@ -110,7 +110,7 @@ class Server
 		void			readRequest( struct epoll_event ev );
 		void			sendResponse( struct epoll_event ev );
 		std::vector<connecData*>::iterator				findStructVectorIt( struct epoll_event ev);
-		void			doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
+		bool			doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			prepareResponseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );

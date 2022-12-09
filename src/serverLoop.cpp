@@ -79,7 +79,7 @@ void	Server::readRequest( struct epoll_event ev )
 	{
 		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		// std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
-		doneReadingRequest(ev, it);
+		if(doneReadingRequest(ev, it) == true)
 		{
 			if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 			{
@@ -96,24 +96,24 @@ void	Server::readRequest( struct epoll_event ev )
 
 
 
-void	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
+bool	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	cout << SKY << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
-		return ;
+		return false;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
 
 	// cout << RED << "doneReadingRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
+	return true;
 }
 
 void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
 {
 	cout << SKY << __func__ << RESET_LINE;
-	
 	// parse and send header to client
 	// open fd into the (*it)->response.body_fd for the body
 	if((*it)->request.method.compare("DELETE") == 0)
@@ -131,6 +131,8 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 	
 }
 
+//The function expectecs (*it)->response.status_code 
+//From it it will create the html page and send it back to the client 
 void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
@@ -141,14 +143,51 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append(" ");
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
-	(*it)->response.headers.append("content-length: ");
-	(*it)->response.headers.append((*it)->response.content_lenght_str);
-	(*it)->response.headers.append("\n");
-	(*it)->response.headers.append("Connection: close\n");
-	(*it)->response.headers.append("Content-Type: ");
-	(*it)->response.headers.append((*it)->response.content_type);
-	(*it)->response.headers.append("\n");
+	std::string response_page ;
+	if((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0)
+	{
+		(*it)->response.headers.append("Content-Length: ");
+		(*it)->response.headers.append((*it)->response.content_lenght_str);
+		(*it)->response.headers.append("\n");
+		(*it)->response.headers.append("Connection: Closed\n");
+		(*it)->response.headers.append("Content-Type: ");
+		(*it)->response.headers.append((*it)->response.content_type);
+		(*it)->response.headers.append("\n");
+	}else{
+		response_page = "<!DOCTYPE html>";
+		response_page.append("\n");
+		response_page.append("<html lang=\"en\">\n");
+		response_page.append("<head>\n");
+		response_page.append("<meta charset=\"UTF-8\">\n");
+		response_page.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n");
+		response_page.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+		response_page.append("<title>Status code page</title>\n");
+		response_page.append("</head>\n");
+		response_page.append("<body>\n");
+		response_page.append("<center> <h1>");
+		response_page.append((*it)->response.status_code);
+		response_page.append(" ");
+		response_page.append((*it)->response.statusMessage);
+		response_page.append("</h1> </center>");
+		response_page.append("</body>\n");
+		response_page.append("</html>");
+		(*it)->response.headers.append("Content-Length: ");
+		std::stringstream ss;
+		ss << response_page.length();
+		(*it)->response.headers.append(ss.str());
+		(*it)->response.headers.append("\n");
+		(*it)->response.headers.append("Connection: Closed\n");
+		(*it)->response.headers.append("Content-Type: ");
+		(*it)->response.headers.append("text/html\r\n\r\n");
+		(*it)->response.headers.append(response_page);
+	}
+
+	//So we need a simple html page that we send in the body of this response
+	//If the response is different than 200 change html 
+	//
+	// std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+	// std::cout << (*it)->response.headers << std::endl;
 }
 
 void	Server::sendResponse( struct epoll_event ev )
