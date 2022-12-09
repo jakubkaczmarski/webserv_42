@@ -131,6 +131,8 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 	
 }
 
+//The function expectecs (*it)->response.status_code 
+//From it it will create the html page and send it back to the client 
 void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
