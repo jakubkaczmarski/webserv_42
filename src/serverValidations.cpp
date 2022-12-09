@@ -4,10 +4,10 @@ void	Server::URIisDirectory( s_request &req )
 {
 	std::vector<std::string>			dirs;
 
-	dirs.push_back("/database/intraPictures");
-	dirs.push_back("/database/forms");
-	dirs.push_back("/uploads");
-	dirs.push_back("/database");
+	dirs.push_back("/workspaces/webserv_42/database/intraPictures");
+	dirs.push_back("/workspaces/webserv_42/database/forms");
+	dirs.push_back("/workspaces/webserv_42/uploads");
+	dirs.push_back("/workspaces/webserv_42/database");
 	std::vector<std::string>::iterator	DirIt = dirs.begin();
 	std::vector<std::string>::iterator	DirIt_e = dirs.end();
 	for (; DirIt != DirIt_e; DirIt++)
@@ -15,7 +15,7 @@ void	Server::URIisDirectory( s_request &req )
 		if(req.URI.compare(*DirIt) == 0)
 		{
 			req.method = "GET";
-			req.URI = "/database/DirRequestError.png";
+			req.URI = DIRERRORPATH;
 		}
 	}
 }
@@ -40,6 +40,13 @@ bool	Server::validateRequest( struct epoll_event ev )
 		stopInvaldiRequest(ev); // stop request because illegal
 		return (false);
 	}
+	cout << "this is before expansion" << (*it)->request.URI << endl;
+	if((*it)->request.URI == "/")
+	{
+		cout << "got into if" << endl;
+		(*it)->request.URI = DEFAULTPAGE;
+	}
+	cout << "this is after expansion" << (*it)->request.URI << endl;
 	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
 	{
 		cerr << RED << "Request rejected because of Invalid URI: " << (*it)->request.URI << RESET_LINE;

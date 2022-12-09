@@ -322,13 +322,17 @@ bool			config::allowedURI( std::string URI, std::string method )
 	cout << " this is dir" << configMap[DIR] << endl;
 	if (method.compare("GET") == 0)
 	{
-		if (configMap[DIR].compare(URI.substr(0, configMap[DIR].size()))== 0 || configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size()))== 0)
+		cout << configMap[DIR].substr(0, configMap[DIR].size()) << " " << configMap[ROOT] + URI.substr(0, configMap[DIR].size()) << endl;
+		if ((configMap[DIR].substr(0, configMap[DIR].size())).compare(URI.substr(0, configMap[DIR].size()))== 0 || (configMap[ROOT] + (configMap[DIR].substr(0, configMap[CGIDIR].size()))).compare(URI.substr(0, configMap[CGIDIR].size()))== 0)
 			return (true);
 		cout << "return false 1" << endl;
 		return (false);
 	}
-	if (configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
-		return (true);
+	else if (method.compare("POST") == 0 || method.compare("DELETE") == 0)
+	{
+		if(configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
+			return (true);
+	}
 	if (method.compare("POST") == 0)
 	{
 		if (configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size()))== 0)

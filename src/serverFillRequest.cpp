@@ -7,8 +7,11 @@ bool	Server::parseRequest( struct epoll_event ev )
 // validateRequest(ev);
 
 	fillRequestLineItems(it);
+	cout << "debugging uri 1 = " << (*it)->request.URI << endl;
 	URIisDirectory((*it)->request);
+	cout << "debugging uri 2 = " << (*it)->request.URI << endl;
 	fillRequestHeaders(it);
+	cout << "debugging uri 3 = " << (*it)->request.URI << endl;
 	fillRequestBody(it);
 	cout << GREEN << (*it)->request.cgi_data << RESET_LINE;
 	// if (KRISI_TESTING)

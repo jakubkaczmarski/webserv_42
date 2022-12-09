@@ -255,7 +255,7 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 	if((*it)->request.content_size  == 0)
 	{
 		(*it)->response.status_code = "204";
-		//Nothing to send 
+		//Nothing to send
 		return extension;
 	}
 	int body_pos = (*it)->request.raw.find("\r\n\r\n");

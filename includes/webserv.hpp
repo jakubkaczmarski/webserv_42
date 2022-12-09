@@ -40,6 +40,9 @@
 
 
 
+#define DIRERRORPATH    "/workspaces/webserv_42/database/DirRequestError.jpeg"
+#define DEFAULTPAGE     "/default_index.html"
+
 
 // PATH defines
 #define DEFAULT_PATH	"./database/default_index.html"
