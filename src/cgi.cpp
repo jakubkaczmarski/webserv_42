@@ -2,30 +2,30 @@
 
 // void handleCGI is in serverHandlers.cpp
 
-bool Server::checkCGIPaths(std::string path, std::string &method)
+bool Server::checkCGIPaths(std::vector<connecData*>::iterator it)
 {	
-	cout << YELLOW << __func__ << RESET_LINE;
-	if (method.compare("GET") == 0)
-	{
-		std::vector<string> pathAndQuary = split(path, '?');
-		// cout << "IT IS GET: " << pathAndQuary.size() << endl << "Path is; " << pathAndQuary[0] << endl << "Quary is: " << pathAndQuary[1] << endl;
-		if (pathAndQuary.size() != 2)
-		{
-			if (path.compare(DIR_LISTING_SCRIPT) == 0)
-				return (true);
-			cout << RED << "CGI GET NO QUERY_STRING" << RESET_LINE;
-			return (false);
-		}
-		path = pathAndQuary[0];
-	}
+	// cout << YELLOW << __func__ << RESET_LINE;
+	// if ((*it)->request.method.compare("GET") == 0)
+	// {
+	// 	std::vector<string> pathAndQuary = split(path, '?');
+	// 	// cout << "IT IS GET: " << pathAndQuary.size() << endl << "Path is; " << pathAndQuary[0] << endl << "Quary is: " << pathAndQuary[1] << endl;
+	// 	if (pathAndQuary.size() != 2)
+	// 	{
+	// 		if (path.compare(DIR_LISTING_SCRIPT) == 0)
+	// 			return (true);
+	// 		cout << RED << "CGI GET NO QUERY_STRING" << RESET_LINE;
+	// 		return (false);
+	// 	}
+	// 	path = pathAndQuary[0];
+	// }
 
-	std::ifstream file(PATH_TO_SCRIPTS + path);
+	std::ifstream file(PATH_TO_SCRIPTS + (*it)->request.URI);
 	if (file.good())
 	{
-		cout << "FOUND A MATCH" << endl;
-		std::vector<string> pathSplit = split(path, '.');
+		std::vector<string> pathSplit = split((*it)->request.URI, '.');
 		if (pathSplit.size() != 2)
 		{
+			std::cerr << "Unsupported script type\n";
 			return (false);
 		}
 		string extension = pathSplit[1];
@@ -40,6 +40,7 @@ bool Server::checkCGIPaths(std::string path, std::string &method)
 		}
 		
 		file.close();
+		cout << "FOUND A MATCH" << endl;
 		return (true);
 	}
 	// for(int i = 0; i < scriptsCGI.size(); i++)

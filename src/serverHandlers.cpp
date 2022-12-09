@@ -6,7 +6,7 @@ void	Server::handleCGI(std::vector<connecData*>::iterator it)
 	cout << SKY << __func__ << ": isCGI!" << RESET_LINE;
 
 	//check if path to script is legit maybe?
-	if (checkCGIPaths((*it)->request.URI, (*it)->request.method) == false)
+	if (checkCGIPaths(it) == false)
 	{
 		(*it)->request.URI = "/database/Error_404.png";
 		// (*it)->response.status_code = "404";
