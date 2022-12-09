@@ -190,6 +190,9 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	//
 	// std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+
+	if(!((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0))
+		stopInvaldiRequest(*(*it)->ev_p);
 	// std::cout << (*it)->response.headers << std::endl;
 }
 

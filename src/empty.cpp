@@ -38,20 +38,12 @@ void	Server::endResponse( struct epoll_event ev )
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
-	// fd to body of response
-	if((*it)->response.body_fd != 0)
-	{
-		close((*it)->response.body_fd);	
-	}
+	close((*it)->response.body_fd);		// fd to body of response
 	delete (*it);
 	connections.erase(it);
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	close(ev.data.fd);					// fd for the response socket
-	if((*it)->request.file_two != 0)
-	{
-		fclose((*it)->request.file_two);
-	}
-
+	fclose((*it)->request.file_two);
 }
 
 void	Server::confusedEpoll( struct epoll_event ev )

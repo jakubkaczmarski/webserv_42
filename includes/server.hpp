@@ -51,6 +51,7 @@ class connecData
 		s_response								response;
 		bool									isCGI = false;
 		string									fileNameCGI;
+		struct epoll_event						*ev_p;
 };
 
 #include "CGI.hpp"

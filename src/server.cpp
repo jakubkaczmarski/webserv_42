@@ -24,6 +24,7 @@ void	Server::acceptConnection( int epollFD )
 	connections.push_back(tmp);
 	ev = createEpollStruct(tmp->socket, EPOLLIN );
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
+	tmp->ev_p = &ev;
 }
 
 void	Server::servAddressInit( void )
