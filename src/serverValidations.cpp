@@ -4,10 +4,10 @@ void	Server::URIisDirectory( s_request &req )
 {
 	std::vector<std::string>			dirs;
 
-	dirs.push_back("/workspaces/webserv_42/database/intraPictures");
-	dirs.push_back("/workspaces/webserv_42/database/forms");
-	dirs.push_back("/workspaces/webserv_42/uploads");
-	dirs.push_back("/workspaces/webserv_42/database");
+	dirs.push_back("/database/intraPictures");
+	dirs.push_back("/database/forms");
+	dirs.push_back("/uploads");
+	dirs.push_back("/database");
 	std::vector<std::string>::iterator	DirIt = dirs.begin();
 	std::vector<std::string>::iterator	DirIt_e = dirs.end();
 	for (; DirIt != DirIt_e; DirIt++)

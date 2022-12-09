@@ -36,7 +36,7 @@
 #define CGIDIR			"CGIDIR"
 #define UPLOADDIR		"uploadDir"
 
-#define DIRERRORPATH    "/workspaces/webserv_42/database/DirRequestError.jpeg"
+#define DIRERRORPATH    "/database/DirRequestError.jpeg"
 #define DEFAULTPAGE     "/database/default_index.html"
 
 // PATH defines
