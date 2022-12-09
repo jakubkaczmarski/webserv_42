@@ -115,7 +115,7 @@ class Server
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			prepareResponseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
-		void			createAndSendResponseHeaders(std::vector<connecData*>::iterator it);
+		void			createAndSendResponseHeaders(std::vector<connecData*>::iterator it, std::string statusCode = "200");
 		void			handle_cgi(std::vector<connecData *>::iterator it);
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
