@@ -23,6 +23,13 @@ fclean:
 
 re: fclean all
 
+run: all
+	./exec config_files/test.conf 
+
+run_debug:
+	c++ $(SRC) -o $(EXEC_NAME) -D DEBUG=1
+	./exec config_files/test.conf
+
 git:
 	git add .gitignore
 	git add .

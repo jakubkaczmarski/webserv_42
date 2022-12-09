@@ -79,7 +79,7 @@ void	Server::readRequest( struct epoll_event ev )
 	{
 		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		// std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
-		doneReadingRequest(ev, it);
+		if(doneReadingRequest(ev, it) == true)
 		{
 			if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 			{
@@ -96,16 +96,17 @@ void	Server::readRequest( struct epoll_event ev )
 
 
 
-void	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
+bool	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	cout << SKY << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
-		return ;
+		return false;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
 
+	return true;
 	// cout << RED << "doneReadingRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
 }
@@ -135,6 +136,8 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
 	
+	cout << (*it)->request.URI << endl;
+
 	(*it)->response.statusMessage = possibleReturnCode[(*it)->response.status_code];
 	(*it)->response.headers = "HTTP/1.1 ";
 	(*it)->response.headers.append((*it)->response.status_code);
@@ -148,7 +151,9 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append("Content-Type: ");
 	(*it)->response.headers.append((*it)->response.content_type);
 	(*it)->response.headers.append("\n");
+	cout << "got here" << endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+	cout << "got her 2" << endl;
 }
 
 void	Server::sendResponse( struct epoll_event ev )
