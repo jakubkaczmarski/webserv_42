@@ -83,7 +83,8 @@ void	Server::readRequest( struct epoll_event ev )
 		{
 			if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 			{
-				handleCGI(it);
+				handleCGI(ev, it);
+				cout << "DONE WITH CGI " << endl;
 			}
 			else
 			{
@@ -127,14 +128,14 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 		handlePost(it, ev);
 	}else if((*it)->request.method.compare("GET") == 0){
 		// cout << "response header get if" << endl;
-		handleGet(it);
+		handleGet(it, ev);
 	}
 	
 }
 
 //The function expectecs (*it)->response.status_code 
 //From it it will create the html page and send it back to the client 
-void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it, std::string statusCode)
+void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string statusCode)
 {
 	cout << SKY << __func__ << RESET_LINE;
 	
@@ -147,7 +148,7 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it,
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
 	std::string response_page ;
-	if((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0)
+	if((*it)->response.status_code.compare("200") == 0)
 	{
 		(*it)->response.headers.append("Content-Length: ");
 		(*it)->response.headers.append((*it)->response.content_lenght_str);
@@ -191,8 +192,9 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it,
 	// std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
 
-	if(!((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0))
-		stopInvaldiRequest(*(*it)->ev_p);
+	if(!((*it)->response.status_code.compare("200") == 0))
+		endResponse(ev);
+		// stopInvaldiRequest(*(*it)->ev_p);
 	// std::cout << (*it)->response.headers << std::endl;
 }
 

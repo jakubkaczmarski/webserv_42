@@ -1,20 +1,20 @@
 #include "../includes/server.hpp"
 
 
-void	Server::handleCGI(std::vector<connecData*>::iterator it)
+void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << ": isCGI!" << RESET_LINE;
 
 	//check if path to script is legit maybe?
 	if (checkCGIPaths(it) == false)
 	{
-		(*it)->request.URI = "/database/Error_404.png";
+		// (*it)->request.URI = "/database/Error_404.png";
 		// (*it)->response.status_code = "404";
 
 		cout << RED << "WRONG CGI PATH" << RESET_LINE;
-		handleGet(it);
+		// handleGet(it);
 
-		// createAndSendResponseHeaders();
+		createAndSendResponseHeaders(ev ,it, "404");
 		// endResponse();
 		return ;
 	}
@@ -47,7 +47,7 @@ void	Server::handleCGI(std::vector<connecData*>::iterator it)
 		exit(33);
 	}
 	wait(NULL);
-	handleGet(it);
+	handleGet(it, ev);
 }
 
 void 	Server::handlePost( std::vector<connecData*>::iterator it, struct epoll_event ev)
@@ -58,7 +58,7 @@ void 	Server::handlePost( std::vector<connecData*>::iterator it, struct epoll_ev
 	// 	endResponse(ev);
 
 	(*it)->response.content_type = extension;
-	createAndSendResponseHeaders(it);
+	createAndSendResponseHeaders(ev, it);
 	// if((*it)->request.URI.
 }
 
@@ -85,10 +85,10 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 	}
 	// (*it)->response.content_type = extension;
 	// (*it)->response.content_lenght_str = conv.str();
-	createAndSendResponseHeaders(it);
+	createAndSendResponseHeaders(ev, it);
 }
 
-void	Server::handleGet(std::vector<connecData*>::iterator it)
+void	Server::handleGet(std::vector<connecData*>::iterator it, struct epoll_event	ev)
 {
 	cout << SKY << __func__ << RESET_LINE;
 	cout << YELLOW << "URI: "  << (*it)->request.URI << RESET_LINE;
@@ -104,7 +104,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 		if (servConfig.getDirectoryListing().compare("yes") == 0 )
 		{
 			(*it)->request.URI = DIR_LISTING_SCRIPT;
-			handleCGI(it);
+			handleCGI(ev, it);
 			return ;
 		}
 		//Root path for welcome page
@@ -153,7 +153,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it)
 	//Those values are sent in the header as a response
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
-	createAndSendResponseHeaders(it);
+	createAndSendResponseHeaders(ev, it);
 	cout << "hello" << endl;
 	(*it)->response.body_fd = fileno((*it)->request.file_two);
 	cout << "hello 2" << endl;

@@ -90,8 +90,8 @@ class Server
 		///serverHandlers.cpp
 		void 			handlePost( std::vector<connecData*>::iterator it, struct epoll_event ev);
 		void			handleDelete(std::vector<connecData*>::iterator it ,struct epoll_event	ev);
-		void 			handleGet( std::vector<connecData*>::iterator it);
-		void			handleCGI(std::vector<connecData*>::iterator it);
+		void 			handleGet( std::vector<connecData*>::iterator it, struct epoll_event	ev);
+		void			handleCGI( struct epoll_event	ev, std::vector<connecData*>::iterator it);
 
 		bool			checkCGIPaths(std::vector<connecData*>::iterator it);
 		void			fillScriptsCGI(void);
@@ -115,7 +115,7 @@ class Server
 		void			endResponse( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			prepareResponseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
-		void			createAndSendResponseHeaders(std::vector<connecData*>::iterator it, std::string statusCode = "200");
+		void			createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string statusCode = "200");
 		void			handle_cgi(std::vector<connecData *>::iterator it);
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
