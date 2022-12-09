@@ -9,8 +9,13 @@ void	Server::handleCGI(std::vector<connecData*>::iterator it)
 	if (checkCGIPaths((*it)->request.URI, (*it)->request.method) == false)
 	{
 		(*it)->request.URI = "/database/Error_404.png";
+		// (*it)->response.status_code = "404";
+
 		cout << RED << "WRONG CGI PATH" << RESET_LINE;
 		handleGet(it);
+
+		// createAndSendResponseHeaders();
+		// endResponse();
 		return ;
 	}
 
