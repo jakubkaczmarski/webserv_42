@@ -150,7 +150,7 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 		(*it)->response.headers.append("Connection: Closed\n");
 		(*it)->response.headers.append("Content-Type: ");
 		(*it)->response.headers.append((*it)->response.content_type);
-		(*it)->response.headers.append("\r\n\r\n");
+		(*it)->response.headers.append("\n");
 	}else{
 		response_page = "<!DOCTYPE html>";
 		response_page.append("\n");
@@ -183,9 +183,9 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	//So we need a simple html page that we send in the body of this response
 	//If the response is different than 200 change html 
 	//
-	std::cout << "Sending stuff" << std::endl;
+	// std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
-	std::cout << (*it)->response.headers << std::endl;
+	// std::cout << (*it)->response.headers << std::endl;
 }
 
 void	Server::sendResponse( struct epoll_event ev )
