@@ -120,6 +120,7 @@ class Server
 		bool			validateRequest( struct epoll_event ev );
 		void			stopInvaldiRequest( struct epoll_event ev );
 		void			URIisDirectory(s_request &req);
+		void			setErrorStatusCodeAndRespond(std::vector<connecData*>::iterator it, std::string err);
 
 
 

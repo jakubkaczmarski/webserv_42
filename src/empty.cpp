@@ -26,8 +26,11 @@ void	Server::stopInvaldiRequest( struct epoll_event ev )
 		delete (*it);
 		connections.erase(it);
 	}
+	cout << "jhello" << endl;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+	cout << "jhello" << endl;
 	close(ev.data.fd);	
+	cout << "jhello" << endl;
 }
 
 

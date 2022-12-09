@@ -332,12 +332,25 @@ bool			config::allowedURI( std::string URI, std::string method )
 
 	if (DEBUG)
 		cout << " this is dir" << configMap[DIR] << endl;
+	if (DEBUG)
+		cout << " this is cgidir" << configMap[CGIDIR] << endl;
 	if (method.compare("GET") == 0)
 	{
 		// cout << configMap[DIR] << " " << URI.substr(0, configMap[DIR].size())<< endl;
-		if (configMap[DIR].compare(URI.substr(0, configMap[DIR].size())) == 0 
-			|| configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size())) == 0)
+		if (DEBUG)
+			cout << "comparing paths in get" << endl;
+		if (configMap[DIR].compare(URI.substr(0, configMap[DIR].size())) == 0)
+		{
+			if (DEBUG)
+				cout << "return true" << endl;
 			return (true);
+		}
+		if (configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size())) == 0)
+		{
+			if (DEBUG)
+				cout << "return true" << endl;
+			return (true);
+		}
 		if (DEBUG)
 			cout << "return false 1" << endl;
 		return (false);

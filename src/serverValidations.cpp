@@ -37,35 +37,39 @@ bool	Server::validateRequest( struct epoll_event ev )
 	if (servConfig.allowedMETHOD((*it)->request.method) == false)
 	{
 		cerr << RED << "Request rejected because of Invalid Method: " << (*it)->request.method << RESET_LINE;
-		stopInvaldiRequest(ev); // stop request because illegal
+		// setErrorStatusCodeAndRespond(it, "405");
+		setErrorStatusCodeAndRespond(it, "501");	// dont know which of these 2 to use tbh
+		// stopInvaldiRequest(ev); // stop request because illegal
 		return (false);
 	}
-	cout << "this is before expansion" << (*it)->request.URI << endl;
+	// cout << "this is before expansion" << (*it)->request.URI << endl;
 	if((*it)->request.URI == "/")
 	{
 		cout << "got into if" << endl;
 		(*it)->request.URI = DEFAULTPAGE;
 	}
-	cout << "this is after expansion" << (*it)->request.URI << endl;
+	// cout << "this is after expansion" << (*it)->request.URI << endl;
 	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
 	{
 		cerr << RED << "Request rejected because of Invalid URI: " << (*it)->request.URI << RESET_LINE;
-		stopInvaldiRequest(ev);
+		setErrorStatusCodeAndRespond(it, "403");
+		// stopInvaldiRequest(ev);
 		return (false);
 	}
 	if ((*it)->request.httpVers.compare((std::string)HTTPVERSION) != 0)
 	{
 		cout << RED << "Request rejected because of Invalid HTTP Version: " << (*it)->request.httpVers << RESET_LINE;
-		stopInvaldiRequest(ev);
+		setErrorStatusCodeAndRespond(it, "505");
+		// stopInvaldiRequest(ev);
 		return (false);
 	}
 	try
 	{
 		if (ft_atoi((*it)->request.headers.at("Content-Length").c_str()) > servConfig.getClientMaxBody())
 		{
-
-		cout << RED << "Request rejected because of CONTENT-LENGTH IS TOO BIG: " << ft_atoi((*it)->request.headers.at("Content-Length").c_str()) << RESET_LINE;
-			stopInvaldiRequest(ev);
+			cout << RED << "Request rejected because of CONTENT-LENGTH IS TOO BIG: " << ft_atoi((*it)->request.headers.at("Content-Length").c_str()) << RESET_LINE;
+			setErrorStatusCodeAndRespond(it, "413");
+			// stopInvaldiRequest(ev);
 			return (false);
 
 		}

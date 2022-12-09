@@ -59,6 +59,8 @@ void		Server::requestLoop( void )
 			// 	cout << "ind: " << i << " socket: " << connections[i]->socket << endl;
 			// }
 		}
+		if(DEBUG)
+			cout << "end of main loop" << endl;
 	}
 }
 
@@ -102,7 +104,12 @@ bool	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>
 	cout << SKY << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
+	{
+		if (DEBUG)
+			cout << "parseRequest -- false" << endl;
 		return false;
+	}
+		cout << "parseRequest -- false" << endl;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
@@ -133,6 +140,12 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 	
 }
 
+void	Server::setErrorStatusCodeAndRespond(std::vector<connecData*>::iterator it, std::string err)
+{
+	(*it)->response.status_code = err;
+	createAndSendResponseHeaders(it);
+	stopInvaldiRequest(*(*it)->ev_p);
+}
 //The function expectecs (*it)->response.status_code 
 //From it it will create the html page and send it back to the client 
 void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string statusCode)
@@ -192,9 +205,8 @@ void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<con
 	// std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
 
-	if(!((*it)->response.status_code.compare("200") == 0))
-		endResponse(ev);
-		// stopInvaldiRequest(*(*it)->ev_p);
+	// if(!((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0))
+	// 	stopInvaldiRequest(*(*it)->ev_p);
 	// std::cout << (*it)->response.headers << std::endl;
 }
 
