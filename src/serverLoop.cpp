@@ -79,7 +79,7 @@ void	Server::readRequest( struct epoll_event ev )
 	{
 		// std::cout << "Raw Souce " << endl << (*it)->request.raw;
 		// std::cout << "Body " << (*it)->request.body << " End of body"<<std::endl;
-		doneReadingRequest(ev, it);
+		if(doneReadingRequest(ev, it) == true)
 		{
 			if ((*it)->request.URI.compare(0, strlen(CGI_FOLDER_PATH), CGI_FOLDER_PATH) == 0) //CGI
 			{
@@ -96,18 +96,19 @@ void	Server::readRequest( struct epoll_event ev )
 
 
 
-void	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
+bool	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it )
 {
 	cout << SKY << __func__ << RESET_LINE;
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
-		return ;
+		return false;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;
 
 	// cout << RED << "doneReadingRequest and this is the uri: " << (*(findStructVectorIt(ev)))->request.URI << RESET_LINE;
 	// connections.push_back(ev);
+	return true;
 }
 
 void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struct epoll_event	ev)
