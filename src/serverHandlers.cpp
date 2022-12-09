@@ -89,7 +89,7 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 	cout << SKY << __func__ << RESET_LINE;
 	
 	std::cout << "Chuj " << (*it)->request.URI << std::endl;
-	if((*it)->request.URI.compare(0, 10,"/uploads/") == 0)
+	if((*it)->request.URI.compare(0, 8,"/uploads") == 0)
 	{
 		//Root path for welcome page
 		std::string ret = ".";

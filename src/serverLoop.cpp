@@ -119,7 +119,7 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 	if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handleDelete(it, ev);
-		// endResponse(ev);
+		endResponse(ev);
 	}
 	else if((*it)->request.method.compare("POST") == 0)
 	{
@@ -141,6 +141,7 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	(*it)->response.headers.append(" ");
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
+	std::string response_page ;
 	if((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0)
 	{
 		(*it)->response.headers.append("content-length: ");
@@ -149,9 +150,9 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 		(*it)->response.headers.append("Connection: close\n");
 		(*it)->response.headers.append("Content-Type: ");
 		(*it)->response.headers.append((*it)->response.content_type);
-		(*it)->response.headers.append("\n");
+		(*it)->response.headers.append("\r\n");
 	}else{
-		std::string response_page = "<!DOCTYPE html>";
+		response_page = "<!DOCTYPE html>";
 		response_page.append("\n");
 		response_page.append("<html lang=\"en\">\n");
 		response_page.append("<head>\n");
@@ -167,18 +168,22 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 		response_page.append("</body>\n");
 		response_page.append("</html>");
 		(*it)->response.headers.append("content-length: ");
-		(*it)->response.headers.append("" + response_page.length());
+		std::stringstream ss;
+		ss << response_page.length();
+		(*it)->response.headers.append(ss.str());
 		(*it)->response.headers.append("\n");
 		(*it)->response.headers.append("Connection: close\n");
 		(*it)->response.headers.append("Content-Type: ");
-		(*it)->response.headers.append("text/html\n");
+		(*it)->response.headers.append("text/html\r\n");
 		(*it)->response.headers.append(response_page);
 	}
 
 	//So we need a simple html page that we send in the body of this response
 	//If the response is different than 200 change html 
 	//
+	std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+	// std::cout << (*it)->response.headers << std::endl;
 }
 
 void	Server::sendResponse( struct epoll_event ev )
