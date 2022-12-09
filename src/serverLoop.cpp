@@ -144,13 +144,13 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	std::string response_page ;
 	if((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0)
 	{
-		(*it)->response.headers.append("content-length: ");
+		(*it)->response.headers.append("Content-Length: ");
 		(*it)->response.headers.append((*it)->response.content_lenght_str);
 		(*it)->response.headers.append("\n");
-		(*it)->response.headers.append("Connection: close\n");
+		(*it)->response.headers.append("Connection: Closed\n");
 		(*it)->response.headers.append("Content-Type: ");
 		(*it)->response.headers.append((*it)->response.content_type);
-		(*it)->response.headers.append("\r\n");
+		(*it)->response.headers.append("\r\n\r\n");
 	}else{
 		response_page = "<!DOCTYPE html>";
 		response_page.append("\n");
@@ -163,18 +163,20 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 		response_page.append("</head>\n");
 		response_page.append("<body>\n");
 		response_page.append("<center> <h1>");
+		response_page.append((*it)->response.status_code);
+		response_page.append(" ");
 		response_page.append((*it)->response.statusMessage);
 		response_page.append("</h1> </center>");
 		response_page.append("</body>\n");
 		response_page.append("</html>");
-		(*it)->response.headers.append("content-length: ");
+		(*it)->response.headers.append("Content-Length: ");
 		std::stringstream ss;
 		ss << response_page.length();
 		(*it)->response.headers.append(ss.str());
 		(*it)->response.headers.append("\n");
-		(*it)->response.headers.append("Connection: close\n");
+		(*it)->response.headers.append("Connection: Closed\n");
 		(*it)->response.headers.append("Content-Type: ");
-		(*it)->response.headers.append("text/html\r\n");
+		(*it)->response.headers.append("text/html\r\n\r\n");
 		(*it)->response.headers.append(response_page);
 	}
 
@@ -183,7 +185,7 @@ void	Server::createAndSendResponseHeaders(std::vector<connecData*>::iterator it)
 	//
 	std::cout << "Sending stuff" << std::endl;
 	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
-	// std::cout << (*it)->response.headers << std::endl;
+	std::cout << (*it)->response.headers << std::endl;
 }
 
 void	Server::sendResponse( struct epoll_event ev )

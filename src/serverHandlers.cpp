@@ -99,7 +99,7 @@ void	Server::handleDelete(std::vector<connecData*>::iterator it, struct epoll_ev
 			(*it)->response.status_code = "417";
 			std::cout << "Cannot remove this file " << "." + (*it)->request.URI << std::endl;
 		}else{
-			(*it)->response.status_code = "200";
+			(*it)->response.status_code = "204";
 		}
 	}else{
 		std::cout << "Cannot delete from different directiory than uploads" << std::endl;
