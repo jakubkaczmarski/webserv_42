@@ -21,8 +21,11 @@ void	Server::stopInvaldiRequest( struct epoll_event ev )
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	// close((*it)->response.body_fd);		// fd to body of response
-	delete (*it);
-	connections.erase(it);
+	if(it != connections.end())
+	{
+		delete (*it);
+		connections.erase(it);
+	}
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	close(ev.data.fd);	
 }
