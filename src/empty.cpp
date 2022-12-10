@@ -34,32 +34,57 @@ void	Server::stopInvaldiRequest( struct epoll_event ev )
 }
 
 
-void	Server::endResponse( struct epoll_event ev )
+void	Server::endConnection( struct epoll_event ev )
 {
+	
 	cout << SKY << __func__ << RESET_LINE;
 	
-	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
-	if((*it)->response.body_fd != 0)
+	std::vector<connecData*>::iterator it = findStructVectorIt(ev);
+	if(it != connections.end())
 	{
-		close((*it)->response.body_fd);	
+		if((*it)->request.file_two != 0)
+		{
+			fclose((*it)->request.file_two);
+		}
+		if((*it)->response.body_fd != 0)
+		{
+			close((*it)->response.body_fd); 
+		}
+		if(it != connections.end())
+		{
+			delete (*it);
+			connections.erase(it);
+		}
 	}
-	delete (*it);
-	connections.erase(it);
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-	close(ev.data.fd);					// fd for the response socket
-	if((*it)->request.file_two != 0)
-	{
-		fclose((*it)->request.file_two);
-	}
+	close(ev.data.fd);     // fd for the response socket
+ // cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
+
+	// cout << SKY << __func__ << RESET_LINE;
+	
+	// std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+	// if((*it)->response.body_fd != 0)
+	// {
+	// 	close((*it)->response.body_fd);	
+	// }
+	// delete (*it);
+	// connections.erase(it);
+	// epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+	// close(ev.data.fd);					// fd for the response socket
+	// if((*it)->request.file_two != 0)
+	// {
+	// 	fclose((*it)->request.file_two);
+	// }
 	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
 }
+
 
 void	Server::confusedEpoll( struct epoll_event ev )
 {
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 
 	if ((*it)->finishedRequest && (*it)->finishedResponse)
-		endResponse(ev);
+		endConnection(ev);
 	else if ((*it)->finishedRequest)
 		doneReadingRequest(ev, it);
 	cout << RED << "confusedEpoll i dont know what to do!" << RESET_LINE;	

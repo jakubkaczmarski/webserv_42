@@ -34,7 +34,7 @@ void		Server::requestLoop( void )
 			{
 				// cout << "IDX: " << idx << " socket: " << events[idx].data.fd << " case 2" << endl;
 				// closeAndRemoveFromEpoll(events[idx]);
-				endResponse(events[idx]);
+				endConnection(events[idx]);
 			}
 			else if (events[idx].events & ( EPOLLOUT ))				// check for  write() fd
 			{
@@ -128,7 +128,7 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 	if((*it)->request.method.compare("DELETE") == 0)
 	{
 		handleDelete(it, ev);
-		endResponse(ev);
+		endConnection(ev);
 	}
 	else if((*it)->request.method.compare("POST") == 0)
 	{
@@ -144,7 +144,7 @@ void	Server::setErrorStatusCodeAndRespond(struct epoll_event	ev, std::vector<con
 {
 	(*it)->response.status_code = err;
 	createAndSendResponseHeaders(ev, it);
-	endResponse(ev);
+	endConnection(ev);
 }
 //The function expectecs (*it)->response.status_code 
 //From it it will create the html page and send it back to the client 
@@ -228,7 +228,7 @@ void	Server::sendResponse( struct epoll_event ev )
 		{
 
 			(*it)->request.content_size -= write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, (*it)->request.content_size);
-			endResponse(ev);
+			endConnection(ev);
 		}
 		sendReturn = write((*it)->request.fd, (*it)->request.body.c_str() + (*it)->request.already_sent, MAX_LINE);
 		(*it)->request.already_sent += sendReturn;
@@ -251,7 +251,7 @@ void	Server::sendResponse( struct epoll_event ev )
 				// cout << PURPLE << "NEED TO REMOVE THE FILE NOW" << RESET_LINE;
 				remove((*it)->fileNameCGI.c_str());
 			}
-			endResponse(ev);
+			endConnection(ev);
 		}
 	}
 }

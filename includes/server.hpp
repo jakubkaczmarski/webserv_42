@@ -112,7 +112,7 @@ class Server
 		void			sendResponse( struct epoll_event ev );
 		std::vector<connecData*>::iterator				findStructVectorIt( struct epoll_event ev);
 		bool			doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
-		void			endResponse( struct epoll_event ev );
+		void			endConnection( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			prepareResponseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it);
