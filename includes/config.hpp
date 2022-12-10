@@ -20,6 +20,7 @@ class config
 		void			validateCMBS( void );
 		void			validateMethods( void );
 		void			validatePath( std::string path, std::string target , int flags );
+		bool			validateDirectoryListing( std::string &);
 	public:
 		config();
 		config(char *confPath);
@@ -38,7 +39,6 @@ class config
 		std::string		&getDirectoryListing( void );
 		bool			allowedMETHOD( std::string );
 		bool			allowedURI( std::string, std::string );
-		bool			validateDirectoryListing( std::string &);
 		// bool			allowedGET(  );
 		// bool			allowedPOST( void );
 		// bool			allowedDELETE( void );

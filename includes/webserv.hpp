@@ -68,6 +68,7 @@ using std::make_pair;
 #define HTTP				"HTTPVERS"
 #define MAX_EVENTS			10
 #define KRISI_TESTING		1
+#define DEBUG				0
 
 ///misc.cpp
 bool						file_exists (const std::string& name);

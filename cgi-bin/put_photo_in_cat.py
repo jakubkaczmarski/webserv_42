@@ -3,12 +3,12 @@
 import os
 
 
-file = open("/workspaces/webserv_42/database/default_index_.html", "r")			#oppening the html for reading
+file = open("./database/default_index_.html", "r")			#oppening the html for reading
 
 
 replaced_content = ""															#initialising an empty string 
 intra = os.environ["QUERY_STRING"].split('=')[1]								#getting the intra login
-new_path = "/workspaces/webserv_42/database/intraPictures/" + intra + '.jpg'	#prepraing the path
+new_path = "../database/intraPictures/" + intra + '.jpg'	#prepraing the path
 
 
 for line in file:																#line by line reading

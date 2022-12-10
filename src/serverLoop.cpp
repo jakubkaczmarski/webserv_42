@@ -141,20 +141,21 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 	
 }
 
-void	Server::setErrorStatusCodeAndRespond(std::vector<connecData*>::iterator it, std::string err)
+void	Server::setErrorStatusCodeAndRespond(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string err)
 {
+	cout << SKY << __func__ << RESET_LINE;
 	(*it)->response.status_code = err;
-	createAndSendResponseHeaders(*(*it)->ev_p, it, err);
-	endConnection(*(*it)->ev_p);
+	createAndSendResponseHeaders(ev, it);
+	endConnection(ev);
 }
 //The function expectecs (*it)->response.status_code 
 //From it it will create the html page and send it back to the client 
-void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string statusCode)
+void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it)
 {
 	cout << SKY << __func__ << RESET_LINE;
 	
 	cout << (*it)->request.URI << endl;
-	(*it)->response.status_code = statusCode;
+	// (*it)->response.status_code = statusCode;
 	(*it)->response.statusMessage = possibleReturnCode[(*it)->response.status_code];
 	(*it)->response.headers = "HTTP/1.1 ";
 	(*it)->response.headers.append((*it)->response.status_code);

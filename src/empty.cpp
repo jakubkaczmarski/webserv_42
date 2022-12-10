@@ -15,28 +15,76 @@ std::vector<connecData*>::iterator		Server::findStructVectorIt( struct epoll_eve
 	return (it);
 }
 
+// void	Server::endConnection( struct epoll_event ev )
+// {
+// 	cout << SKY << __func__ << RESET_LINE;
+	
+// 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+// 	if((*it)->request.file_two != 0)
+// 	{
+// 		fclose((*it)->request.file_two);
+// 	}
+// 	if((*it)->response.body_fd != 0)
+// 	{
+// 		close((*it)->response.body_fd);	
+// 	}
+// 	if(it != connections.end())
+// 	{
+// 		delete (*it);
+// 		connections.erase(it);
+// 	}
+// 	cout << "jhello" << endl;
+// 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+// 	cout << "jhello" << endl;
+// 	close(ev.data.fd);	
+// 	cout << "jhello" << endl;
+// }
+
+
 void	Server::endConnection( struct epoll_event ev )
 {
+	
 	cout << SKY << __func__ << RESET_LINE;
 	
-	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
-	if((*it)->request.file_two != 0)
-	{
-		fclose((*it)->request.file_two);
-	}
-	if((*it)->response.body_fd != 0)
-	{
-		close((*it)->response.body_fd);	
-	}
+	std::vector<connecData*>::iterator it = findStructVectorIt(ev);
 	if(it != connections.end())
 	{
-		delete (*it);
-		connections.erase(it);
+		if((*it)->request.file_two != 0)
+		{
+			fclose((*it)->request.file_two);
+		}
+		if((*it)->response.body_fd != 0)
+		{
+			close((*it)->response.body_fd); 
+		}
+		if(it != connections.end())
+		{
+			delete (*it);
+			connections.erase(it);
+		}
 	}
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
-	close(ev.data.fd);					// fd for the response socket
+	close(ev.data.fd);     // fd for the response socket
+ // cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
+
+	// cout << SKY << __func__ << RESET_LINE;
+	
+	// std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
+	// if((*it)->response.body_fd != 0)
+	// {
+	// 	close((*it)->response.body_fd);	
+	// }
+	// delete (*it);
+	// connections.erase(it);
+	// epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
+	// close(ev.data.fd);					// fd for the response socket
+	// if((*it)->request.file_two != 0)
+	// {
+	// 	fclose((*it)->request.file_two);
+	// }
 	// cout << PURPLE << (*it)->response.body_fd << RESET_LINE;
 }
+
 
 void	Server::confusedEpoll( struct epoll_event ev )
 {

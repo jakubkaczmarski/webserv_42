@@ -14,8 +14,9 @@ void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator
 		cout << RED << "WRONG CGI PATH" << RESET_LINE;
 		// handleGet(it);
 
-		createAndSendResponseHeaders(ev ,it, "404");
-		// endResponse();
+		setErrorStatusCodeAndRespond(ev, it, "404");
+		// createAndSendResponseHeaders(ev ,it, "404");
+		// endConnection();
 		return ;
 	}
 
@@ -55,7 +56,7 @@ void 	Server::handlePost( std::vector<connecData*>::iterator it, struct epoll_ev
 	cout << SKY << __func__ << RESET_LINE;
 	std::string extension = getExtensionFromRequestPost(it);
 	// if(extension.empty())
-	// 	endResponse(ev);
+	// 	endConnection(ev);
 
 	(*it)->response.content_type = extension;
 	createAndSendResponseHeaders(ev, it);
