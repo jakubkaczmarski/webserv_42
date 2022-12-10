@@ -212,7 +212,7 @@ void			config::validatePath( std::string path, std::string target , int flags)
 		cout << RESET;
 		exit(-1);
 	}
-	if (target != DIR)
+	if (target != DIR && target != UPLOADDIR)
 		configMap[target] = tmp;
 }
 
@@ -358,6 +358,7 @@ bool			config::allowedURI( std::string URI, std::string method )
 	}
 	else if (method.compare("POST") == 0 || method.compare("DELETE") == 0)
 	{
+		cout << URI << " " << configMap[UPLOADDIR] << endl;
 		if(configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
 			return (true);
 	}
