@@ -45,8 +45,11 @@ bool	Server::validateRequest( struct epoll_event ev )
 	// cout << "this is before expansion" << (*it)->request.URI << endl;
 	if((*it)->request.URI == "/")
 	{
+		if (servConfig.getDirectoryListing().compare("yes") == 0)
+			(*it)->request.URI = DIR_LISTING_SCRIPT;
+		else
+			(*it)->request.URI = DEFAULTPAGE;
 		cout << "got into if" << endl;
-		(*it)->request.URI = DEFAULTPAGE;
 	}
 	// cout << "this is after expansion" << (*it)->request.URI << endl;
 	if (servConfig.allowedURI((*it)->request.URI, (*it)->request.method) == false)
