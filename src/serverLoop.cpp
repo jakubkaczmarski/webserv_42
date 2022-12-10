@@ -142,6 +142,7 @@ void	Server::prepareResponseHeader( std::vector<connecData*>::iterator it ,struc
 
 void	Server::setErrorStatusCodeAndRespond(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string err)
 {
+	cout << SKY << __func__ << RESET_LINE;
 	(*it)->response.status_code = err;
 	createAndSendResponseHeaders(ev, it);
 	endConnection(ev);
