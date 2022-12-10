@@ -37,7 +37,7 @@
 #define UPLOADDIR		"uploadDir"
 #define DIR_LISTING		"directoryListing"
 
-#define DIRERRORPATH    "/database/DirRequestError.jpeg"
+#define DIRERRORPATH    "/database/default_index_.html"
 #define DEFAULTPAGE     "/database/default_index.html"
 
 // PATH defines
