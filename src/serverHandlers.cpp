@@ -154,14 +154,11 @@ void	Server::handleGet(std::vector<connecData*>::iterator it, struct epoll_event
 	(*it)->response.content_type = extension;
 	(*it)->response.content_lenght_str = conv.str();
 	createAndSendResponseHeaders(ev, it);
-	cout << "hello" << endl;
 	(*it)->response.body_fd = fileno((*it)->request.file_two);
-	cout << "hello 2" << endl;
 
 	// std::cout << (*it)->response.headers << std::endl;
 	rewind((*it)->request.file_one);
 	fclose((*it)->request.file_one);
-	cout << "hello 3" << endl;
 }
 
 std::string	Server::getExtensionFromRequestGet(std::vector<connecData*>::iterator it)

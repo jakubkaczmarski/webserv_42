@@ -112,13 +112,12 @@ class Server
 		void			sendResponse( struct epoll_event ev );
 		std::vector<connecData*>::iterator				findStructVectorIt( struct epoll_event ev);
 		bool			doneReadingRequest( struct epoll_event ev, std::vector<connecData*>::iterator it );
-		void			endResponse( struct epoll_event ev );
+		void			endConnection( struct epoll_event ev );
 		void			confusedEpoll( struct epoll_event ev );
 		void			prepareResponseHeader( std::vector<connecData*>::iterator it, struct epoll_event	ev );
 		void			createAndSendResponseHeaders(struct epoll_event	ev, std::vector<connecData*>::iterator it, std::string statusCode = "200");
 		void			handle_cgi(std::vector<connecData *>::iterator it);
 		bool			validateRequest( struct epoll_event ev );
-		void			stopInvaldiRequest( struct epoll_event ev );
 		void			URIisDirectory(s_request &req);
 		void			setErrorStatusCodeAndRespond(std::vector<connecData*>::iterator it, std::string err);
 

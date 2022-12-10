@@ -45,7 +45,8 @@ bool	Server::validateRequest( struct epoll_event ev )
 	// cout << "this is before expansion" << (*it)->request.URI << endl;
 	if((*it)->request.URI == "/")
 	{
-		cout << "got into if" << endl;
+		if (DEBUG)
+			cout << "got into if" << endl;
 		(*it)->request.URI = DEFAULTPAGE;
 	}
 	// cout << "this is after expansion" << (*it)->request.URI << endl;
