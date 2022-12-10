@@ -248,11 +248,6 @@ void	Server::sendResponse( struct epoll_event ev )
 		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
 		if(sendReturn < MAX_LINE)
 		{
-			if ((*it)->isCGI)
-			{
-				// cout << PURPLE << "NEED TO REMOVE THE FILE NOW" << RESET_LINE;
-				remove((*it)->fileNameCGI.c_str());
-			}
 			endConnection(ev);
 		}
 	}

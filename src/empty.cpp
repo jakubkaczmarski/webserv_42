@@ -49,6 +49,10 @@ void	Server::endConnection( struct epoll_event ev )
 	std::vector<connecData*>::iterator it = findStructVectorIt(ev);
 	if(it != connections.end())
 	{
+		if ((*it)->isCGI)
+		{
+			remove((*it)->fileNameCGI.c_str());
+		}
 		if((*it)->request.file_two != 0)
 		{
 			fclose((*it)->request.file_two);
