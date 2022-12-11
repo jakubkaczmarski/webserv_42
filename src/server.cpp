@@ -213,7 +213,8 @@ void	Server::fillInPossibleTypes()
 	{
 		{"py", "/usr/bin/python3"},
 		{"sh", "/bin/sh"},
-		{"pl", "/usr/bin/perl"}
+		{"pl", "/usr/bin/perl"},
+		{"php", "/usr/bin/php"}
 	};
 }
 
