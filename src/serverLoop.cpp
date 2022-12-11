@@ -263,7 +263,8 @@ void	Server::sendResponse( struct epoll_event ev )
 
 		// cout << "sendreturn = " << sendReturn << endl <<  sendBuffer << endl << "end of buffer print" <<  endl;
 
-		failTest(sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0), "Sending fractional Response body");
+		// failTest(
+		sendReturn = send((*it)->socket, sendBuffer, sendReturn, 0);
 		if(sendReturn < MAX_LINE)
 		{
 			endConnection(ev);

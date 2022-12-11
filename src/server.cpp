@@ -6,7 +6,7 @@ void	Server::failTest( int check, string message )
 	{
 		cerr << RED << message << " < 0! Abort!" << RESET_LINE;
 		cerr << RED << "Errno message : " << strerror(errno) << RESET_LINE;
-		exit(-1);
+		exit(1);
 	}
 }
 
