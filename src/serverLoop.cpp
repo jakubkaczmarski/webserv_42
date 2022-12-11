@@ -108,12 +108,11 @@ bool	Server::doneReadingRequest( struct epoll_event ev, std::vector<connecData*>
 	epoll_ctl(epollFD, EPOLL_CTL_DEL, ev.data.fd, &ev);
 	if (parseRequest(ev) == false)
 	{
-		if (DEBUG)
-			cout << "parseRequest -- false" << endl;
+		// if (DEBUG)
+			cout << "parseRequest == false" << endl;
 		return false;
 	}
-	if (DEBUG)
-		cout << "parseRequest -- false" << endl;
+			cout << "parseRequest == true" << endl;
 	ev = createEpollStruct((*it)->socket, EPOLLOUT);
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 	(*it)->finishedRequest = true;

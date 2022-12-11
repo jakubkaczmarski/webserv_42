@@ -4,14 +4,17 @@
 
 std::vector<connecData*>::iterator		Server::findStructVectorIt( struct epoll_event ev)
 {
+		cout << SKY << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = connections.begin();
 	std::vector<connecData*>::iterator	it_e = connections.end();
 
 	for (; it != it_e; it++)
 	{
+		// cout << YELLOW << "for loop" << RESET_LINE;
 		if(ev.data.fd == (*it)->socket)
 			break ;
 	}
+	// cout << YELLOW << "exit loop" << RESET_LINE;
 	return (it);
 }
 

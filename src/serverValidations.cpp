@@ -85,7 +85,7 @@ bool	Server::validateRequest( struct epoll_event ev )
 		cout << "hieeeeloo" << (*it)->request.headers.at("content-length") << endl;
 		if (ft_atoi((*it)->request.headers.at("content-length").c_str()) > servConfig.getClientMaxBody())
 		{
-			cout << RED << "Request rejected because of CONTENT-LENGTH IS TOO BIG: " << ft_atoi((*it)->request.headers.at("Content-Length").c_str()) << RESET_LINE;
+			cout << RED << "Request rejected because of CONTENT-LENGTH IS TOO BIG: " << ft_atoi((*it)->request.headers.at("content-length").c_str()) << RESET_LINE;
 			setErrorStatusCodeAndRespond(ev, it, "413");
 			// stopInvaldiRequest(ev);
 			return (false);

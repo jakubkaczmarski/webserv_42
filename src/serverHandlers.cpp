@@ -240,6 +240,7 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 	for( j = pos + 15; (*it)->request.raw[j] != '\n'; j++)
 	{
 	}
+
 	(*it)->response.content_lenght_str =  (*it)->request.raw.substr(pos + 15, j - 15 - pos);
 	(*it)->request.content_size = ft_atoi(((*it)->request.raw.substr(pos + 15, j - 15 - pos)).c_str());
 	if((*it)->request.content_size  == 0)
@@ -257,6 +258,8 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 	(*it)->request.body = (*it)->request.raw.substr(body_pos + 4, (*it)->request.raw.length() - body_pos - 4);
 	while((*it)->request.URI[i] && (*it)->request.URI[i] != '.')
 	{
+		if(i == 0)
+			break; 
 		i--;
 	}
 	extension.append((*it)->request.URI.substr(i, (*it)->request.URI.length() - i));
