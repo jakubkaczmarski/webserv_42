@@ -6,7 +6,7 @@ void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator
 	cout << SKY << __func__ << ": isCGI!" << RESET_LINE;
 
 	//check if path to script is legit maybe?
-	if (checkCGIPaths(it, ev) == false)
+	if (checkCGIPaths(it) == false)
 	{
 		// (*it)->request.URI = "/database/Error_404.png";
 		// (*it)->response.status_code = "404";
@@ -222,7 +222,7 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 		return extension;
 	}
 
-	int pos = (*it)->request.raw.find("content-length: ");
+	long unsigned int pos = (*it)->request.raw.find("content-length: ");
 	if(pos == (*it)->request.raw.npos)
 	{
 		pos = (*it)->request.raw.find("Content-Length: ");

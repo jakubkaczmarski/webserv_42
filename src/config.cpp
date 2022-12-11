@@ -395,10 +395,6 @@ bool			config::allowedURI( std::string URI, std::string method )
 
 bool			config::validateDirectoryListing( void )
 {
-	if(str.empty())
-	{
-
-	}
 	if ((configMap.at(DIR_LISTING).compare("yes") == 0)
 		|| (configMap.at(DIR_LISTING).compare("no") == 0))
 		return (true) ;
