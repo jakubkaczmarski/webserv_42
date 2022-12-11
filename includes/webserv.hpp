@@ -76,5 +76,8 @@ bool						file_exists (const std::string& name);
 std::vector<std::string>	split(std::string &str, const char sep, const int &flag=0);
 int							ft_atoi(const char *nptr);
 struct epoll_event			createEpollStruct(int fdSocket, uint32_t flags);
+char						*ft_itoa(int n);
+
+
 
 #endif //WERBSERV_HPP

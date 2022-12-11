@@ -25,7 +25,10 @@ bool Server::checkCGIPaths(std::vector<connecData*>::iterator it)
 
 	// cout << GREEN << "Path after GET " << path << "  " << (*it)->request.URI << RESET_LINE;
 		// std::string path = split(pathSplit[1], '?')[1];
-	std::ifstream file(PATH_TO_SCRIPTS + path);
+	std::ifstream file;
+	std::string		filepath;
+	filepath = PATH_TO_SCRIPTS + path;
+	file.open(filepath.c_str());
 	if (file.good())
 	{
 		cout << YELLOW << "FILE IS GOOD" << endl;

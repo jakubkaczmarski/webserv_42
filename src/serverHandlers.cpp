@@ -23,8 +23,9 @@ void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator
 
 	(*it)->isCGI = true;
 	cout << YELLOW << "URI is: " << (*it)->request.URI << RESET_LINE;
-	objectCGI.setEnvironment(it, servConfig); 
-	(*it)->fileNameCGI = DEFAULT_CGI_FILE_PATH + std::to_string((*it)->socket) + "_fileCGI.html";
+	objectCGI.setEnvironment(it, servConfig);
+	std::string sktStr =  ft_itoa((*it)->socket);
+	(*it)->fileNameCGI = DEFAULT_CGI_FILE_PATH + sktStr + "_fileCGI.html";
 	
 	FILE * fileCGI= fopen((*it)->fileNameCGI.c_str(), "w");				//create file to write to
 	if (!file_exists((*it)->fileNameCGI))
@@ -43,7 +44,10 @@ void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator
 		dup2(fdFileCGI, 1);												// change output stream to the CGI file;
 		char **env = objectCGI.envToDoubleCharacterArray();//!!!!!!!!!!!//THIS NEEDS TO BE FREED SOMEWHERE
 		std::string executablePath = PATH_TO_SCRIPTS + objectCGI.env.at("SCRIPT_NAME");
-		execve((executablePath).c_str(), NULL, env);
+		char *arr[2];
+		arr[0] = strdup(executablePath.c_str());
+		arr[1] = NULL;
+		execve((executablePath).c_str(), arr, env);
 		perror("\nExecve: ");
 		free(env);
 		exit(33);
