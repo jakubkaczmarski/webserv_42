@@ -15,7 +15,6 @@ void		Server::requestLoop( void )
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
 
 	// cout << "epollFD: " << epollFD << endl << "serverSocket: " << serverSocket << endl;
-	int lel[2];
 	while(1)
 	{
 		// cout << "calling epoll_wait" << endl;
@@ -244,7 +243,6 @@ void	Server::sendResponse( struct epoll_event ev )
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	char								sendBuffer[MAX_LINE];
 	int									sendReturn;
-	int									readReturn;
 	
 	if ((*it)->request.fd != 0) // process request body
 	{

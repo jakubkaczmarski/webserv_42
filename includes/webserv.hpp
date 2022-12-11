@@ -1,6 +1,7 @@
 #ifndef WERBSERV_HPP
 #define WERBSERV_HPP
 
+#include <stdlib.h>
 #include <sys/socket.h>		// Needed for socket creating and binding
 #include <netinet/in.h>		// Needed to use struct sockaddr_in
 #include <iostream>

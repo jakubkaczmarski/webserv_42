@@ -132,7 +132,7 @@ void	Server::handleGet(std::vector<connecData*>::iterator it, struct epoll_event
 		(*it)->request.file_one  = fopen(("." + (*it)->request.URI).c_str(), "rb");
 		(*it)->request.file_two  = fopen(("." + (*it)->request.URI).c_str(), "rb");
 	}
-	if((*it)->request.file_one  == nullptr)
+	if((*it)->request.file_one  == NULL)
 	{
 		//For errors
 		(*it)->response.status_code = "404";
@@ -244,7 +244,7 @@ std::string	Server::getExtensionFromRequestPost(std::vector<connecData*>::iterat
 		//Nothing to send
 		return extension;
 	}
-	int body_pos = (*it)->request.raw.find("\r\n\r\n");
+	unsigned body_pos = (*it)->request.raw.find("\r\n\r\n");
 	if(body_pos == (*it)->request.raw.npos)
 	{
 		(*it)->response.status_code = "204";

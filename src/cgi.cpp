@@ -2,7 +2,7 @@
 
 // void handleCGI is in serverHandlers.cpp
 
-bool Server::checkCGIPaths(std::vector<connecData*>::iterator it, struct epoll_event ev)
+bool Server::checkCGIPaths(std::vector<connecData*>::iterator it)
 {	
 	cout << YELLOW << __func__ << RESET_LINE;
 	std::string path = (*it)->request.URI;
@@ -69,7 +69,7 @@ std::string getBodyPostRequestCGI(std::vector<connecData*>::iterator it)
 {
 	cout << GREEN << __func__ << RESET_LINE;
 
-	int pos = (*it)->request.raw.find("\r\n\r\n");
+	unsigned pos = (*it)->request.raw.find("\r\n\r\n");
 	if(pos == (*it)->request.raw.npos || pos + 1 >= (*it)->request.raw.length())
 	{
 		return "empty_body=oh_no";

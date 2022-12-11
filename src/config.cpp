@@ -1,6 +1,7 @@
 #include "../includes/config.hpp"
 #include <fstream> //for opening files
 #include <signal.h>
+ #include <unistd.h>
 
 #define vec_it std::vector<std::string>::iterator
 #define map_it std::map<std::string, std::string>::iterator
@@ -394,6 +395,10 @@ bool			config::allowedURI( std::string URI, std::string method )
 
 bool			config::validateDirectoryListing(std::string &str)
 {
+	if(str.empty())
+	{
+
+	}
 	if ((configMap.at(DIR_LISTING).compare("yes") == 0)
 		|| (configMap.at(DIR_LISTING).compare("no") == 0))
 		return (true) ;
