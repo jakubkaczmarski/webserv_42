@@ -6,15 +6,16 @@ void	Server::handleCGI(struct epoll_event	ev, std::vector<connecData*>::iterator
 	cout << SKY << __func__ << ": isCGI!" << RESET_LINE;
 
 	//check if path to script is legit maybe?
-	if (checkCGIPaths(it) == false)
+	if (checkCGIPaths(it, ev) == false)
 	{
 		// (*it)->request.URI = "/database/Error_404.png";
 		// (*it)->response.status_code = "404";
 
 		cout << RED << "WRONG CGI PATH" << RESET_LINE;
 		// handleGet(it);
-
-		setErrorStatusCodeAndRespond(ev, it, "404");
+		if ((*it)->response.status_code.compare("500") != 0)
+			(*it)->response.status_code = "404";
+		setErrorStatusCodeAndRespond(ev, it, (*it)->response.status_code);
 		// createAndSendResponseHeaders(ev ,it, "404");
 		// endConnection();
 		return ;

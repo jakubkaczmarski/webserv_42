@@ -2,7 +2,7 @@
 
 // void handleCGI is in serverHandlers.cpp
 
-bool Server::checkCGIPaths(std::vector<connecData*>::iterator it)
+bool Server::checkCGIPaths(std::vector<connecData*>::iterator it, struct epoll_event ev)
 {	
 	cout << YELLOW << __func__ << RESET_LINE;
 	std::string path = (*it)->request.URI;
@@ -33,6 +33,7 @@ bool Server::checkCGIPaths(std::vector<connecData*>::iterator it)
 		if (pathSplit.size() != 2)
 		{
 			std::cerr << "Unsupported script type\n";
+			(*it)->response.status_code = "500";
 			return (false);
 		}
 		string extension = pathSplit[1];
@@ -43,6 +44,7 @@ bool Server::checkCGIPaths(std::vector<connecData*>::iterator it)
 		catch(const std::exception& e)
 		{
 			std::cerr << "The server does not recognise the script type\n";
+			(*it)->response.status_code = "500";
 			return (false);
 		}
 		

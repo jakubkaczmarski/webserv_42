@@ -93,7 +93,7 @@ class Server
 		void 			handleGet( std::vector<connecData*>::iterator it, struct epoll_event	ev);
 		void			handleCGI( struct epoll_event	ev, std::vector<connecData*>::iterator it);
 
-		bool			checkCGIPaths(std::vector<connecData*>::iterator it);
+		bool			checkCGIPaths(std::vector<connecData*>::iterator it, struct epoll_event	ev);
 		void			fillScriptsCGI(void);
 		std::string 	getPossibleType(std::string type, bool first);
 		void			failTest( int check, std::string message );
