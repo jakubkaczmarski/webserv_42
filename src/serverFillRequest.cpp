@@ -5,7 +5,11 @@ bool	Server::parseRequest( struct epoll_event ev )
 	cout << SKY << __func__ << RESET_LINE;
 	std::vector<connecData*>::iterator	it = findStructVectorIt(ev);
 	// validateRequest(ev);
-
+	if ((*it)->request.raw.empty())
+	{
+		cout << RED << "EMPTY request" << RESET_LINE;
+		return(false);
+	}
 	fillRequestLineItems(it);
 	cout << "debugging uri 1 = " << (*it)->request.URI << endl;
 	URIisDirectory((*it)->request);
@@ -25,6 +29,13 @@ void Server::fillRequestLineItems(std::vector<connecData*>::iterator	it)
 	cout << PURPLE << __func__ << RESET_LINE;
 
 	std::string	requestLine = (*it)->request.raw.substr(0, (*it)->request.raw.find('\n'));
+	if ((*it)->request.raw.empty())
+	{
+		(*it)->request.method		= "GET";
+		(*it)->request.URI			= "/";
+		(*it)->request.httpVers		= HTTP;
+		return ;
+	}
 	std::vector<string> requestLineV = split(requestLine, ' ');
 	(*it)->request.method		= requestLineV[0];
 	(*it)->request.URI			= requestLineV[1];
