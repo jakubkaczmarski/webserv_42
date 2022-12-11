@@ -76,6 +76,10 @@ void	Server::readRequest( struct epoll_event ev )
 	memset(recBuffer, 0, MAX_LINE);	
 	// fullRequest.clear();
 	failTest(recReturn = recv(ev.data.fd , recBuffer, MAX_LINE, 0), "recReturn in do requeststuff");
+	if (recReturn < 0)
+	{
+		endConnection(ev);
+	}
 	(*it)->request.raw.append(recBuffer, recReturn);
 	if (recReturn < MAX_LINE) 
 	{
@@ -223,7 +227,10 @@ void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<con
 	//If the response is different than 200 change html 
 	//
 	// std::cout << "Sending stuff" << std::endl;
-	send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0);
+	if (send((*it)->socket, (*it)->response.headers.c_str(), (*it)->response.headers.length(), 0) < 0)
+	{
+		endConnection(ev);
+	}
 
 	// if(!((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0))
 	// 	endConnection(*(*it)->ev_p);

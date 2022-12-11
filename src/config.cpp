@@ -242,12 +242,12 @@ void	config::initDefaultConfig( void )
 	configMap[PORT] = "3332";
 	configMap[CLIENTMAXBODY] = "1000000";
 	configMap[ERROR404] = "/database/Error_404.png";
-	configMap[METHODS] = "GET";
 	configMap[ROOT] = "/workspaces/webserv_42";
-	configMap[DIR] = "/";
-	configMap[UPLOADDIR] = "/database/uploads"; 
+	configMap["CGIDIR"] = "/cgi-bin";
+	configMap[DIR] = "/database";
+	configMap[UPLOADDIR] = "/uploads"; 
 	configMap[HTTP] = HTTPVERSION;
-	configMap[DIR_LISTING] = "no";
+	configMap[DIR_LISTING] = "yes";
 	methods["GET"] = true;
 	methods["POST"] = true;
 	methods["DELETE"] = true;
@@ -328,16 +328,12 @@ bool			config::allowedMETHOD( std::string meth )
 bool			config::allowedURI( std::string URI, std::string method )
 {
 	cout << ON_PURPLE << __func__ << RESET_LINE;
-	if (DEBUG)
-		cout << " this is " << URI << endl;
+	// cout << "we are before get if "<< endl;
 
-	if (DEBUG)
-		cout << " this is dir" << configMap[DIR] << endl;
-	if (DEBUG)
-		cout << " this is cgidir" << configMap[CGIDIR] << endl;
 	if (method.compare("GET") == 0)
 	{
 		// cout << configMap[DIR] << " " << URI.substr(0, configMap[DIR].size())<< endl;
+
 		if (DEBUG)
 			cout << "comparing paths in get" << endl;
 		if (configMap[DIR].compare(URI.substr(0, configMap[DIR].size())) == 0)
@@ -357,7 +353,8 @@ bool			config::allowedURI( std::string URI, std::string method )
 			if((*it).compare(URI) == 0)
 				return(true);
 		}
-		
+		if (URI.compare("/favicon.ico") == 0)
+			return (true);
 		if (DEBUG)
 			cout << "return false 1" << endl;
 		return (false);
