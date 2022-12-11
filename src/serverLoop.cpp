@@ -163,7 +163,7 @@ void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<con
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
 	std::string response_page ;
-	if((*it)->response.status_code.compare("200") == 0)
+	if((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0)
 	{
 		(*it)->response.headers.append("Content-Length: ");
 		(*it)->response.headers.append((*it)->response.content_lenght_str);

@@ -4,6 +4,7 @@
 
 #define	confMapType	std::map<std::string, std::string>
 #define	methodmap	std::map<std::string, bool>
+#define postedvec	std::vector<std::string>
 
 
 class config
@@ -12,6 +13,7 @@ class config
 		confMapType		configMap;
 		bool			configOutcome;
 		methodmap		methods;
+		postedvec		postedFilePaths;
 
 		void			initDefaultConfig( void );
 		void			validateConfig( void );

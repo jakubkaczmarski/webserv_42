@@ -352,20 +352,43 @@ bool			config::allowedURI( std::string URI, std::string method )
 				cout << "return true" << endl;
 			return (true);
 		}
+		for (vec_it it = postedFilePaths.begin(); it != postedFilePaths.end(); it++)
+		{
+			if((*it).compare(URI) == 0)
+				return(true);
+		}
+		
 		if (DEBUG)
 			cout << "return false 1" << endl;
 		return (false);
 	}
-	else if (method.compare("POST") == 0 || method.compare("DELETE") == 0)
+	else if (method.compare("POST") == 0)
 	{
 		cout << URI << " " << configMap[UPLOADDIR] << endl;
 		if(configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
+		{
+			postedFilePaths.push_back(URI);
 			return (true);
-	}
-	if (method.compare("POST") == 0)
-	{
+		}
 		if (configMap[CGIDIR].compare(URI.substr(0, configMap[CGIDIR].size()))== 0)
 			return (true);
+	}
+	else if (method.compare("DELETE") == 0)
+	{
+		cout << URI << " " << configMap[UPLOADDIR] << endl;
+		if(configMap[UPLOADDIR].compare(URI.substr(0, configMap[UPLOADDIR].size()))== 0)
+		{
+			for (vec_it it = postedFilePaths.begin(); it != postedFilePaths.end(); it++)
+			{
+				if((*it).compare(URI) == 0)
+				{
+					cout << "erasing path from vector" << endl;	
+					postedFilePaths.erase(it);
+					break ;
+				}
+			}	
+			return (true);
+		}
 	}
 	if (DEBUG)
 		cout << "return false 2" << endl;

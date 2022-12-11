@@ -14,6 +14,7 @@ bool	Server::parseRequest( struct epoll_event ev )
 	cout << "debugging uri 3 = " << (*it)->request.URI << endl;
 	fillRequestBody(it);
 	cout << GREEN << (*it)->request.cgi_data << RESET_LINE;
+	cout << "Body length: " << (*it)->request.body.size() << endl;
 	// if (KRISI_TESTING)
 	// 	return(true);
 	return (validateRequest(ev));
@@ -78,6 +79,15 @@ void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 		begin		= (*it)->request.raw.find("\r\n\r\n") + 4;
 		cout << "XD LOL " << endl;
 		size		= stoi((*it)->request.headers.at("content-length"));
+		cout << "XD LOL " << endl;
+		std::string	body = (*it)->request.raw.substr(begin, size);			//still have to do (what if big body .. idea is to char* to data(+size of headers))
+		(*it)->request.body = body;
+	}
+	if ((*it)->request.headers.end() != (*it)->request.headers.find("Content-Length")) // or 
+	{
+		begin		= (*it)->request.raw.find("\r\n\r\n") + 4;
+		cout << "XD LOL " << endl;
+		size		= stoi((*it)->request.headers.at("Content-Length"));
 		cout << "XD LOL " << endl;
 		std::string	body = (*it)->request.raw.substr(begin, size);			//still have to do (what if big body .. idea is to char* to data(+size of headers))
 		(*it)->request.body = body;
