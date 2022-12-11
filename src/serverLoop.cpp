@@ -163,7 +163,7 @@ void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<con
 	(*it)->response.headers.append((*it)->response.statusMessage);
 	(*it)->response.headers.append("\n");
 	std::string response_page ;
-	if((*it)->response.status_code.compare("200") == 0 || (*it)->response.status_code.compare("404") == 0)
+	if((*it)->response.status_code.compare("200") == 0)
 	{
 		(*it)->response.headers.append("Content-Length: ");
 		(*it)->response.headers.append((*it)->response.content_lenght_str);
@@ -172,7 +172,25 @@ void	Server::createAndSendResponseHeaders(struct epoll_event	ev, std::vector<con
 		(*it)->response.headers.append("Content-Type: ");
 		(*it)->response.headers.append((*it)->response.content_type);
 		(*it)->response.headers.append("\n");
-	}else{
+	}else if((*it)->response.status_code.compare("404") == 0)
+    {
+    
+        std::ifstream t("./database/error.html");
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+        std::string s = buffer.str();
+        (*it)->response.headers.append("Content-Length: ");
+        (*it)->response.headers.append("\n");
+        std::stringstream ss;
+        ss << s.length();
+        t.close();
+        (*it)->response.headers.append(ss.str());
+        (*it)->response.headers.append("Connection: Closed\n");
+        (*it)->response.headers.append("Content-Type: ");
+        (*it)->response.headers.append("text/html");
+        (*it)->response.headers.append("\r\n\r\n");    
+        (*it)->response.headers.append(s);
+    }else{
 		response_page = "<!DOCTYPE html>";
 		response_page.append("\n");
 		response_page.append("<html lang=\"en\">\n");
