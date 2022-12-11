@@ -18,14 +18,13 @@ typedef struct t_request
 	std::string								httpVers;
 	std::map<std::string, std::string>		headers;
 	std::string								body; //for now string
-	int										already_sent = 0;
+	int										already_sent;
 	char*									body_in_char;
-	int										fd = 0;
+	int										fd;
 	long long								content_size;
 	std::string								cgi_data;
 	FILE	*								file_one;
 	FILE	*								file_two;
-
 }	s_request;
 
 typedef struct t_response
@@ -35,7 +34,7 @@ typedef struct t_response
 	std::string								statusMessage;			// number + message
 	std::string								headers;
 	int										content_lenght;
-	std::string										content_lenght_str;
+	std::string								content_lenght_str;
 	// std::string								body;
 	std::string								content_type;				// getBinary()
 	int										body_fd;
@@ -49,9 +48,8 @@ class connecData
 		int										socket;
 		s_request								request;
 		s_response								response;
-		bool									isCGI = false;
+		bool									isCGI;
 		string									fileNameCGI;
-		struct epoll_event						*ev_p;
 };
 
 #include "CGI.hpp"
@@ -66,7 +64,7 @@ class Server
 
 		// do we need this shit?
 		struct sockaddr_in	serverAddress;
-		int					sizeOfServerAddress = sizeof(serverAddress);
+		int					sizeOfServerAddress;
 
 		
 
@@ -128,26 +126,26 @@ class Server
 	public:
 		Server(): servConfig()
 		{
+			sizeOfServerAddress = sizeof(serverAddress);
 			if(servConfig.getOutcome() == false)
 			{
 				// servConfig.~config();
 				return ;
 			}
 			
-			fillScriptsCGI();
 			fillInPossibleTypes();
 			servAddressInit();
 			// currConnections = 0;
 		};
 		Server(char * confPath): servConfig(confPath)
 		{
+			sizeOfServerAddress = sizeof(serverAddress);
 			if(servConfig.getOutcome() == false)
 			{
 				// servConfig.~config();
 				cout << "returning " << endl;
 				return ;
 			}
-			fillScriptsCGI();
 			fillInPossibleTypes();
 			servAddressInit();
 			// currConnections = 0;

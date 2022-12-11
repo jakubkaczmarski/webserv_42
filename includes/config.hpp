@@ -22,7 +22,7 @@ class config
 		void			validateCMBS( void );
 		void			validateMethods( void );
 		void			validatePath( std::string path, std::string target , int flags );
-		bool			validateDirectoryListing( std::string &);
+		bool			validateDirectoryListing( void );
 	public:
 		config();
 		config(char *confPath);

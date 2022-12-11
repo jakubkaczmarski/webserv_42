@@ -393,7 +393,7 @@ bool			config::allowedURI( std::string URI, std::string method )
 	return (false);
 }
 
-bool			config::validateDirectoryListing(std::string &str)
+bool			config::validateDirectoryListing( void )
 {
 	if(str.empty())
 	{

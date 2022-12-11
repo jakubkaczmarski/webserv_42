@@ -12,7 +12,7 @@
 #include <map>				//to store the headers
 #include <fstream>			//for opening files
 #include <string>			// for getline
-
+#include <stdlib.h>
 #include <sys/types.h>		// needed for helper function to check if a file exists
 #include <sys/stat.h>
 

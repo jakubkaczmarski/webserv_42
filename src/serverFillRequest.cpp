@@ -89,7 +89,7 @@ void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 	{
 		begin		= (*it)->request.raw.find("\r\n\r\n") + 4;
 		cout << "XD LOL " << endl;
-		size		= stoi((*it)->request.headers.at("content-length"));
+		size		= atoi((*it)->request.headers.at("content-length").c_str());
 		cout << "XD LOL " << endl;
 		std::string	body = (*it)->request.raw.substr(begin, size);			//still have to do (what if big body .. idea is to char* to data(+size of headers))
 		(*it)->request.body = body;
@@ -98,7 +98,7 @@ void Server::fillRequestBody(std::vector<connecData*>::iterator	it)
 	{
 		begin		= (*it)->request.raw.find("\r\n\r\n") + 4;
 		cout << "XD LOL " << endl;
-		size		= stoi((*it)->request.headers.at("Content-Length"));
+		size		= atoi((*it)->request.headers.at("Content-Length").c_str());
 		cout << "XD LOL " << endl;
 		std::string	body = (*it)->request.raw.substr(begin, size);			//still have to do (what if big body .. idea is to char* to data(+size of headers))
 		(*it)->request.body = body;

@@ -17,6 +17,9 @@ void	Server::acceptConnection( int epollFD )
 	connecData			*tmp = new connecData();
 	struct epoll_event	ev;
 
+	tmp->request.already_sent = 0;
+	tmp->request.fd = 0;
+	tmp->isCGI = false;
 	tmp->socket = accept(serverSocket, (SA *) NULL, NULL);
 	failTest(tmp->socket, "accept new Socket");
 	tmp->finishedResponse = false;
@@ -24,7 +27,6 @@ void	Server::acceptConnection( int epollFD )
 	connections.push_back(tmp);
 	ev = createEpollStruct(tmp->socket, EPOLLIN );
 	epoll_ctl(epollFD, EPOLL_CTL_ADD, ev.data.fd, &ev);
-	tmp->ev_p = &ev;
 }
 
 void	Server::servAddressInit( void )
