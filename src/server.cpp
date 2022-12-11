@@ -143,79 +143,75 @@ void	Server::fillInPossibleTypes()
 	possibleTypes.insert(make_pair(string(".3g2" ), string( "video/3gpp2 audio/3gpp2\r\n")));
 	possibleTypes.insert(make_pair(string(".7z"), string("application/x-7z-compressed\r\n")));
 	
-	possibleReturnCode = 
-	{
-		{"100", "Continue"},
-		{"101", "Switching protocols"},
-		{"102", "Processing"},
-		{"103", "Early Hints"},
-		{"200", "OK"},
-		{"201", "Created"},
-		{"202", "Accepted"},
-		{"203", "Non-Authoritative Information"},
-		{"204", "No Content"},
-		{"205", "Reset Content"},
-		{"206", "Partial Content"},
-		{"207", "Multi-Status"},
-		{"208", "Already Reported"},
-		{"226", "IM Used"},
-		{"300", "Multiple Choices"},
-		{"301", "Moved Permanently"},
-		{"302", "Found"},
-		{"303", "See Other"},
-		{"304", "Not Modified"},
-		{"305", "Use Proxy"},
-		{"306", "Switch Proxy"},
-		{"307", "Temporary Redirect"},
-		{"308", "Permanent Redirect"},
-		{"400", "Bad Request"},
-		{"401", "Unauthorized"},
-		{"402", "Payment Required"},
-		{"403", "Forbidden"},
-		{"404", "Not Found"},
-		{"405", "Method Not Allowed"},
-		{"406", "Not Acceptable"},
-		{"407", "Proxy Authentication Required"},
-		{"408", "Request Timeout"},
-		{"409", "Conflict"},
-		{"410", "Gone"},
-		{"411", "Length Required"},
-		{"412", "Precondition Failed"},
-		{"413", "Payload Too Large"},
-		{"414", "URI Too Long"},
-		{"415", "Unsupported Media Type"},
-		{"416", "Range Not Satisfiable"},
-		{"417", "Expectation Failed"},
-		{"418", "I'm a Teapot"},
-		{"421", "Misdirected Request"},
-		{"422", "Unprocessable Entity"},
-		{"423", "Locked"},
-		{"424", "Failed Dependency"},
-		{"425", "Too Early"},
-		{"426", "Upgrade Required"},
-		{"428", "Precondition Required"},
-		{"429", "Too Many Requests"},
-		{"431", "Request Header Fields Too Large"},
-		{"451", "Unavailable For Legal Reasons"},
-		{"500", "Internal Server Error"},
-		{"501", "Not Implemented"},
-		{"502", "Bad Gateway"},
-		{"503", "Service Unavailable"},
-		{"504", "Gateway Timeout"},
-		{"505", "HTTP Version Not Supported"},
-		{"506", "Variant Also Negotiates"},
-		{"507", "Insufficient Storage"},
-		{"508", "Loop Detected"},
-		{"510", "Not Extended"},
-		{"511", "Network Authentication Required"},
-	};
-	possibleCGIPaths = 
-	{
-		{"py", "/usr/bin/python3"},
-		{"sh", "/bin/sh"},
-		{"pl", "/usr/bin/perl"},
-		{"php", "/usr/bin/php"}
-	};
+	possibleReturnCode.insert(make_pair(string("100"), string("Continue")));
+	possibleReturnCode.insert(make_pair(string("101"), string("Switching protocols")));
+	possibleReturnCode.insert(make_pair(string("102"), string("Processing")));
+	possibleReturnCode.insert(make_pair(string("103"), string("Early Hints")));
+	possibleReturnCode.insert(make_pair(string("200"), string("OK")));
+	possibleReturnCode.insert(make_pair(string("201"), string("Created")));
+	possibleReturnCode.insert(make_pair(string("202"), string("Accepted")));
+	possibleReturnCode.insert(make_pair(string("203"), string("Non-Authoritative Information")));
+	possibleReturnCode.insert(make_pair(string("204"), string("No Content")));
+	possibleReturnCode.insert(make_pair(string("205"), string("Reset Content")));
+	possibleReturnCode.insert(make_pair(string("206"), string("Partial Content")));
+	possibleReturnCode.insert(make_pair(string("207"), string("Multi-Status")));
+	possibleReturnCode.insert(make_pair(string("208"), string("Already Reported")));
+	possibleReturnCode.insert(make_pair(string("226"), string("IM Used")));
+	possibleReturnCode.insert(make_pair(string("300"), string("Multiple Choices")));
+	possibleReturnCode.insert(make_pair(string("301"), string("Moved Permanently")));
+	possibleReturnCode.insert(make_pair(string("302"), string("Found")));
+	possibleReturnCode.insert(make_pair(string("303"), string("See Other")));
+	possibleReturnCode.insert(make_pair(string("304"), string("Not Modified")));
+	possibleReturnCode.insert(make_pair(string("305"), string("Use Proxy")));
+	possibleReturnCode.insert(make_pair(string("306"), string("Switch Proxy")));
+	possibleReturnCode.insert(make_pair(string("307"), string("Temporary Redirect")));
+	possibleReturnCode.insert(make_pair(string("308"), string("Permanent Redirect")));
+	possibleReturnCode.insert(make_pair(string("400"), string("Bad Request")));
+	possibleReturnCode.insert(make_pair(string("401"), string("Unauthorized")));
+	possibleReturnCode.insert(make_pair(string("402"), string("Payment Required")));
+	possibleReturnCode.insert(make_pair(string("403"), string("Forbidden")));
+	possibleReturnCode.insert(make_pair(string("404"), string("Not Found")));
+	possibleReturnCode.insert(make_pair(string("405"), string("Method Not Allowed")));
+	possibleReturnCode.insert(make_pair(string("406"), string("Not Acceptable")));
+	possibleReturnCode.insert(make_pair(string("407"), string("Proxy Authentication Required")));
+	possibleReturnCode.insert(make_pair(string("408"), string("Request Timeout")));
+	possibleReturnCode.insert(make_pair(string("409"), string("Conflict")));
+	possibleReturnCode.insert(make_pair(string("410"), string("Gone")));
+	possibleReturnCode.insert(make_pair(string("411"), string("Length Required")));
+	possibleReturnCode.insert(make_pair(string("412"), string("Precondition Failed")));
+	possibleReturnCode.insert(make_pair(string("413"), string("Payload Too Large")));
+	possibleReturnCode.insert(make_pair(string("414"), string("URI Too Long")));
+	possibleReturnCode.insert(make_pair(string("415"), string("Unsupported Media Type")));
+	possibleReturnCode.insert(make_pair(string("416"), string("Range Not Satisfiable")));
+	possibleReturnCode.insert(make_pair(string("417"), string("Expectation Failed")));
+	possibleReturnCode.insert(make_pair(string("418"), string("I'm a Teapot")));
+	possibleReturnCode.insert(make_pair(string("421"), string("Misdirected Request")));
+	possibleReturnCode.insert(make_pair(string("422"), string("Unprocessable Entity")));
+	possibleReturnCode.insert(make_pair(string("423"), string("Locked")));
+	possibleReturnCode.insert(make_pair(string("424"), string("Failed Dependency")));
+	possibleReturnCode.insert(make_pair(string("425"), string("Too Early")));
+	possibleReturnCode.insert(make_pair(string("426"), string("Upgrade Required")));
+	possibleReturnCode.insert(make_pair(string("428"), string("Precondition Required")));
+	possibleReturnCode.insert(make_pair(string("429"), string("Too Many Requests")));
+	possibleReturnCode.insert(make_pair(string("431"), string("Request Header Fields Too Large")));
+	possibleReturnCode.insert(make_pair(string("451"), string("Unavailable For Legal Reasons")));
+	possibleReturnCode.insert(make_pair(string("500"), string("Internal Server Error")));
+	possibleReturnCode.insert(make_pair(string("501"), string("Not Implemented")));
+	possibleReturnCode.insert(make_pair(string("502"), string("Bad Gateway")));
+	possibleReturnCode.insert(make_pair(string("503"), string("Service Unavailable")));
+	possibleReturnCode.insert(make_pair(string("504"), string("Gateway Timeout")));
+	possibleReturnCode.insert(make_pair(string("505"), string("HTTP Version Not Supported")));
+	possibleReturnCode.insert(make_pair(string("506"), string("Variant Also Negotiates")));
+	possibleReturnCode.insert(make_pair(string("507"), string("Insufficient Storage")));
+	possibleReturnCode.insert(make_pair(string("508"), string("Loop Detected")));
+	possibleReturnCode.insert(make_pair(string("510"), string("Not Extended")));
+	possibleReturnCode.insert(make_pair(string("511"), string("Network Authentication Required")));
+
+	possibleCGIPaths.insert(make_pair(string("py"), string("/usr/bin/python3")));
+	possibleCGIPaths.insert(make_pair(string("sh"), string("/bin/sh")));
+	possibleCGIPaths.insert(make_pair(string("pl"), string("/usr/bin/perl")));
+	possibleCGIPaths.insert(make_pair(string("php"), string("/usr/bin/php")));
+
 }
 
 void Server::fillScriptsCGI(void)
